@@ -38,10 +38,24 @@ RTEMS_PATCHES=$(if $(wildcard ../rtems-patches/.),../rtems-patches,rtems-patches
 
 .PHONY:	all clean
 
-all: .compile.binutils.ok .compile.gcc.ok
+all: .install.gcc.ok
+
+.install.gcc.ok:
+	cd b-gcc && make install
+	touch $@
+
+.compile.gcc.ok: .install.binutils.ok .patch.ok gcc-$(GCC_CORE_VERSION)/newlib
+	mkdir -p b-gcc
+	(cd b-gcc/;\
+	../gcc-$(GCC_CORE_VERSION)/configure --target=lm32-rtems4.11 --with-gnu-as --with-gnu-ld --with-newlib --verbose --enable-threads --enable-languages="c" --disable-shared --prefix=$(RTEMS_PREFIX); \
+	make all; \
+	make info;)
+	touch $@
+
+.install.binutils.ok: .compile.binutils.ok
 	mkdir -p $(RTEMS_PREFIX)
 	cd b-binutils && make install
-	cd b-gcc && make install
+	touch $@
 
 .compile.binutils.ok: .patch.ok
 	mkdir -p b-binutils
@@ -50,15 +64,6 @@ all: .compile.binutils.ok .compile.gcc.ok
 	make all; \
 	make info;)
 	touch $@
-
-.compile.gcc.ok: .compile.binutils.ok .patch.ok gcc-$(GCC_CORE_VERSION)/newlib
-	mkdir -p b-gcc
-	(cd b-gcc/;\
-	../gcc-$(GCC_CORE_VERSION)/configure --target=lm32-rtems4.11 --with-gnu-as --with-newlib --verbose --enable-threads --enable-languages="c" --prefix=$(RTEMS_PREFIX); \
-	make all; \
-	make info;)
-	touch $@
-
 
 gcc-$(GCC_CORE_VERSION)/newlib:
 	(cd gcc-$(GCC_CORE_VERSION); ln -s ../newlib-$(NEWLIB_VERSION)/newlib; cd ..)
