@@ -39,13 +39,29 @@ RTEMS_PATCHES=$(if $(wildcard ../rtems-patches/.),../rtems-patches,rtems-patches
 .PHONY:	all clean
 
 all:
-	...
+	mkdir -p $(RTEMS_PREFIX)
+	cd b-binutils && make install
+	cd b-gcc && make install
 
-.compile.binutils.ok:
-	echo ""
+.compile.binutils.ok: .patch.ok
+	mkdir -p b-binutils
+	(cd b-binutils; \
+	../binutils-$(BINUTILS_VERSION)/configure --target=lm32-rtems4.11 --prefix=$(RTEMS_PREFIX); \
+	make all; \
+	make info;)
+	touch $@
 
-.compile.gcc.ok:
-	echo ""
+.compile.gcc.ok: .compile.binutils.ok .patch.ok gcc-$(GCC_CORE_VERSION)/newlib
+	mkdir -p b-gcc
+	(cd b-gcc/;\
+	../gcc-$(GCC_CORE_VERSION)/configure --target=lm32-rtems4.11 --with-gnu-as --with-newlib --verbose --enable-threads --enable-languages="c,lto" --prefix=$(RTEMS_PREFIX); \
+	make all; \
+	make info;)
+	touch $@
+
+
+gcc-$(GCC_CORE_VERSION)/newlib:
+	(cd gcc-$(GCC_CORE_VERSION); ln -s ../newlib-$(NEWLIB_VERSION)/newlib; cd ..)
 
 .patch.ok: .unzip.ok $(RTEMS_PATCHES)/.ok
 	(cd binutils-$(BINUTILS_VERSION); cat ../$(RTEMS_PATCHES)/$(BINUTILS_PATCH) | patch -p1)
