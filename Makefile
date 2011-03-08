@@ -38,7 +38,7 @@ RTEMS_PATCHES=$(if $(wildcard ../rtems-patches/.),../rtems-patches,rtems-patches
 
 .PHONY:	all clean
 
-all:
+all: .compile.binutils.ok .compile.gcc.ok
 	mkdir -p $(RTEMS_PREFIX)
 	cd b-binutils && make install
 	cd b-gcc && make install
@@ -54,7 +54,7 @@ all:
 .compile.gcc.ok: .compile.binutils.ok .patch.ok gcc-$(GCC_CORE_VERSION)/newlib
 	mkdir -p b-gcc
 	(cd b-gcc/;\
-	../gcc-$(GCC_CORE_VERSION)/configure --target=lm32-rtems4.11 --with-gnu-as --with-newlib --verbose --enable-threads --enable-languages="c,lto" --prefix=$(RTEMS_PREFIX); \
+	../gcc-$(GCC_CORE_VERSION)/configure --target=lm32-rtems4.11 --with-gnu-as --with-newlib --verbose --enable-threads --enable-languages="c" --prefix=$(RTEMS_PREFIX); \
 	make all; \
 	make info;)
 	touch $@
