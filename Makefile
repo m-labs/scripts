@@ -27,11 +27,11 @@ GMP=gmp-$(GMP_VERSION).tar.bz2
 MPC=mpc-$(MPC_VERSION).tar.bz2
 MPFR=mpfr-$(MPFR_VERSION).tar.bz2
 
-BINUTILS_PATCH=$(BINUTILS)-$(BINUTILS_VERSION)-$(RTEMS_VERSION)-20110107.diff
-GCC_CORE_PATCH=$(GCC_CORE)-$(GCC_CORE_VERSION)-$(RTEMS_VERSION)-20110220.diff
-NEWLIB_PATCH=$(NEWLIB)-$(NEWLIB_VERSION)-$(RTEMS_VERSION)-20110109.diff
-GCC_G++_PATCH=$(GCC_G++)-$(GCC_G++_VERSION)-$(RTEMS_VERSION)-20110131.diff
-GDB_PATCH=$(GDB)-$(GDB_VERSION)-$(RTEMS_VERSION)-20100907.diff
+BINUTILS_PATCH=binutils-$(BINUTILS_VERSION)-rtems$(RTEMS_VERSION)-20110107.diff
+GCC_CORE_PATCH=gcc-core-$(GCC_CORE_VERSION)-rtems$(RTEMS_VERSION)-20110220.diff
+NEWLIB_PATCH=newlib-$(NEWLIB_VERSION)-rtems$(RTEMS_VERSION)-20110109.diff
+GCC_G++_PATCH=gcc-g++-$(GCC_G++_VERSION)-rtems$(RTEMS_VERSION)-20110131.diff
+GDB_PATCH=gdb-$(GDB_VERSION)-rtems$(RTEMS_VERSION)-20100907.diff
 
 DL=$(if $(wildcard ../dl/.),../dl,dl)
 RTEMS_PATCHES=$(if $(wildcard ../rtems-patches/.),../rtems-patches,rtems-patches)
@@ -41,18 +41,23 @@ RTEMS_PATCHES=$(if $(wildcard ../rtems-patches/.),../rtems-patches,rtems-patches
 all:
 	...
 
-.compile.install.ok:
+.compile.binutils.ok:
 	echo ""
 
-.patch.ok: .unzip.ok $(RMTS_PATCHES)/.ok
-	(cd $(BINUTILS_VERSION); cat $(RTEMS_PATCHES)/$(BINUTILS_PATCH) | patch -p1)
-	(cd $(GCC_VERSION); cat $(RTEMS_PATCHES)/$(GCC_PATCH) | patch -p1)
-	(cd $(NEWLIB_VERSION); cat $(RTEMS_PATCHES)/$(NEWLIB_PATCH) | patch -p1)
+.compile.gcc.ok:
+	echo ""
+
+.patch.ok: .unzip.ok $(RTEMS_PATCHES)/.ok
+	(cd binutils-$(BINUTILS_VERSION); cat ../$(RTEMS_PATCHES)/$(BINUTILS_PATCH) | patch -p1)
+	(cd gcc-$(GCC_CORE_VERSION); cat ../$(RTEMS_PATCHES)/$(GCC_CORE_PATCH) | patch -p1)
+	(cd newlib-$(NEWLIB_VERSION); cat ../$(RTEMS_PATCHES)/$(NEWLIB_PATCH) | patch -p1)
+	touch $@
 
 .unzip.ok: $(DL)/$(BINUTILS).ok $(DL)/$(GCC_CORE).ok $(DL)/$(NEWLIB).ok 
 	tar xf $(DL)/$(BINUTILS)
 	tar xf $(DL)/$(GCC_CORE)
 	tar xf $(DL)/$(NEWLIB)
+	touch $@
 
 # downloads sourcees and patchesfor toolchain
 $(RTEMS_PATCHES)/.ok:
