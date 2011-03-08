@@ -69,11 +69,11 @@ $(DL)/$(BINUTILS).ok:
 	touch $@
 $(DL)/$(GCC_CORE).ok:
 	mkdir -p dl
-	wget -c -O $(DL)/$(GCC_CORE) $(RTEMS_SOURCES_URL)/C_CORE)
+	wget -c -O $(DL)/$(GCC_CORE) $(RTEMS_SOURCES_URL)/$(GCC_CORE)
 	touch $@
 $(DL)/$(GCC_G++).ok:
 	mkdir -p dl
-	wget -c -O $(DL)/$(GCC_G++) $(RTEMS_SOURCES_URL)/C_G++)
+	wget -c -O $(DL)/$(GCC_G++) $(RTEMS_SOURCES_URL)/$(GCC_G++)
 	touch $@
 $(DL)/$(NEWLIB).ok:
 	mkdir -p dl
