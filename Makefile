@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 RTEMS_VERSION=4.11
+#make sure you have wrtie access
 RTEMS_PREFIX=/opt/rtems-$(RTEMS_VERSION)
 RTEMS_SOURCES_URL=http://www.rtems.org/ftp/pub/rtems/SOURCES/$(RTEMS_VERSION)
 
@@ -49,11 +50,12 @@ RTEMS_PATCHES=$(if $(wildcard ../rtems-patches/.),../rtems-patches,rtems-patches
 
 all: .install.gcc.ok
 
-.install.gcc.ok:
+.install.gcc.ok: .compile.gcc.ok
 	cd b-gcc && make install
 	touch $@
 
 .compile.gcc.ok: .install.binutils.ok .patch.ok gcc-$(GCC_CORE_VERSION)/newlib
+	export PATH=$(RTEMS_PREFIX)/bin:$$PATH
 	mkdir -p b-gcc
 	(cd b-gcc/;\
 	../gcc-$(GCC_CORE_VERSION)/configure --target=lm32-rtems4.11 --with-gnu-as --with-gnu-ld --with-newlib --verbose --enable-threads --enable-languages="c" --disable-shared --prefix=$(RTEMS_PREFIX); \
