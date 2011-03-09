@@ -1,0 +1,45 @@
+From 4c949e314f1aa3cc5d44b25c8213a29a225fa88e Mon Sep 17 00:00:00 2001
+From: Xiangfu Liu <xiangfu@macbook.openmobilefree.net>
+Date: Wed, 9 Mar 2011 15:22:49 +0800
+Subject: [PATCH] for-milkymist-one
+
+---
+ Makefile             |    6 +++---
+ libopenjpeg/memory.h |    1 +
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+ create mode 100644 libopenjpeg/memory.h
+
+diff --git a/Makefile b/Makefile
+index eb97b94..7d46de6 100644
+--- a/Makefile
++++ b/Makefile
+@@ -8,8 +8,8 @@ INCLS = ./libopenjpeg/bio.h ./libopenjpeg/cio.h ./libopenjpeg/dwt.h ./libopenjpe
+ INCLUDE = -Ilibopenjpeg
+ 
+ # General configuration variables:
+-CC = gcc
+-AR = ar
++CC ?= gcc
++AR ?= ar
+ 
+ PREFIX = /usr
+ INSTALL_LIBDIR = $(PREFIX)/lib
+@@ -26,7 +26,7 @@ CFLAGS = $(COMPILERFLAGS) $(INCLUDE)
+ 
+ TARGET  = openjpeg
+ STATICLIB = lib$(TARGET).a
+-SHAREDLIB = lib$(TARGET)-$(VER_MAJOR).$(VER_MINOR).so
++#SHAREDLIB = lib$(TARGET)-$(VER_MAJOR).$(VER_MINOR).so
+ LIBNAME = lib$(TARGET).so.$(VER_MAJOR)
+ 
+ 
+diff --git a/libopenjpeg/memory.h b/libopenjpeg/memory.h
+new file mode 100644
+index 0000000..3b2f590
+--- /dev/null
++++ b/libopenjpeg/memory.h
+@@ -0,0 +1 @@
++#include <string.h>
+-- 
+1.7.0.4
+
