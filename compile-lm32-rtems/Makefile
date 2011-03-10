@@ -17,6 +17,7 @@
 RTEMS_VERSION=4.11
 #make sure you have wrtie access
 RTEMS_PREFIX=/opt/rtems-$(RTEMS_VERSION)
+
 RTEMS_SOURCES_URL=http://www.rtems.org/ftp/pub/rtems/SOURCES/$(RTEMS_VERSION)
 
 BINUTILS_VERSION=2.21
@@ -44,7 +45,9 @@ GCC_G++_PATCH=gcc-g++-$(GCC_G++_VERSION)-rtems$(RTEMS_VERSION)-20110131.diff
 GDB_PATCH=gdb-$(GDB_VERSION)-rtems$(RTEMS_VERSION)-20100907.diff
 
 DL=$(if $(wildcard ../dl/.),../dl,dl)
-RTEMS_PATCHES=$(if $(wildcard ../rtems-patches/.),../rtems-patches,rtems-patches)
+
+RTEMS_PATCHES_DIR=rtems-patches
+MM1_PATCHES_DIR=milkymist-one-patches
 
 .PHONY:	all clean
 
@@ -58,9 +61,12 @@ all: .install.gcc.ok
 	export PATH=$(RTEMS_PREFIX)/bin:$$PATH
 	mkdir -p b-gcc
 	(cd b-gcc/;\
-	../gcc-$(GCC_CORE_VERSION)/configure --target=lm32-rtems4.11 --with-gnu-as --with-gnu-ld --with-newlib --verbose --enable-threads --enable-languages="c" --disable-shared --prefix=$(RTEMS_PREFIX); \
-	make all; \
-	make info;)
+	  ../gcc-$(GCC_CORE_VERSION)/configure --target=lm32-rtems4.11 \
+	  --with-gnu-as --with-gnu-ld --with-newlib --verbose --enable-threads \
+	  --enable-languages="c" --disable-shared --prefix=$(RTEMS_PREFIX); \
+	 make all; \
+	 make info; \
+	)
 	touch $@
 
 .install.binutils.ok: .compile.binutils.ok
@@ -71,18 +77,22 @@ all: .install.gcc.ok
 .compile.binutils.ok: .patch.ok
 	mkdir -p b-binutils
 	(cd b-binutils; \
-	../binutils-$(BINUTILS_VERSION)/configure --target=lm32-rtems4.11 --prefix=$(RTEMS_PREFIX); \
-	make all; \
-	make info;)
+	 ../binutils-$(BINUTILS_VERSION)/configure --target=lm32-rtems4.11 --prefix=$(RTEMS_PREFIX); \
+	 make all; \
+	 make info; \
+	)
 	touch $@
 
-gcc-$(GCC_CORE_VERSION)/newlib:
-	(cd gcc-$(GCC_CORE_VERSION); ln -s ../newlib-$(NEWLIB_VERSION)/newlib; cd ..)
+gcc-$(GCC_CORE_VERSION)/newlib: .unzip.ok
+	(cd gcc-$(GCC_CORE_VERSION); ln -s ../newlib-$(NEWLIB_VERSION)/newlib;)
 
-.patch.ok: .unzip.ok $(RTEMS_PATCHES)/.ok
-	(cd binutils-$(BINUTILS_VERSION); cat ../$(RTEMS_PATCHES)/$(BINUTILS_PATCH) | patch -p1)
-	(cd gcc-$(GCC_CORE_VERSION); cat ../$(RTEMS_PATCHES)/$(GCC_CORE_PATCH) | patch -p1)
-	(cd newlib-$(NEWLIB_VERSION); cat ../$(RTEMS_PATCHES)/$(NEWLIB_PATCH) | patch -p1)
+.patch.ok: .unzip.ok $(RTEMS_PATCHES_DIR)/.ok
+	(cd binutils-$(BINUTILS_VERSION); cat ../$(RTEMS_PATCHES_DIR)/$(BINUTILS_PATCH) | patch -p1)
+	(cd gcc-$(GCC_CORE_VERSION); \
+	 cat ../$(RTEMS_PATCHES_DIR)/$(GCC_CORE_PATCH) | patch -p1; \
+	 cat ../$(MM1_PATCHES_DIR)/gcc-core-0001-support-for-the-hardware-divider.patch | patch -p1; \
+	)
+	(cd newlib-$(NEWLIB_VERSION); cat ../$(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH) | patch -p1)
 	touch $@
 
 .unzip.ok: $(DL)/$(BINUTILS).ok $(DL)/$(GCC_CORE).ok $(DL)/$(NEWLIB).ok 
@@ -92,46 +102,52 @@ gcc-$(GCC_CORE_VERSION)/newlib:
 	touch $@
 
 # downloads sourcees and patchesfor toolchain
-$(RTEMS_PATCHES)/.ok:
-	mkdir -p rtems-patches
-	wget -c -O $(RTEMS_PATCHES)/$(BINUTILS_PATCH) $(RTEMS_SOURCES_URL)/$(BINUTILS_PATCH)
-	wget -c -O $(RTEMS_PATCHES)/$(GCC_CORE_PATCH) $(RTEMS_SOURCES_URL)/$(GCC_CORE_PATCH)
-	wget -c -O $(RTEMS_PATCHES)/$(NEWLIB_PATCH) $(RTEMS_SOURCES_URL)/$(NEWLIB_PATCH)
-	#wget -c -O $(RTEMS_PATCHES)/$(GCC_G++_PATCH) $(RTEMS_SOURCES_URL)/$(GCC_G++_PATCH)
-	#wget -c -O $(RTEMS_PATCHES)/$(GDB_PATCH) $(RTEMS_SOURCES_URL)/$(GDB_PATCH)
+#	wget -c -O $(RTEMS_PATCHES_DIR)/$(GCC_G++_PATCH) $(RTEMS_SOURCES_URL)/$(GCC_G++_PATCH)
+#	wget -c -O $(RTEMS_PATCHES_DIR)/$(GDB_PATCH) $(RTEMS_SOURCES_URL)/$(GDB_PATCH)
+$(RTEMS_PATCHES_DIR)/.ok:
+	mkdir -p $(RTEMS_PATCHES_DIR)
+	wget -c -O $(RTEMS_PATCHES_DIR)/$(BINUTILS_PATCH) $(RTEMS_SOURCES_URL)/$(BINUTILS_PATCH)
+	wget -c -O $(RTEMS_PATCHES_DIR)/$(GCC_CORE_PATCH) $(RTEMS_SOURCES_URL)/$(GCC_CORE_PATCH)
+	wget -c -O $(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH) $(RTEMS_SOURCES_URL)/$(NEWLIB_PATCH)
 	touch $@
 $(DL)/$(BINUTILS).ok:
-	mkdir -p dl
+	mkdir -p $(DL)
 	wget -c -O $(DL)/$(BINUTILS) $(RTEMS_SOURCES_URL)/$(BINUTILS)
 	touch $@
 $(DL)/$(GCC_CORE).ok:
-	mkdir -p dl
+	mkdir -p $(DL)
 	wget -c -O $(DL)/$(GCC_CORE) $(RTEMS_SOURCES_URL)/$(GCC_CORE)
 	touch $@
 $(DL)/$(GCC_G++).ok:
-	mkdir -p dl
+	mkdir -p $(DL)
 	wget -c -O $(DL)/$(GCC_G++) $(RTEMS_SOURCES_URL)/$(GCC_G++)
 	touch $@
 $(DL)/$(NEWLIB).ok:
-	mkdir -p dl
+	mkdir -p $(DL)
 	wget -c -O $(DL)/$(NEWLIB) $(RTEMS_SOURCES_URL)/$(NEWLIB)
 	touch $@
 $(DL)/$(GDB).ok:
-	mkdir -p dl
+	mkdir -p $(DL)
 	wget -c -O $(DL)/$(GDB) $(RTEMS_SOURCES_URL)/$(GDB)
 	touch $@
 $(DL)/$(GMP).ok:
-	mkdir -p dl
+	mkdir -p $(DL)
 	wget -c -O $(DL)/$(GMP) $(RTEMS_SOURCES_URL)/$(GMP)
 	touch $@
 $(DL)/$(MPC).ok:
-	mkdir -p dl
+	mkdir -p $(DL)
 	wget -c -O $(DL)/$(MPC) $(RTEMS_SOURCES_URL)/$(MPC)
 	touch $@
 $(DL)/$(MPFR).ok:
-	mkdir -p dl
+	mkdir -p $(DL)
 	wget -c -O $(DL)/$(MPFR) $(RTEMS_SOURCES_URL)/$(MPFR)
 	touch $@
 
 clean:
-	echo "clean"
+	rm -rf b-binutils
+	rm -rf b-gcc
+	rm -rf binutils-$(BINUTILS_VERSION)
+	rm -rf gcc-$(GCC_CORE_VERSION)
+	rm -rf newlib-$(NEWLIB_VERSION)
+	rm -rf .unzip.ok
+	rm -rf .patch.ok
