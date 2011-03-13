@@ -111,17 +111,28 @@ $(BUILD_DIR)/mupdf: $(DL)/$(MUPDF).ok
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(MUPDF)
 #First, compile the code generation tools natively:
 	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION); \
-	 mkdir -p  build/release/; \
-	 $(CC) -o build/release/cmapdump ./mupdf/cmapdump.c  -lfreetype -ljpeg -lz -lm -Ifitz; \
-	 $(CC) -o build/release/fontdump ./mupdf/fontdump.c  -lfreetype -ljpeg -lz -lm -Ifitz; \
+	 patch -Np1 < ../../patches/mupdf-0001-for-milkymist-one.patch; \
 	)
-#Then, edit '''Makerules''' and:
-# set <code>CC := lm32-rtems4.11-gcc</code>
-# set <code>CFLAGS := -Ifitz -Imupdf -Wall -O9 -Wall -mbarrel-shift-enabled -mmultiply-enabled -mdivide-enabled -msign-extend-enabled -I $(RTEMS_MAKEFILE_PATH)/lib/include -I $(RTEMS_MAKEFILE_PATH)/lib/include/freetype2 -B $(RTEMS_MAKEFILE_PATH)/lib -specs bsp_specs -qrtems</code>
-	make build=release build/release/libmupdf.a
-	cp fitz/fitz.h   $(RTEMS_MAKEFILE_PATH)/lib/include 
-	cp mupdf/mupdf.h $(RTEMS_MAKEFILE_PATH)/lib/include 
-	cp build/release/libmupdf.a $(RTEMS_MAKEFILE_PATH)/lib
+	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION); \
+	 mkdir -p build/release; \
+	 gcc -o build/release/cmapdump ./mupdf/cmapdump.c  -lfreetype -ljpeg -lz -lm -Ifitz; \
+	 gcc -o build/release/fontdump ./mupdf/fontdump.c  -lfreetype -ljpeg -lz -lm -Ifitz; \
+	 mkdir -p build/generated; \
+	)
+	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION); \
+	 OS=Rtems \
+	 CC=lm32-rtems4.11-gcc \
+	 CFLAGS="-O9 -mbarrel-shift-enabled -mmultiply-enabled -mdivide-enabled -msign-extend-enabled \
+	 -I $(RTEMS_MAKEFILE_PATH)/lib/include -I $(RTEMS_MAKEFILE_PATH)/lib/include/freetype2 \
+	 -B $(RTEMS_MAKEFILE_PATH)/lib -specs bsp_specs -qrtems" \
+	 LDFLAGS="-L $(RTEMS_MAKEFILE_PATH)/lib" \
+	 make build=release build/release/libmupdf.a; \
+	)
+	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION); \
+	 cp fitz/fitz.h   $(RTEMS_MAKEFILE_PATH)/lib/include; \
+	 cp mupdf/mupdf.h $(RTEMS_MAKEFILE_PATH)/lib/include; \
+	 cp build/release/libmupdf.a $(RTEMS_MAKEFILE_PATH)/lib; \
+	)
 
 $(BUILD_DIR)/libFPVM:
 	cd software/libfpvm/lm32-rtems
