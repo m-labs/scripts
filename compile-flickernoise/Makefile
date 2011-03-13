@@ -40,6 +40,8 @@ MUPDF=mupdf-$(MUPDF_VERSION)-source.tar.gz
 DL=$(if $(wildcard ../dl/.),../dl,dl)
 BUILD_DIR=$(if $(wildcard ../build_dir/.),../build_dir,build_dir)
 
+LEKERNEL_GIT_URL:=https://github.com/lekernel
+
 CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \
 	AR=lm32-rtems4.11-ar \
 	CFLAGS="-O9 -Wall -mbarrel-shift-enabled \
@@ -47,6 +49,9 @@ CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \
 	  -I $(RTEMS_MAKEFILE_PATH)/lib/include \
 	  -B $(RTEMS_MAKEFILE_PATH)/lib \
 	  -specs bsp_specs -qrtems"
+
+all:
+	echo "all"
 
 $(BUILD_DIR)/zlib: $(DL)/$(ZLIB).ok
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(ZLIB)
@@ -107,7 +112,9 @@ $(BUILD_DIR)/freetype2: $(DL)/$(FREETYPE2).ok
 	)
 	mv $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
 
-$(BUILD_DIR)/mupdf: $(DL)/$(MUPDF).ok
+$(BUILD_DIR)/mupdf: 
+#$(DL)/$(MUPDF).ok  $(BUILD_DIR)/zlib $(BUILD_DIR)/libpng $(BUILD_DIR)/libjpeg $(BUILD_DIR)/openjpeg \
+$(BUILD_DIR)/jbig2dec $(BUILD_DIR)/freetype2
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(MUPDF)
 #First, compile the code generation tools natively:
 	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION); \
@@ -134,41 +141,38 @@ $(BUILD_DIR)/mupdf: $(DL)/$(MUPDF).ok
 	 cp build/release/libmupdf.a $(RTEMS_MAKEFILE_PATH)/lib; \
 	)
 
-$(BUILD_DIR)/libFPVM:
-	cd software/libfpvm/lm32-rtems
-	make
-	make install
+#You will need Lemon and RE2C to compile libFPVM. 
+$(BUILD_DIR)/libfpvm:
+	git clone $(LEKERNEL_GIT_URL)/milkymist.git $(BUILD_DIR)/milkymist
+	(cd $(BUILD_DIR)/milkymist/software/libfpvm/lm32-rtems; make; make install)
 
-$(BUILD_DIR)/MTK:
-#After you have cloned the git repository, compilation and installation are very simple:
-#Again, these commands requires the RTEMS_MAKEFILE_PATH environment variable
-	make milkymist
-	make install-milkymist
+$(BUILD_DIR)/mtk:
+	git clone $(LEKERNEL_GIT_URL)/`basename $@`.git $@
+	(cd $@; \
+	 make milkymist; \
+	 make install-milkymist; \
+	)
 
 $(BUILD_DIR)/liboscparse:
-#Run the following commands (making sure the environment variables listed above are set):
-	make
-	make install
+	git clone $(LEKERNEL_GIT_URL)/`basename $@`.git $@
+	(cd $@; \
+	 make; make install; \
+	)
 
-$(BUILD_DIR)/Yaffs:
-#[http://github.com/lekernel/rtems-yaffs2 rtems-yaffs2] 
-#(Again, this command requires the RTEMS_MAKEFILE_PATH environment variable)
-	cd direct/rtems
-	make
-	make install
+$(BUILD_DIR)/rtems-yaffs2:
+	git clone $(LEKERNEL_GIT_URL)/`basename $@`.git $@
+	(cd $@/direct/rtems; \
+	 make; \
+	 make install; \
+	)
 
-$(BUILD_DIR)/Flickernoise:
-	cd src
-	make
-
-#This produces an ELF binary. From that, you can either:
-# try the ELF binary in the QEMU emulator with <code>qemu-system-lm32 -M milkymist -kernel flickernoise</code>
-# generate a raw binary file with <code>make flickernoise.ralf</code>, suitable for TFTP netbooting (recommended), booting from the memory card or downloading over the serial line with flterm. Using flterm is not recommended as this method is slow because of the large size of the binary.
-# generate a FBI image with <code>make flickernoise.fbi</code> that you can use with the auto-upgrade feature of Flickernoise (0.2+).
-# generate a MCS flash image with <code>make flickernoise.mcs</code> 
-#that you can download into the board's flash memory so that Flickernoise automatically starts at every boot.
+#you will need clang for compile milkymist tools
+$(BUILD_DIR)/flickernoise:
+	git clone $(LEKERNEL_GIT_URL)/`basename $@`.git $@
+	(cd $@/src; make)
 
 
+####
 $(DL)/$(ZLIB).ok:
 	mkdir -p dl
 	wget -c -O $(DL)/$(ZLIB) http://zlib.net/$(ZLIB)
