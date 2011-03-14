@@ -53,7 +53,11 @@ CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \
 
 ALL:flickernoise
 
-$(BUILD_DIR)/zlib: $(DL)/$(ZLIB).ok
+build_dir/.prepare
+	mkdir -p build_dir
+	touch $@
+
+$(BUILD_DIR)/zlib: $(DL)/$(ZLIB).ok build_dir/.prepare
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(ZLIB)
 	(cd $(BUILD_DIR)/zlib-$(ZLIB_VERSION); $(CONFIGURE_VARS) \
 	 ./configure --static --prefix=$(RTEMS_MAKEFILE_PATH); \
@@ -64,7 +68,7 @@ $(BUILD_DIR)/zlib: $(DL)/$(ZLIB).ok
 	mv $(RTEMS_MAKEFILE_PATH)/include/z* $(RTEMS_MAKEFILE_PATH)/lib/include
 	touch $@
 
-$(BUILD_DIR)/libpng: $(DL)/$(LIBPNG).ok
+$(BUILD_DIR)/libpng: $(DL)/$(LIBPNG).ok build_dir/.prepare
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(LIBPNG)
 	(cd $(BUILD_DIR)/libpng-$(LIBPNG_VERSION); $(CONFIGURE_VARS) \
 	 ./configure --disable-shared --prefix=$(RTEMS_MAKEFILE_PATH) \
@@ -76,7 +80,7 @@ $(BUILD_DIR)/libpng: $(DL)/$(LIBPNG).ok
 	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
 	touch $@
 
-$(BUILD_DIR)/libjpeg: $(DL)/$(LIBJPEG).ok
+$(BUILD_DIR)/libjpeg: $(DL)/$(LIBJPEG).ok build_dir/.prepare
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(LIBJPEG)
 	(cd $(BUILD_DIR)/jpeg-8b; $(CONFIGURE_VARS) ./configure \
 	 --host=lm32-rtems4.11 --disable-shared --prefix=$(RTEMS_MAKEFILE_PATH); \
@@ -86,7 +90,7 @@ $(BUILD_DIR)/libjpeg: $(DL)/$(LIBJPEG).ok
 	mv $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
 	touch $@
 
-$(BUILD_DIR)/openjpeg: $(DL)/$(OPENJPEG).ok
+$(BUILD_DIR)/openjpeg: $(DL)/$(OPENJPEG).ok build_dir/.prepare
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(OPENJPEG); mv trunk openjpeg-trunk
 	cd $(BUILD_DIR)/openjpeg-trunk; \
 	 patch -Np1 < ../../patches/openjpeg-0001-for-milkymist-one.patch
@@ -96,7 +100,7 @@ $(BUILD_DIR)/openjpeg: $(DL)/$(OPENJPEG).ok
 	 cp libopenjpeg/openjpeg.h $(RTEMS_MAKEFILE_PATH)/lib/include
 	touch $@
 
-$(BUILD_DIR)/jbig2dec: $(DL)/$(JBIG2DEC).ok
+$(BUILD_DIR)/jbig2dec: $(DL)/$(JBIG2DEC).ok build_dir/.prepare
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(JBIG2DEC)
 	cd $(BUILD_DIR)/jbig2dec-$(JBIG2DEC_VERSION); rm config.sub; automake --add-missing; exit 0
 	(cd $(BUILD_DIR)/jbig2dec-$(JBIG2DEC_VERSION); $(CONFIGURE_VARS) ./configure \
@@ -107,7 +111,7 @@ $(BUILD_DIR)/jbig2dec: $(DL)/$(JBIG2DEC).ok
 	mv $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
 	touch $@
 
-$(BUILD_DIR)/freetype2: $(DL)/$(FREETYPE2).ok
+$(BUILD_DIR)/freetype2: $(DL)/$(FREETYPE2).ok build_dir/.prepare
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(FREETYPE2)
 	cd $(BUILD_DIR)/freetype-$(FREETYPE2_VERSION)
 	(cd $(BUILD_DIR)/freetype-$(FREETYPE2_VERSION); \
@@ -120,8 +124,9 @@ $(BUILD_DIR)/freetype2: $(DL)/$(FREETYPE2).ok
 	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
 	touch $@
 
-$(BUILD_DIR)/mupdf: $(DL)/$(MUPDF).ok $(BUILD_DIR)/zlib $(BUILD_DIR)/libpng $(BUILD_DIR)/libjpeg $(BUILD_DIR)/openjpeg \
-$(BUILD_DIR)/jbig2dec $(BUILD_DIR)/freetype2
+$(BUILD_DIR)/mupdf: $(DL)/$(MUPDF).ok  build_dir/.prepare  \
+$(BUILD_DIR)/zlib $(BUILD_DIR)/libpng $(BUILD_DIR)/libjpeg \
+$(BUILD_DIR)/openjpeg $(BUILD_DIR)/jbig2dec $(BUILD_DIR)/freetype2
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(MUPDF)
 #First, compile the code generation tools natively:
 	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION); \

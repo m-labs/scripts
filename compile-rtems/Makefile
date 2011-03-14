@@ -24,16 +24,20 @@ CONFIGURE_FLAGS=--target=lm32-rtems4.11 --enable-rtemsbsp=milkymist \
 	--enable-testsuites=samples --enable-posix --disable-itron \
 	--enable-networking --disable-multiprocessing
 
-all:
-#	(cd $(RTEMS_GIT_DIR); ./bootstrap -c && ./bootstrap -p && ./bootstrap)
+all: bsp-milkymist/.configure
 	mkdir -p bsp-milkymist
 	(cd bsp-milkymist; \
 	 ../$(RTEMS_GIT_DIR)/configure $(CONFIGURE_FLAGS); \
 	 make all; make install; \
 	)
 
+bsp-milkymist/.configure:
+	mkdir -p bsp-milkymist
+	(cd $(RTEMS_GIT_DIR); ./bootstrap -c && ./bootstrap -p && ./bootstrap)
+	touch $@
+
 git-clone:
-	git clone https://github.com/fallen/rtems-milkymist.git
+	git clone https://github.com/fallen/rtems-milkymist.git $(RTEMS_GIT_DIR)
 
 clean:
 	rm -rf bsp-milkymist
