@@ -53,7 +53,7 @@ CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \
 
 ALL:flickernoise
 
-build_dir/.prepare
+build_dir/.prepare:
 	mkdir -p build_dir
 	touch $@
 
