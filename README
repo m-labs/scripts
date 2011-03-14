@@ -1,0 +1,16 @@
+0. make sure you have write access to `/opt/rtems-4.11'
+
+1. export Varibles needs by compile MilkyMist 
+
+RTEMS_MAKEFILE_PATH=/opt/rtems-4.11/lm32-rtems4.11/milkymist
+export RTEMS_MAKEFILE_PATH
+
+PATH=/opt/rtems-4.11/bin:${PATH}
+export PATH
+
+2. run
+make -C compile-lm32-rtems  
+make -C compile-rtems git-clone
+make -C compile-rtems 
+make -C compile-flickernoise lekernel
+make -C compile-flickernoise flickernoise
