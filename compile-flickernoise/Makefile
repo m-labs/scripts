@@ -38,9 +38,10 @@ FREETYPE2=freetype-$(FREETYPE2_VERSION).tar.gz
 MUPDF=mupdf-$(MUPDF_VERSION)-source.tar.gz
 
 DL=$(if $(wildcard ../dl/.),../dl,dl)
-BUILD_DIR=$(if $(wildcard ../build_dir/.),../build_dir,build_dir)
+BUILD_DIR=build_dir
 
 LEKERNEL_GIT_URL:=https://github.com/lekernel
+LEKERNEL_GIT_DIR:=../../lekernel
 
 CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \
 	AR=lm32-rtems4.11-ar \
@@ -50,8 +51,7 @@ CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \
 	  -B $(RTEMS_MAKEFILE_PATH)/lib \
 	  -specs bsp_specs -qrtems"
 
-all:
-	echo "all"
+ALL:flickernoise
 
 $(BUILD_DIR)/zlib: $(DL)/$(ZLIB).ok
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(ZLIB)
@@ -62,6 +62,7 @@ $(BUILD_DIR)/zlib: $(DL)/$(ZLIB).ok
 	 make install; \
 	)
 	mv $(RTEMS_MAKEFILE_PATH)/include/z* $(RTEMS_MAKEFILE_PATH)/lib/include
+	touch $@
 
 $(BUILD_DIR)/libpng: $(DL)/$(LIBPNG).ok
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(LIBPNG)
@@ -71,7 +72,9 @@ $(BUILD_DIR)/libpng: $(DL)/$(LIBPNG).ok
 	 make; \
 	 make install; \
 	)
-	mv $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
+	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
+	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
+	touch $@
 
 $(BUILD_DIR)/libjpeg: $(DL)/$(LIBJPEG).ok
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(LIBJPEG)
@@ -81,6 +84,7 @@ $(BUILD_DIR)/libjpeg: $(DL)/$(LIBJPEG).ok
 	 make install;\
 	)
 	mv $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
+	touch $@
 
 $(BUILD_DIR)/openjpeg: $(DL)/$(OPENJPEG).ok
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(OPENJPEG); mv trunk openjpeg-trunk
@@ -90,6 +94,7 @@ $(BUILD_DIR)/openjpeg: $(DL)/$(OPENJPEG).ok
 	 lm32-rtems4.11-ranlib libopenjpeg.a; \
 	 cp libopenjpeg.a $(RTEMS_MAKEFILE_PATH)/lib; \
 	 cp libopenjpeg/openjpeg.h $(RTEMS_MAKEFILE_PATH)/lib/include
+	touch $@
 
 $(BUILD_DIR)/jbig2dec: $(DL)/$(JBIG2DEC).ok
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(JBIG2DEC)
@@ -100,6 +105,7 @@ $(BUILD_DIR)/jbig2dec: $(DL)/$(JBIG2DEC).ok
 	 make install; \
 	)
 	mv $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
+	touch $@
 
 $(BUILD_DIR)/freetype2: $(DL)/$(FREETYPE2).ok
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(FREETYPE2)
@@ -110,10 +116,11 @@ $(BUILD_DIR)/freetype2: $(DL)/$(FREETYPE2).ok
 	 make; \
 	 make install; \
 	)
-	mv $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
+	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
+	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
+	touch $@
 
-$(BUILD_DIR)/mupdf: 
-#$(DL)/$(MUPDF).ok  $(BUILD_DIR)/zlib $(BUILD_DIR)/libpng $(BUILD_DIR)/libjpeg $(BUILD_DIR)/openjpeg \
+$(BUILD_DIR)/mupdf: $(DL)/$(MUPDF).ok $(BUILD_DIR)/zlib $(BUILD_DIR)/libpng $(BUILD_DIR)/libjpeg $(BUILD_DIR)/openjpeg \
 $(BUILD_DIR)/jbig2dec $(BUILD_DIR)/freetype2
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(MUPDF)
 #First, compile the code generation tools natively:
@@ -140,37 +147,44 @@ $(BUILD_DIR)/jbig2dec $(BUILD_DIR)/freetype2
 	 cp mupdf/mupdf.h $(RTEMS_MAKEFILE_PATH)/lib/include; \
 	 cp build/release/libmupdf.a $(RTEMS_MAKEFILE_PATH)/lib; \
 	)
+	touch $@
 
 #You will need Lemon and RE2C to compile libFPVM. 
-$(BUILD_DIR)/libfpvm:
-	git clone $(LEKERNEL_GIT_URL)/milkymist.git $(BUILD_DIR)/milkymist
-	(cd $(BUILD_DIR)/milkymist/software/libfpvm/lm32-rtems; make; make install)
+lekernel:
+	mkdir -p $(LEKERNEL_GIT_DIR)
+	git clone $(LEKERNEL_GIT_URL)/milkymist.git $(LEKERNEL_GIT_DIR)/milkymist.git
+	git clone $(LEKERNEL_GIT_URL)/flickernoise.git $(LEKERNEL_GIT_DIR)/flickernoise.git
+	git clone $(LEKERNEL_GIT_URL)/liboscparse.git $(LEKERNEL_GIT_DIR)/liboscparse.git
+	git clone $(LEKERNEL_GIT_URL)/milkymist.git $(LEKERNEL_GIT_DIR)/milkymist.git
+	git clone $(LEKERNEL_GIT_URL)/mtk.git $(LEKERNEL_GIT_DIR)/mtk.git
+	git clone $(LEKERNEL_GIT_URL)/rtems-yaffs2.git $(LEKERNEL_GIT_DIR)/rtems-yaffs2.git
 
-$(BUILD_DIR)/mtk:
-	git clone $(LEKERNEL_GIT_URL)/`basename $@`.git $@
-	(cd $@; \
-	 make milkymist; \
-	 make install-milkymist; \
-	)
+update_lekernel_git:
+	(cd $(LEKERNEL_GIT_DIR)/flickernoise.git; git pull)
+	(cd $(LEKERNEL_GIT_DIR)/milkymist.git; git pull)
+	(cd $(LEKERNEL_GIT_DIR)/mtk.git; git pull)
+	(cd $(LEKERNEL_GIT_DIR)/liboscparse.git; git pull)
+	(cd $(LEKERNEL_GIT_DIR)/rtems-yaffs2.git; git pull)
 
-$(BUILD_DIR)/liboscparse:
-	git clone $(LEKERNEL_GIT_URL)/`basename $@`.git $@
-	(cd $@; \
-	 make; make install; \
-	)
+libfpvm:
+	(cd $(LEKERNEL_GIT_DIR)/milkymist.git/software/libfpvm/lm32-rtems && make && make install)
+	touch $@
+mtk:
+	(cd $(LEKERNEL_GIT_DIR)/$@.git && make milkymist && make install-milkymist; )
+	touch $@
 
-$(BUILD_DIR)/rtems-yaffs2:
-	git clone $(LEKERNEL_GIT_URL)/`basename $@`.git $@
-	(cd $@/direct/rtems; \
-	 make; \
-	 make install; \
-	)
+liboscparse:
+	(cd $(LEKERNEL_GIT_DIR)/$@.git && make && make install;)
+	touch $@
+
+rtems-yaffs2:
+	(cd $(LEKERNEL_GIT_DIR)/$@.git/direct/rtems && make && make install;)
+	touch $@
 
 #you will need clang for compile milkymist tools
-$(BUILD_DIR)/flickernoise:
-	git clone $(LEKERNEL_GIT_URL)/`basename $@`.git $@
-	(cd $@/src; make)
-
+flickernoise: $(BUILD_DIR)/mupdf libfpvm mtk liboscparse rtems-yaffs2 
+	(cd $(LEKERNEL_GIT_DIR)/$@.git/src && make)
+	cp $(LEKERNEL_GIT_DIR)/$@.git/src/bin/* ./
 
 ####
 $(DL)/$(ZLIB).ok:
@@ -213,3 +227,7 @@ $(DL)/$(MUPDF).ok:
 	wget -c -O $(DL)/$(MUPDF) \
 	  http://mupdf.com/download/$(MUPDF)
 	touch $@
+
+
+clean:
+	rm -rf build_dir/*
