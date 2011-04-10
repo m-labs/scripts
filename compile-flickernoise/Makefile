@@ -174,18 +174,15 @@ update_lekernel_git:
 
 libfpvm:
 	(cd $(LEKERNEL_GIT_DIR)/milkymist.git/software/libfpvm/lm32-rtems && make && make install)
-	touch $@
+
 mtk:
-	(cd $(LEKERNEL_GIT_DIR)/$@.git && make milkymist && make install-milkymist; )
-	touch $@
+	(cd $(LEKERNEL_GIT_DIR)/$@.git && make milkymist && make install-milkymist)
 
 liboscparse:
-	(cd $(LEKERNEL_GIT_DIR)/$@.git && make && make install;)
-	touch $@
+	(cd $(LEKERNEL_GIT_DIR)/$@.git && make && make install)
 
 rtems-yaffs2:
-	(cd $(LEKERNEL_GIT_DIR)/$@.git/direct/rtems && make && make install;)
-	touch $@
+	(cd $(LEKERNEL_GIT_DIR)/$@.git/direct/rtems && make && make install)
 
 #you will need clang for compile milkymist tools
 flickernoise.fbi: $(BUILD_DIR)/mupdf libfpvm mtk liboscparse rtems-yaffs2
@@ -195,6 +192,10 @@ flickernoise.fbi: $(BUILD_DIR)/mupdf libfpvm mtk liboscparse rtems-yaffs2
 flickernoise-pdf.fbiz: $(BUILD_DIR)/mupdf libfpvm mtk liboscparse rtems-yaffs2
 	(cd $(LEKERNEL_GIT_DIR)/flickernoise.git/src && make clean && WITH_PDF=1 make bin/flickernoise.fbiz)
 	cp $(LEKERNEL_GIT_DIR)/flickernoise.git/src/bin/flickernoise.fbiz ./$@
+
+boot.bin:
+	(cd $(LEKERNEL_GIT_DIR)/m1testing.git/src && MMDIR=../$(LEKERNEL_GIT_DIR)/milkymist.git make)
+	cp $(LEKERNEL_GIT_DIR)/m1testing.git/src/boot.bin ./
 
 ####
 $(DL)/$(ZLIB).ok:
