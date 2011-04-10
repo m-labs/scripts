@@ -39,5 +39,10 @@ bsp-milkymist/.configure:
 git-clone:
 	git clone https://github.com/fallen/rtems-milkymist.git $(RTEMS_GIT_DIR)
 
+git-update:
+	(cd $(RTEMS_GIT_DIR) && \
+	 git fetch -a && \
+	 git reset --hard origin/master \
+	)
 clean:
 	rm -rf bsp-milkymist
