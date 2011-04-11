@@ -6,7 +6,7 @@ __VERSION__="2011-04-10"
 NOVERIFY=noverify
 FLICKERNOISE=flickernoise.fbi
 
-BATCH_FILE=flash.batch
+BATCH_FILE=`mktemp`
 cat > ${BATCH_FILE}<<EOF
 cable milkymist
 detect
@@ -34,4 +34,5 @@ eraseflash 0xD20000 151
 flashmem   0xD20000 data.flash5.bin ${NOVERIFY}
 EOF
 
-jtag ${BATCH_FILE}
+jtag  ${BATCH_FILE}
+rm -f ${BATCH_FILE}
