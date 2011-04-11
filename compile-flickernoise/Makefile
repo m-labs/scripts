@@ -40,8 +40,8 @@ MUPDF=mupdf-$(MUPDF_VERSION)-source.tar.gz
 DL=$(if $(wildcard ../dl/.),../dl,dl)
 BUILD_DIR=build_dir
 
-LEKERNEL_GIT_URL:=https://github.com/lekernel
-LEKERNEL_GIT_DIR:=../../lekernel
+MILKYMIST_GIT_URL:=git://github.com/milkymist/
+MILKYMIST_GIT_DIR:=../../milkymist
 
 CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \
 	AR=lm32-rtems4.11-ar \
@@ -50,6 +50,10 @@ CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \
 	  -I $(RTEMS_MAKEFILE_PATH)/lib/include \
 	  -B $(RTEMS_MAKEFILE_PATH)/lib \
 	  -specs bsp_specs -qrtems"
+
+RTEMS_CONFIGURE_FLAGS=--target=lm32-rtems4.11 --enable-rtemsbsp=milkymist \
+	--enable-testsuites=samples --enable-posix --disable-itron \
+	--enable-networking --disable-multiprocessing
 
 ALL:flickernoise.fbi flickernoise-pdf.fbiz
 
@@ -154,48 +158,57 @@ $(BUILD_DIR)/mupdf: $(DL)/$(MUPDF).ok  build_dir/.prepare  \
 	)
 	touch $@
 
+milkymist-git-clone:
+	mkdir -p $(MILKYMIST_GIT_DIR)
+	git clone $(MILKYMIST_GIT_URL)/milkymist.git $(MILKYMIST_GIT_DIR)/milkymist.git
+	git clone $(MILKYMIST_GIT_URL)/flickernoise.git $(MILKYMIST_GIT_DIR)/flickernoise.git
+	git clone $(MILKYMIST_GIT_URL)/rtems-yaffs2.git $(MILKYMIST_GIT_DIR)/rtems-yaffs2.git
+	git clone $(MILKYMIST_GIT_URL)/liboscparse.git $(MILKYMIST_GIT_DIR)/liboscparse.git
+	git clone $(MILKYMIST_GIT_URL)/mtk.git $(MILKYMIST_GIT_DIR)/mtk.git
+	git clone $(MILKYMIST_GIT_URL)/autotest-m1.git $(MILKYMIST_GIT_DIR)/autotest-m1.git
+
+milkymist-git-update:
+	(cd $(MILKYMIST_GIT_DIR)/milkymist.git; git fetch -a; git reset --hard origin/master)
+	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git; git fetch -a; git reset --hard origin/master)
+	(cd $(MILKYMIST_GIT_DIR)/rtems-yaffs2.git; git fetch -a; git reset --hard origin/master)
+	(cd $(MILKYMIST_GIT_DIR)/liboscparse.git; git fetch -a; git reset --hard origin/master)
+	(cd $(MILKYMIST_GIT_DIR)/mtk.git; git fetch -a; git reset --hard origin/master)
+	(cd $(MILKYMIST_GIT_DIR)/autotest-m1.git; git fetch -a; git reset --hard origin/master)
+
 #You will need Lemon and RE2C to compile libFPVM. 
-lekernel:
-	mkdir -p $(LEKERNEL_GIT_DIR)
-	git clone $(LEKERNEL_GIT_URL)/milkymist.git $(LEKERNEL_GIT_DIR)/milkymist.git
-	git clone $(LEKERNEL_GIT_URL)/flickernoise.git $(LEKERNEL_GIT_DIR)/flickernoise.git
-	git clone $(LEKERNEL_GIT_URL)/rtems-yaffs2.git $(LEKERNEL_GIT_DIR)/rtems-yaffs2.git
-	git clone $(LEKERNEL_GIT_URL)/liboscparse.git $(LEKERNEL_GIT_DIR)/liboscparse.git
-	git clone $(LEKERNEL_GIT_URL)/mtk.git $(LEKERNEL_GIT_DIR)/mtk.git
-	git clone $(LEKERNEL_GIT_URL)/m1testing.git $(LEKERNEL_GIT_DIR)/m1testing.git
-
-update_lekernel_git:
-	(cd $(LEKERNEL_GIT_DIR)/milkymist.git; git fetch -a; git reset --hard origin/master)
-	(cd $(LEKERNEL_GIT_DIR)/flickernoise.git; git fetch -a; git reset --hard origin/master)
-	(cd $(LEKERNEL_GIT_DIR)/rtems-yaffs2.git; git fetch -a; git reset --hard origin/master)
-	(cd $(LEKERNEL_GIT_DIR)/liboscparse.git; git fetch -a; git reset --hard origin/master)
-	(cd $(LEKERNEL_GIT_DIR)/mtk.git; git fetch -a; git reset --hard origin/master)
-	(cd $(LEKERNEL_GIT_DIR)/m1testing.git; git fetch -a; git reset --hard origin/master)
-
 libfpvm:
-	(cd $(LEKERNEL_GIT_DIR)/milkymist.git/software/libfpvm/lm32-rtems && make && make install)
+	(cd $(MILKYMIST_GIT_DIR)/milkymist.git/software/libfpvm/lm32-rtems && make && make install)
 
 mtk:
-	(cd $(LEKERNEL_GIT_DIR)/$@.git && make milkymist && make install-milkymist)
+	(cd $(MILKYMIST_GIT_DIR)/$@.git && make milkymist && make install-milkymist)
 
 liboscparse:
-	(cd $(LEKERNEL_GIT_DIR)/$@.git && make && make install)
+	(cd $(MILKYMIST_GIT_DIR)/$@.git && make && make install)
 
 rtems-yaffs2:
-	(cd $(LEKERNEL_GIT_DIR)/$@.git/direct/rtems && make && make install)
+	(cd $(MILKYMIST_GIT_DIR)/$@.git/direct/rtems && make && make install)
+
+rtems-milkymist: $(BUILD_DIR)/bsp-milkymist/Makefile
+	(cd $(BUILD_DIR)/bsp-milkymist; make all; make install)
+	touch $@
+
+$(BUILD_DIR)/bsp-milkymist/Makefile:
+	mkdir -p $(BUILD_DIR)/bsp-milkymist
+	(cd $(MILKYMIST_GIT_DIR)/rtems-milkymist.git && ./bootstrap -c && ./bootstrap -p && ./bootstrap)
+	(cd $(BUILD_DIR)/bsp-milkymist && ../../$(MILKYMIST_GIT_DIR)/rtems-milkymist.git/configure $(RTEMS_CONFIGURE_FLAGS))
 
 #you will need clang for compile milkymist tools
-flickernoise.fbi: $(BUILD_DIR)/mupdf libfpvm mtk liboscparse rtems-yaffs2
-	(cd $(LEKERNEL_GIT_DIR)/flickernoise.git/src && make clean && make bin/flickernoise.fbi)
-	cp $(LEKERNEL_GIT_DIR)/flickernoise.git/src/bin/$@ ./
+flickernoise.fbi: rtems-milkymist libfpvm mtk liboscparse rtems-yaffs2 $(BUILD_DIR)/mupdf
+	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git/src && make clean && make bin/flickernoise.fbi)
+	cp $(MILKYMIST_GIT_DIR)/flickernoise.git/src/bin/$@ ./
 
-flickernoise-pdf.fbiz: $(BUILD_DIR)/mupdf libfpvm mtk liboscparse rtems-yaffs2
-	(cd $(LEKERNEL_GIT_DIR)/flickernoise.git/src && make clean && WITH_PDF=1 make bin/flickernoise.fbiz)
-	cp $(LEKERNEL_GIT_DIR)/flickernoise.git/src/bin/flickernoise.fbiz ./$@
+flickernoise-pdf.fbiz: rtems-yaffs2 libfpvm mtk liboscparse $(BUILD_DIR)/mupdf
+	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git/src && make clean && WITH_PDF=1 make bin/flickernoise.fbiz)
+	cp $(MILKYMIST_GIT_DIR)/flickernoise.git/src/bin/flickernoise.fbiz ./$@
 
-boot.bin:
-	(cd $(LEKERNEL_GIT_DIR)/m1testing.git/src && MMDIR=../$(LEKERNEL_GIT_DIR)/milkymist.git make)
-	cp $(LEKERNEL_GIT_DIR)/m1testing.git/src/boot.bin ./
+autotest-m1-boot.bin:
+	(cd $(MILKYMIST_GIT_DIR)/autotest-m1.git/src && MMDIR=../$(MILKYMIST_GIT_DIR)/milkymist.git make)
+	cp $(MILKYMIST_GIT_DIR)/autotest-m1.git/src/boot.bin ./$@
 
 ####
 $(DL)/$(ZLIB).ok:
