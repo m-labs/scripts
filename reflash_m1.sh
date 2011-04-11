@@ -1,9 +1,11 @@
 #!/bin/sh
+
 # version of me
 __VERSION__="2011-04-10"
 
 BATCH_FILE=flash.batch
 NOVERIFY=noverify
+FLICKERNOISE=flickernoise.fbi
 
 batch() {
     echo -e "$1" >> "${BATCH_FILE}"
@@ -30,7 +32,7 @@ batch "flashmem 0x6E0000 soc.fpg ${NOVERIFY}"
 batch "flashmem 0x860000 bios.bin ${NOVERIFY}"
 batch "flashmem 0x880000 splash.raw ${NOVERIFY}"
 
-batch "flashmem 0x920000 flickernoise.fbiz ${NOVERIFY}"
+batch "flashmem 0x920000 ${FLICKERNOISE} ${NOVERIFY}"
 
 batch "eraseflash 0xD20000 151"
 batch "flashmem   0xD20000 data.flash5.bin ${NOVERIFY}"
