@@ -1,11 +1,12 @@
 #!/bin/bash
 
+set -e
+
 CURRENT_DIR=`pwd`
-IMAGES_DIR=${CURRENT_DIR}/bin/
+IMAGES_DIR=${CURRENT_DIR}/bin
 VERSIONS=${CURRENT_DIR}/VERSIONS
 
-RTEMS_GIT_DIR=../rtems-milkymist.git
-LEKERNEL_GIT_DIR=../lekernel
+MILKYMIST_GIT_DIR=../milkymist
 
 get-feeds-revision() {
   cd $1
@@ -18,60 +19,64 @@ get-feeds-revision() {
 
 
 echo "prepare, mkdir ..."
-rm -tf ${IMAGES_DIR}
+rm -rf ${IMAGES_DIR}.backup
+mv ${IMAGES_DIR} ${IMAGES_DIR}.backup
 mkdir -p ${IMAGES_DIR}
 
 
 echo "update git ..."
-make -C compile-rtems/ git-update
-make -C compile-flickernoise/ update_lekernel_git
+make -C compile-flickernoise/ milkymist-git-update
 
 
 echo "get git versions ..."
 rm -rf ${VERSIONS}
-get-feeds-revision ${LEKERNEL_GIT_DIR}/milkymist.git
-get-feeds-revision ${LEKERNEL_GIT_DIR}/mtk.git
-get-feeds-revision ${LEKERNEL_GIT_DIR}/liboscparse.git
-get-feeds-revision ${LEKERNEL_GIT_DIR}/rtems-yaffs2.git
-get-feeds-revision ${LEKERNEL_GIT_DIR}/flickernoise.git
-get-feeds-revision ${LEKERNEL_GIT_DIR}/m1testing.git
-get-feeds-revision ${RTEMS_GIT_DIR}
+get-feeds-revision ${MILKYMIST_GIT_DIR}/milkymist.git
+get-feeds-revision ${MILKYMIST_GIT_DIR}/rtems-milkymist.git
+get-feeds-revision ${MILKYMIST_GIT_DIR}/mtk.git
+get-feeds-revision ${MILKYMIST_GIT_DIR}/liboscparse.git
+get-feeds-revision ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git
+get-feeds-revision ${MILKYMIST_GIT_DIR}/flickernoise.git
+get-feeds-revision ${MILKYMIST_GIT_DIR}/autotest-m1.git
 get-feeds-revision .
 
 
 echo "compile ..."
-make -C ${LEKERNEL_GIT_DIR}/milkymist.git/boards/milkymist-one/flash
-make -C compile-rtems 
+(cd ${MILKYMIST_GIT_DIR}/milkymist.git && ./clean_all.sh)
+make -C ${MILKYMIST_GIT_DIR}/milkymist.git/tools
+
+#the Xilinx libs(libstdc++.so.6) have some conflict
+(source /opt/Xilinx/13.1/ISE_DS/settings64.sh && \
+ make -C ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash)
+
+export PATH=${MILKYMIST_GIT_DIR}/milkymist.git/tools:$PATH
 make -C compile-flickernoise clean
 make -C compile-flickernoise flickernoise.fbi
-make -C compile-flickernoise flickernoise-pdf.fbiz
-make -C compile-flickernoise boot.bin
 
 
 echo "copy images to bin/ ..."
-cp ${LEKERNEL_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/fjmem.bit ${IMAGES_DIR}
-cp ${LEKERNEL_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/standby.fpg ${IMAGES_DIR}
-cp ${LEKERNEL_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/soc.fpg ${IMAGES_DIR}
-cp ${LEKERNEL_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/bios.bin ${IMAGES_DIR}
-cp ${LEKERNEL_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/splash.raw ${IMAGES_DIR}
-cp ${LEKERNEL_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/soc-rescue.fpg ${IMAGES_DIR}
-cp ${LEKERNEL_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/bios-rescue.bin ${IMAGES_DIR}
-cp ${LEKERNEL_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/splash-rescue.raw ${IMAGES_DIR}
+cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/fjmem.bit ${IMAGES_DIR}
+cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/standby.fpg ${IMAGES_DIR}
+cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/soc.fpg ${IMAGES_DIR}
+cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/bios.bin ${IMAGES_DIR}
+cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/splash.raw ${IMAGES_DIR}
+cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/soc-rescue.fpg ${IMAGES_DIR}
+cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/bios-rescue.bin ${IMAGES_DIR}
+cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/splash-rescue.raw ${IMAGES_DIR}
 
 cp compile-flickernoise/flickernoise.fbi ${IMAGES_DIR}
-cp compile-flickernoise/flickernoise-pdf.fbiz ${IMAGES_DIR}
-cp compile-flickernoise/boot.bin ${IMAGES_DIR}
 
 echo "build data patitions ..."
 rm -rf data.flash5
 mkdir -p data.flash5
 
-cp -rf ${LEKERNEL_GIT_DIR}/flickernoise.git/patches ./data.flash5
+cp -rf ${MILKYMIST_GIT_DIR}/flickernoise.git/patches ./data.flash5
 wget http://www.milkymist.org/wiki/images/9/99/Comet.png -O ./data.flash5/Comet.png
 
-make -C ${LEKERNEL_GIT_DIR}/rtems-yaffs2.git/utils/mm-mkyaffs2image
-${LEKERNEL_GIT_DIR}/rtems-yaffs2.git/utils/mm-mkyaffs2image data.flash5 ${IMAGES_DIR}/data.flash5.bin convert
+make -C ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils mm-mkyaffs2image
+${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils/mm-mkyaffs2image data.flash5 ${IMAGES_DIR}/data.flash5.bin convert
 
 echo "generate md5sum ..."
 (cd ${IMAGES_DIR}; md5sum * > ${CURRENT_DIR}/md5sum)
-mv ${VERSIONS} md5sum ${IMAGES_DIR};
+mv ${VERSIONS} md5sum ${IMAGES_DIR}
+
+cp reflash_m1.sh ${IMAGES_DIR}
