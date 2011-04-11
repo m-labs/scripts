@@ -3,38 +3,35 @@
 # version of me
 __VERSION__="2011-04-10"
 
-BATCH_FILE=flash.batch
 NOVERIFY=noverify
 FLICKERNOISE=flickernoise.fbi
 
-batch() {
-    echo -e "$1" >> "${BATCH_FILE}"
-}
+BATCH_FILE=flash.batch
+cat > ${BATCH_FILE}<<EOF
+cable milkymist
+detect
+instruction CFG_OUT 000100 BYPASS
+instruction CFG_IN 000101 BYPASS
+pld load fjmem.bit
+initbus fjmem opcode=000010
+frequency 6000000
+detectflash 0
+endian big
 
-rm -rf ${BATCH_FILE}
-batch "cable milkymist"
-batch "detect"
-batch "instruction CFG_OUT 000100 BYPASS"
-batch "instruction CFG_IN 000101 BYPASS"
-batch "pld load fjmem.bit"
-batch "initbus fjmem opcode=000010"
-batch "frequency 6000000"
-batch "detectflash 0"
-batch "endian big"
+flashmem 0x000000 standby.fpg ${NOVERIFY}
 
-batch "flashmem 0x000000 standby.fpg ${NOVERIFY}"
+flashmem 0x0A0000 soc-rescue.fpg ${NOVERIFY}
+flashmem 0x220000 bios-rescue.bin ${NOVERIFY}
+flashmem 0x240000 splash-rescue.raw ${NOVERIFY}
 
-batch "flashmem 0x0A0000 soc-rescue.fpg ${NOVERIFY}"
-batch "flashmem 0x220000 bios-rescue.bin ${NOVERIFY}"
-batch "flashmem 0x240000 splash-rescue.raw ${NOVERIFY}"
+flashmem 0x6E0000 soc.fpg ${NOVERIFY}
+flashmem 0x860000 bios.bin ${NOVERIFY}
+flashmem 0x880000 splash.raw ${NOVERIFY}
 
-batch "flashmem 0x6E0000 soc.fpg ${NOVERIFY}"
-batch "flashmem 0x860000 bios.bin ${NOVERIFY}"
-batch "flashmem 0x880000 splash.raw ${NOVERIFY}"
+flashmem 0x920000 ${FLICKERNOISE} ${NOVERIFY}
 
-batch "flashmem 0x920000 ${FLICKERNOISE} ${NOVERIFY}"
-
-batch "eraseflash 0xD20000 151"
-batch "flashmem   0xD20000 data.flash5.bin ${NOVERIFY}"
+eraseflash 0xD20000 151
+flashmem   0xD20000 data.flash5.bin ${NOVERIFY}
+EOF
 
 jtag ${BATCH_FILE}
