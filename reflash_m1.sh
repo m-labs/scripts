@@ -23,6 +23,7 @@ flashmem 0x000000 standby.fpg ${NOVERIFY}
 flashmem 0x0A0000 soc-rescue.fpg ${NOVERIFY}
 flashmem 0x220000 bios-rescue.bin ${NOVERIFY}
 flashmem 0x240000 splash-rescue.raw ${NOVERIFY}
+flashmem 0x2E0000 ${FLICKERNOISE} ${NOVERIFY}
 
 flashmem 0x6E0000 soc.fpg ${NOVERIFY}
 flashmem 0x860000 bios.bin ${NOVERIFY}
@@ -32,6 +33,8 @@ flashmem 0x920000 ${FLICKERNOISE} ${NOVERIFY}
 
 eraseflash 0xD20000 151
 flashmem   0xD20000 data.flash5.bin ${NOVERIFY}
+
+pld reconfigure
 EOF
 
 jtag  ${BATCH_FILE}
