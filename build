@@ -36,7 +36,6 @@ get-feeds-revision ${MILKYMIST_GIT_DIR}/mtk.git
 get-feeds-revision ${MILKYMIST_GIT_DIR}/liboscparse.git
 get-feeds-revision ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git
 get-feeds-revision ${MILKYMIST_GIT_DIR}/flickernoise.git
-get-feeds-revision ${MILKYMIST_GIT_DIR}/autotest-m1.git
 get-feeds-revision .
 
 
@@ -70,10 +69,11 @@ rm -rf data.flash5
 mkdir -p data.flash5
 
 cp -rf ${MILKYMIST_GIT_DIR}/flickernoise.git/patches ./data.flash5
-wget http://www.milkymist.org/wiki/images/9/99/Comet.png -O ./data.flash5/Comet.png
+wget http://www.milkymist.org/wiki/images/9/99/Comet.png -O ./data.flash5/comet.png
 
 make -C ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils mm-mkyaffs2image
 ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils/mm-mkyaffs2image data.flash5 ${IMAGES_DIR}/data.flash5.bin convert
+chmod 644 ${IMAGES_DIR}/data.flash5.bin
 
 echo "generate md5sum ..."
 (cd ${IMAGES_DIR}; md5sum * > ${CURRENT_DIR}/md5sum)
