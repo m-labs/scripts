@@ -19,7 +19,6 @@ get-feeds-revision() {
 
 
 echo "prepare, mkdir ..."
-rm -rf ${IMAGES_DIR}.backup
 mv ${IMAGES_DIR} ${IMAGES_DIR}.backup
 mkdir -p ${IMAGES_DIR}
 
@@ -29,7 +28,7 @@ make -C compile-flickernoise/ milkymist-git-update
 
 
 echo "get git versions ..."
-rm -rf ${VERSIONS}
+rm -f ${VERSIONS}
 get-feeds-revision ${MILKYMIST_GIT_DIR}/milkymist.git
 get-feeds-revision ${MILKYMIST_GIT_DIR}/rtems-milkymist.git
 get-feeds-revision ${MILKYMIST_GIT_DIR}/mtk.git
@@ -65,7 +64,6 @@ cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/splash-rescue.r
 cp compile-flickernoise/flickernoise.fbi ${IMAGES_DIR}
 
 echo "build data patitions ..."
-rm -rf data.flash5
 mkdir -p data.flash5
 
 cp -rf ${MILKYMIST_GIT_DIR}/flickernoise.git/patches ./data.flash5
