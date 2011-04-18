@@ -40,7 +40,7 @@ MUPDF=mupdf-$(MUPDF_VERSION)-source.tar.gz
 DL=$(if $(wildcard ../dl/.),../dl,dl)
 BUILD_DIR=build_dir
 
-MILKYMIST_GIT_URL:=git://github.com/milkymist/
+MILKYMIST_GIT_URL:=git://github.com/milkymist
 MILKYMIST_GIT_DIR:=../../milkymist
 
 CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \
@@ -163,6 +163,7 @@ milkymist-git-clone:
 	git clone $(MILKYMIST_GIT_URL)/milkymist.git $(MILKYMIST_GIT_DIR)/milkymist.git
 	git clone $(MILKYMIST_GIT_URL)/flickernoise.git $(MILKYMIST_GIT_DIR)/flickernoise.git
 	git clone $(MILKYMIST_GIT_URL)/rtems-yaffs2.git $(MILKYMIST_GIT_DIR)/rtems-yaffs2.git
+	git clone $(MILKYMIST_GIT_URL)/rtems-milkymist.git $(MILKYMIST_GIT_DIR)/rtems-milkymist.git
 	git clone $(MILKYMIST_GIT_URL)/liboscparse.git $(MILKYMIST_GIT_DIR)/liboscparse.git
 	git clone $(MILKYMIST_GIT_URL)/mtk.git $(MILKYMIST_GIT_DIR)/mtk.git
 	git clone $(MILKYMIST_GIT_URL)/autotest-m1.git $(MILKYMIST_GIT_DIR)/autotest-m1.git
@@ -171,6 +172,7 @@ milkymist-git-update:
 	(cd $(MILKYMIST_GIT_DIR)/milkymist.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/rtems-yaffs2.git; git fetch -a; git reset --hard origin/master)
+	(cd $(MILKYMIST_GIT_DIR)/rtems-milkymist.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/liboscparse.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/mtk.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/autotest-m1.git; git fetch -a; git reset --hard origin/master)
