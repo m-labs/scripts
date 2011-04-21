@@ -74,7 +74,7 @@ ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils/mm-mkyaffs2image data.flash5 ${IMAGE
 chmod 644 ${IMAGES_DIR}/data.flash5.bin
 
 echo "generate md5sum ..."
-(cd ${IMAGES_DIR}; md5sum * > ${CURRENT_DIR}/md5sum)
-mv ${VERSIONS} md5sum ${IMAGES_DIR}
+(cd ${IMAGES_DIR}; md5sum --binary * > ${CURRENT_DIR}/md5sums)
+mv ${VERSIONS} md5sums ${IMAGES_DIR}
 
 cp reflash_m1.sh ${IMAGES_DIR}
