@@ -28,6 +28,7 @@ LIBPNG_VERSION=1.4.4
 JBIG2DEC_VERSION=0.11
 FREETYPE2_VERSION=2.4.4
 MUPDF_VERSION=0.8
+CURL_VERSION=7.21.6
 
 ZLIB=zlib-$(ZLIB_VERSION).tar.gz
 LIBPNG=libpng-$(LIBPNG_VERSION).tar.gz
@@ -36,6 +37,7 @@ OPENJPEG=openjpeg_v1_2.tar.gz
 JBIG2DEC=jbig2dec-$(JBIG2DEC_VERSION).tar.gz
 FREETYPE2=freetype-$(FREETYPE2_VERSION).tar.gz
 MUPDF=mupdf-$(MUPDF_VERSION)-source.tar.gz
+CURL= curl-$(CURL_VERSION).tar.bz2
 
 DL=$(if $(wildcard ../dl/.),../dl,dl)
 BUILD_DIR=build_dir
@@ -117,7 +119,6 @@ $(BUILD_DIR)/jbig2dec: $(DL)/$(JBIG2DEC).ok build_dir/.prepare
 
 $(BUILD_DIR)/freetype2: $(DL)/$(FREETYPE2).ok build_dir/.prepare
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(FREETYPE2)
-	cd $(BUILD_DIR)/freetype-$(FREETYPE2_VERSION)
 	(cd $(BUILD_DIR)/freetype-$(FREETYPE2_VERSION); \
 	 $(CONFIGURE_VARS) ./configure --host=lm32-rtems4.11 --disable-shared \
 	 --prefix=$(RTEMS_MAKEFILE_PATH); \
@@ -156,6 +157,22 @@ $(BUILD_DIR)/mupdf: $(DL)/$(MUPDF).ok  build_dir/.prepare  \
 	 cp mupdf/mupdf.h $(RTEMS_MAKEFILE_PATH)/lib/include; \
 	 cp build/release/libmupdf.a $(RTEMS_MAKEFILE_PATH)/lib; \
 	)
+	touch $@
+
+$(BUILD_DIR)/curl: $(DL)/$(CURL).ok
+	cd $(BUILD_DIR); tar xf ../$(DL)/$(CURL)
+	(cd $(BUILD_DIR)/curl-$(CURL_VERSION); \
+	 $(CONFIGURE_VARS) ./configure --host=lm32-rtems4.11 --disable-shared --prefix=$(RTEMS_MAKEFILE_PATH) \
+	 --without-librtmp --disable-ftp --disable-ldap --disable-ldaps --disable-rtsp --disable-dict \
+	 --disable-telnet --disable-tftp --disable-pop3 --disable-imap --disable-smtp --disable-gopher \
+	 --disable-manual; \
+	 sed -i '/^libcurl_la_CFLAGS/s/^/#/' lib/Makefile; \
+	 echo "#define HAVE_SOCKET 1" >> lib/setup.h; \
+	 make; \
+	 make install; \
+	)
+	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
+	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
 	touch $@
 
 milkymist-git-clone:
@@ -254,6 +271,11 @@ $(DL)/$(MUPDF).ok:
 	  http://mupdf.com/download/$(MUPDF)
 	touch $@
 
+$(DL)/$(CURL).ok:
+	mkdir -p dl
+	wget -c -O $(DL)/$(CURL) \
+	 http://curl.haxx.se/download/$(CURL)
+	touch $@
 
 clean:
 	rm -rf build_dir/*
