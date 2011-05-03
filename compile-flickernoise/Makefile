@@ -29,6 +29,7 @@ JBIG2DEC_VERSION=0.11
 FREETYPE2_VERSION=2.4.4
 MUPDF_VERSION=0.8
 CURL_VERSION=7.21.6
+EXPAT_VERSION=2.0.1
 
 ZLIB=zlib-$(ZLIB_VERSION).tar.gz
 LIBPNG=libpng-$(LIBPNG_VERSION).tar.gz
@@ -37,7 +38,8 @@ OPENJPEG=openjpeg_v1_2.tar.gz
 JBIG2DEC=jbig2dec-$(JBIG2DEC_VERSION).tar.gz
 FREETYPE2=freetype-$(FREETYPE2_VERSION).tar.gz
 MUPDF=mupdf-$(MUPDF_VERSION)-source.tar.gz
-CURL= curl-$(CURL_VERSION).tar.bz2
+CURL=curl-$(CURL_VERSION).tar.bz2
+EXPAT=expat-$(EXPAT_VERSION).tar.gz
 
 DL=$(if $(wildcard ../dl/.),../dl,dl)
 BUILD_DIR=build_dir
@@ -175,6 +177,18 @@ $(BUILD_DIR)/curl: $(DL)/$(CURL).ok
 	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
 	touch $@
 
+$(BUILD_DIR)/expat: $(DL)/$(EXPAT).ok
+	cd $(BUILD_DIR); tar xf ../$(DL)/$(EXPAT)
+	(cd $(BUILD_DIR)/expat-$(EXPAT_VERSION); \
+	 sed -i 's/ppc)/lm32)/' conftools/config.sub; \
+	 $(CONFIGURE_VARS) ./configure --host=lm32-rtems4.11 --disable-shared --prefix=$(RTEMS_MAKEFILE_PATH); \
+	 make; \
+	 make install; \
+	)
+	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
+	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
+	touch $@
+
 milkymist-git-clone:
 	mkdir -p $(MILKYMIST_GIT_DIR)
 	git clone $(MILKYMIST_GIT_URL)/milkymist.git $(MILKYMIST_GIT_DIR)/milkymist.git
@@ -277,5 +291,10 @@ $(DL)/$(CURL).ok:
 	 http://curl.haxx.se/download/$(CURL)
 	touch $@
 
+$(DL)/$(EXPAT).ok:
+	mkdir -p dl
+	wget -c -O $(DL)/$(CURL) \
+	 http://download.sourceforge.net/project/expat/expat/$(EXPAT_VERSION)/expat-$(EXPAT_VERSION).tar.gz
+	touch $@
 clean:
 	rm -rf build_dir/*
