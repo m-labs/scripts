@@ -231,11 +231,11 @@ $(BUILD_DIR)/bsp-milkymist/Makefile:
 	(cd $(BUILD_DIR)/bsp-milkymist && ../../$(MILKYMIST_GIT_DIR)/rtems-milkymist.git/configure $(RTEMS_CONFIGURE_FLAGS))
 
 #you will need clang for compile milkymist tools
-flickernoise.fbi: rtems-milkymist libfpvm mtk liboscparse rtems-yaffs2 $(BUILD_DIR)/mupdf
+flickernoise.fbi: rtems-milkymist libfpvm mtk liboscparse rtems-yaffs2 $(BUILD_DIR)/mupdf $(BUILD_DIR)/curl $(BUILD_DIR)/expat
 	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git/src && make clean && make bin/flickernoise.fbi)
 	cp $(MILKYMIST_GIT_DIR)/flickernoise.git/src/bin/$@ ./
 
-flickernoise-pdf.fbiz: rtems-yaffs2 libfpvm mtk liboscparse $(BUILD_DIR)/mupdf
+flickernoise-pdf.fbiz: flickernoise.fbi
 	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git/src && make clean && WITH_PDF=1 make bin/flickernoise.fbiz)
 	cp $(MILKYMIST_GIT_DIR)/flickernoise.git/src/bin/flickernoise.fbiz ./$@
 
