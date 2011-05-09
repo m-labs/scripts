@@ -65,7 +65,7 @@ cp compile-flickernoise/flickernoise.fbi ${IMAGES_DIR}
 
 echo "build data patitions ..."
 mkdir -p data.flash5
-cp -rf ${MILKYMIST_GIT_DIR}/flickernoise.git/patches ./data.flash5
+find ${MILKYMIST_GIT_DIR}/flickernoise.git/patches -name "*.fnp" -exec cp {} ./data.flash5 \;
 
 make -C ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils mm-mkyaffs2image
 ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils/mm-mkyaffs2image data.flash5 ${IMAGES_DIR}/data.flash5.bin convert
