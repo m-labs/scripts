@@ -1,40 +1,55 @@
-git@github.com:milkymist/milkymist.git  master d2f4d5196e57bdba0d1e3f8ffad58d8e9ffff056
-    Updated SoC diagram (Cristian Paul Peñaranda Rojas)
+Snapshot 2011-05-09
+  * BIOS: disable splash screen and console to prevent unnecessary screen flickering
+  * BIOS: now disables the video output completely by default
+  * BIOS: report rescue mode to the application using R4
+  -- milkymist.git
 
-git@github.com:milkymist/mtk.git  master 23f61a418e991ac65d59612ef930c9c69519c6f8
-    makefile: remove -r in rm option
-    add keyboard us layout
-    add mtk_config_set_keyboard_layout
-    add .gitignore
-    Makefile: add uninstall-milkymist
+  * add the three Buttons driver
+  * GPIO: remove unneeded ioctl
+  * CRT: detect rescue mode through R4 and set BSP command line
+  -- rtems-milkymist.git
 
-git@github.com:milkymist/flickernoise.git  master ef61a83660213d1f7daee6123f087ab0a4ef4b6e
-    small cleanup .gitignore and makefile
-    notify MTK about the changed keyboard layout
-    osc: change default port to 4444
-    add one patch file for FullScreen Video-in Preview
-    fbgrab remove the alpha channel
-    fbgrab change compressino level to default
-    flash.sh using mktemp and cat for create scrtip file
-    File dialog: properly get file extension
-    Use Ctrl-F2 for screenshot
-    add Ctrl+F1 for iterate switch screen resolution
-    fb.c: replease 0 with SC_RESOLUTION_640_480
-    Make default resolution 640x480
+  * Fix(issue #4) add French_layout_058
+  * Edit: show line numbers
+  -- mtk.git
 
-git@github.com:milkymist/scripts.git  master a5583c9a03ce9821f328a7b829ad2e5a284191db
-    reflash_m1.sh autodown the bin files
-    build: add --binary to md5sum, rename the result to md5sums
-    build: small cleanup, remove -r in rm
-    update README
-    fix GIT_URL, add missing rtems-milkymist.git
-    flash the rescue flickernoise
-    using mktemp for create tmp file
-    using cat create the flash.batch file
-    remove autotest-m1.git, fix the wallpaper name
-    update git address
-    update compile bitstream. fix the Xilinx tools conflict
-    merge compile-rtems to compile-flickernoise
-    update the git address
-    add variable for FLICKERNOISE
+  * Fix(issue #4) handling of slashes in ycb_eval_path_for_make
+  -- rtems-yaffs2.git
 
+  * press 'F1' when rendering will display the patch name
+  * Simple performance working, F11/Board_Left_Button for goto next patch
+  * RSS wall: add RSS wall
+  * OSD: multiline text
+  * New layout of control panel and system settings
+  * Bugfix: Use DHCP address when DHCP is enabled in default config
+  * Middle pushbutton to power down
+  * Map board buttons to F9/F10/F11 (right/middle/left)
+  * Display dialog box to explain rescue mode
+  * New patches
+  * MIDI and Keyboard controls autobuild
+  * Fix(issue #2) autostart crash in 640x480
+  * Do not load configuration in rescue mode
+  -- flickernoise.git
+
+Snapshot 2011-04-22
+  * Updated SoC diagram (Cristian Paul Peñaranda Rojas)
+  -- milkymist.git
+
+  * makefile: remove -r in rm option
+  * add keyboard us layout
+  * add mtk_config_set_keyboard_layout
+  * add .gitignore
+  * Makefile: add uninstall-milkymist
+  -- mtk.git
+
+  * notify MTK about the changed keyboard layout
+  * osc: change default port to 4444
+  * add one patch file for FullScreen Video-in Preview
+  * fbgrab remove the alpha channel, change compressino level to default
+  * flash.sh using mktemp and cat for create scrtip file
+  * File dialog: properly get file extension
+  * Use Ctrl-F2 for screenshot
+  * add Ctrl+F1 for iterate switch screen resolution
+  * fb.c: replease 0 with SC_RESOLUTION_640_480
+  * Make default resolution 640x480
+  -- flickernoise.git
