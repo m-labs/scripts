@@ -293,7 +293,7 @@ $(DL)/$(CURL).ok:
 
 $(DL)/$(EXPAT).ok:
 	mkdir -p dl
-	wget -c -O $(DL)/$(CURL) \
+	wget -c -O $(DL)/$(EXPAT) \
 	 http://download.sourceforge.net/project/expat/expat/$(EXPAT_VERSION)/expat-$(EXPAT_VERSION).tar.gz
 	touch $@
 clean:
