@@ -252,7 +252,7 @@ $(DL)/$(ZLIB).ok:
 $(DL)/$(LIBPNG).ok:
 	mkdir -p dl
 	wget -c -O $(DL)/$(LIBPNG) \
-	  http://ufpr.dl.sourceforge.net/project/libpng/libpng14/older-releases/$(LIBPNG_VERSION)/$(LIBPNG_VERSION)
+	  http://ufpr.dl.sourceforge.net/project/libpng/libpng14/older-releases/$(LIBPNG_VERSION)/$(LIBPNG)
 	touch $@
 
 $(DL)/$(LIBJPEG).ok:
@@ -282,7 +282,7 @@ $(DL)/$(FREETYPE2).ok:
 $(DL)/$(MUPDF).ok:
 	mkdir -p dl
 	wget -c -O $(DL)/$(MUPDF) \
-	  http://mupdf.com/download/$(MUPDF)
+          http://mupdf.com/download/archive/$(MUPDF)
 	touch $@
 
 $(DL)/$(CURL).ok:
