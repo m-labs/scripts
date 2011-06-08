@@ -24,7 +24,7 @@ RTEMS_VERSION=4.11
 RTEMS_MAKEFILE_PATH?=/opt/rtems-$(RTEMS_VERSION)/lm32-rtems$(RTEMS_VERSION)/milkymist
 
 ZLIB_VERSION=1.2.5
-LIBPNG_VERSION=1.4.4
+LIBPNG_VERSION=1.5.2
 JBIG2DEC_VERSION=0.11
 FREETYPE2_VERSION=2.4.4
 MUPDF_VERSION=0.8
@@ -79,6 +79,7 @@ $(BUILD_DIR)/zlib: $(DL)/$(ZLIB).ok build_dir/.prepare
 $(BUILD_DIR)/libpng: $(DL)/$(LIBPNG).ok build_dir/.prepare
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(LIBPNG)
 	(cd $(BUILD_DIR)/libpng-$(LIBPNG_VERSION); $(CONFIGURE_VARS) \
+	CPPFLAGS="-DPNG_NO_FLOATING_ARITHMETIC -DPNG_NO_FLOATING_POINT" \
 	 ./configure --disable-shared --prefix=$(RTEMS_MAKEFILE_PATH) \
 	 --host=lm32-rtems4.11; \
 	 make; \
