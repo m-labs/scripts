@@ -253,7 +253,7 @@ $(DL)/$(ZLIB).ok:
 $(DL)/$(LIBPNG).ok:
 	mkdir -p dl
 	wget -c -O $(DL)/$(LIBPNG) \
-	  http://ufpr.dl.sourceforge.net/project/libpng/libpng14/older-releases/$(LIBPNG_VERSION)/$(LIBPNG)
+          http://dfn.dl.sourceforge.net/project/libpng/libpng15/$(LIBPNG_VERSION)/$(LIBPNG)
 	touch $@
 
 $(DL)/$(LIBJPEG).ok:
