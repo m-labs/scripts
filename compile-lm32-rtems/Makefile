@@ -51,7 +51,7 @@ MM1_PATCHES_DIR=milkymist-one-patches
 
 .PHONY:	all clean
 
-all: .install.gcc.ok
+all: .install.gdb.ok .install.gcc.ok
 
 .install.gcc.ok: .compile.gcc.ok
 	cd b-gcc && make install
@@ -93,22 +93,39 @@ gcc-$(GCC_CORE_VERSION)/newlib: .unzip.ok
 	 cat ../$(MM1_PATCHES_DIR)/gcc-core-0001-support-for-the-hardware-divider.patch | patch -p1; \
 	)
 	(cd newlib-$(NEWLIB_VERSION); cat ../$(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH) | patch -p1)
+	(cd gdb-$(GDB_VERSION); \
+	 cat ../$(RTEMS_PATCHES_DIR)/$(GDB_PATCH) | patch -p1; \
+	 cat ../$(MM1_PATCHES_DIR)/gdb-remote-target-interrupt-before-ack.patch | patch -p1; \
+	)
 	touch $@
 
-.unzip.ok: $(DL)/$(BINUTILS).ok $(DL)/$(GCC_CORE).ok $(DL)/$(NEWLIB).ok 
+.unzip.ok: $(DL)/$(BINUTILS).ok $(DL)/$(GCC_CORE).ok $(DL)/$(NEWLIB).ok $(DL)/$(GDB).ok
 	tar xf $(DL)/$(BINUTILS)
 	tar xf $(DL)/$(GCC_CORE)
 	tar xf $(DL)/$(NEWLIB)
+	tar xf $(DL)/$(GDB)
 	touch $@
 
-# downloads sourcees and patchesfor toolchain
-#	wget -c -O $(RTEMS_PATCHES_DIR)/$(GCC_G++_PATCH) $(RTEMS_SOURCES_URL)/$(GCC_G++_PATCH)
-#	wget -c -O $(RTEMS_PATCHES_DIR)/$(GDB_PATCH) $(RTEMS_SOURCES_URL)/$(GDB_PATCH)
+.install.gdb.ok: .compile.gdb.ok
+	cd b-gdb && make install
+	touch $@
+
+.compile.gdb.ok: .install.binutils.ok .patch.ok
+	export PATH=$(RTEMS_PREFIX)/bin:$$PATH
+	mkdir -p b-gdb
+	(cd b-gdb/; \
+	  ../gdb-$(GDB_VERSION)/configure --target=lm32-rtems4.11 --prefix=$(RTEMS_PREFIX); \
+	 make all; \
+	)
+	touch $@
+
 $(RTEMS_PATCHES_DIR)/.ok:
 	mkdir -p $(RTEMS_PATCHES_DIR)
 	wget -c -O $(RTEMS_PATCHES_DIR)/$(BINUTILS_PATCH) $(RTEMS_SOURCES_URL)/$(BINUTILS_PATCH)
 	wget -c -O $(RTEMS_PATCHES_DIR)/$(GCC_CORE_PATCH) $(RTEMS_SOURCES_URL)/$(GCC_CORE_PATCH)
 	wget -c -O $(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH) $(RTEMS_SOURCES_URL)/$(NEWLIB_PATCH)
+	wget -c -O $(RTEMS_PATCHES_DIR)/$(GCC_G++_PATCH) $(RTEMS_SOURCES_URL)/$(GCC_G++_PATCH)
+	wget -c -O $(RTEMS_PATCHES_DIR)/$(GDB_PATCH) $(RTEMS_SOURCES_URL)/$(GDB_PATCH)
 	touch $@
 $(DL)/$(BINUTILS).ok:
 	mkdir -p $(DL)
@@ -149,5 +166,7 @@ clean:
 	rm -rf binutils-$(BINUTILS_VERSION)
 	rm -rf gcc-$(GCC_CORE_VERSION)
 	rm -rf newlib-$(NEWLIB_VERSION)
+	rm -rf gdb-$(GDB_VERSION)
+	rm -rf $(RTEMS_PATCHES_DIR)
 	rm -rf .unzip.ok
 	rm -rf .patch.ok
