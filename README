@@ -1,7 +1,7 @@
 ====
 0. make sure you have write access to `/opt/rtems-4.11'
 
-1. export Varibles needs by compile MilkyMist, add those to your .bashrc
+1. export variables needed to compile Milkymist, add those to your .bashrc
     $ RTEMS_MAKEFILE_PATH=/opt/rtems-4.11/lm32-rtems4.11/milkymist
     $ export RTEMS_MAKEFILE_PATH
 
@@ -15,7 +15,7 @@
   clone all milkymist one git repos
     $ make -C compile-flickernoise milkymist-git-clone
 
-  compile flicernoise
+  compile flickernoise
     $ make -C compile-flickernoise flickernoise.fbi
 
 ====
