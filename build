@@ -80,13 +80,5 @@ mv ${VERSIONS} md5sums ${IMAGES_DIR}
 cp reflash_m1.sh ${IMAGES_DIR}
 
 
-echo "build documents ..."
-mkdir -p ${IMAGES_DIR}/doc
-make -C ${MILKYMIST_GIT_DIR}/flickernoise.git/doc/
-cp -f ${MILKYMIST_GIT_DIR}/flickernoise.git/doc/*.pdf ${IMAGES_DIR}/doc
-make -C ${MILKYMIST_GIT_DIR}/autotest-m1.git/doc/
-cp -f ${MILKYMIST_GIT_DIR}/autotest-m1.git/doc/*.pdf ${IMAGES_DIR}/doc
-
-
 cd /opt/ && tar cjvf Flickernoise-lm32-rtems-4.11-SDK-for-Linux-x86_64.tar.bz2 rtems-4.11/
-cp Flickernoise-lm32-rtems-4.11-SDK-for-Linux-x86_64.tar.bz2 ${IMAGES_DIR}/
+mv Flickernoise-lm32-rtems-4.11-SDK-for-Linux-x86_64.tar.bz2 ${IMAGES_DIR}/
