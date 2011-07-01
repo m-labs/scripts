@@ -1,10 +1,46 @@
+Snapshot 2011-07-01
+  * IR test: test RC-5 button 0~9
+  -- autotest-m1.git/
+
+  * Translation system, French translation file
+  * File dialog: search option
+  * Disable moust memcard
+  * Workaround the TIMEOUT issue, make sure exit in 15 seconds
+  * Fix two patches not compiled, (register allocation)
+  * Simple performance mode options:
+      patch title display at every patch switch
+      automatic patch switch after delay
+  * MIDI variables (midi1-midi8, assignable to MIDI controllers and readable from patches)
+  * Changed F8 "Start rendering" shortcut to F2
+  * OpenSoundControl patch configuration autobuild
+  * MIDI and IR: remove capture button, always capture when window is open
+  * Update and show system settings dialog box on resolution switch shortcut
+  * Long press on L pushbutton terminates rendering mode and runs web update
+  * Software update dialog box layout
+  * Fix(issue #16 #21) incorrect keys in French layout.
+  -- flickernoise.git
+
+  * Rc5: adapt timing to the t003 remote
+  * Fix(issue #18) BIOS: reset ethernet PHY a second time
+  -- milkymist.git
+
+  * Translation system, French translation file
+  -- mtk.git
+
+  * Add GDB to toolchain script
+  -- scripts.git
+
+  * Videoin: ADV7181 set/get register ioctls
+  * Fix(issue #17) imfs: use configured block size
+  -- rtems-milkymist.git
+
 Snapshot 2011-05-09
   * BIOS: disable splash screen and console to prevent unnecessary screen flickering
   * BIOS: now disables the video output completely by default
   * BIOS: report rescue mode to the application using R4
   -- milkymist.git
 
-  * add the three Buttons driver
+  * Add the three Buttons driver
   * GPIO: remove unneeded ioctl
   * CRT: detect rescue mode through R4 and set BSP command line
   -- rtems-milkymist.git
@@ -35,21 +71,21 @@ Snapshot 2011-04-22
   * Updated SoC diagram (Cristian Paul Peñaranda Rojas)
   -- milkymist.git
 
-  * makefile: remove -r in rm option
-  * add keyboard us layout
-  * add mtk_config_set_keyboard_layout
-  * add .gitignore
+  * Makefile: remove -r in rm option
+  * Add keyboard us layout
+  * Add mtk_config_set_keyboard_layout
+  * Add .gitignore
   * Makefile: add uninstall-milkymist
   -- mtk.git
 
-  * notify MTK about the changed keyboard layout
-  * osc: change default port to 4444
-  * add one patch file for FullScreen Video-in Preview
-  * fbgrab remove the alpha channel, change compressino level to default
-  * flash.sh using mktemp and cat for create scrtip file
+  * Notify MTK about the changed keyboard layout
+  * OSC: change default port to 4444
+  * Add one patch file for FullScreen Video-in Preview
+  * Fbgrab remove the alpha channel, change compressino level to default
+  * Flash.sh using mktemp and cat for create scrtip file
   * File dialog: properly get file extension
   * Use Ctrl-F2 for screenshot
-  * add Ctrl+F1 for iterate switch screen resolution
+  * Add Ctrl+F1 for iterate switch screen resolution
   * fb.c: replease 0 with SC_RESOLUTION_640_480
   * Make default resolution 640x480
   -- flickernoise.git
