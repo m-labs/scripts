@@ -1,3 +1,13 @@
+Snapshot 2011-07-06
+  * Finish web update
+  -- flickernoise.git
+
+  * Add MAC address check
+  -- rtems-milkymist.git
+
+  * Fix(issue #25) mkdir with '/' of an existing directory on SSD creates bogus obj
+  -- rtems-yaffs2.git
+
 Snapshot 2011-07-01
   * IR test: test RC-5 button 0~9
   -- autotest-m1.git/
