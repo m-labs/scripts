@@ -1,5 +1,19 @@
 #!/bin/bash
 
+USB_ORIGIN=0403:6010
+
+DATE=$(date "+%m%d")
+
+BUS=$(lsusb | grep ${USB_ORIGIN} | awk -F":" '{print $1}' | awk '{print $2}')
+DEV=$(lsusb | grep ${USB_ORIGIN} | awk -F":" '{print $1}' | awk '{print $4}')
+
+DEVICE=/dev/bus/usb/${BUS}/${DEV}
+SERIAL=${DATE}${DEV}
+
+if [ $1 != "" ]; then
+	SERIAL=$1
+fi
+
 FLASH_CONF_FILE=`mktemp`
 cat > ${FLASH_CONF_FILE}<<EOF
 vendor_id=0x20b7
@@ -16,10 +30,13 @@ usb_version=0
 manufacturer="Qi Hardware"
 product="Milkymist One JTAG/Serial"
 use_serial=true
-serial="$2"
+serial="${SERIAL}"
 EOF
 
-more ${FLASH_CONF_FILE}
+echo "Flash device: " ${DEVICE}
+echo "Using serial: " ${SERIAL}
 
-ftdi_eeprom --erase-eeprom $1
-ftdi_eeprom --flash-eeprom $1 ${FLASH_CONF_FILE}
+./ftdi_eeprom --erase-eeprom ${DEVICE}
+./ftdi_eeprom --flash-eeprom ${DEVICE} ${FLASH_CONF_FILE}
+
+echo "Done"
