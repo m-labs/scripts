@@ -20,6 +20,10 @@ RTEMS_PREFIX=/opt/rtems-$(RTEMS_VERSION)
 
 RTEMS_SOURCES_URL=http://www.rtems.org/ftp/pub/rtems/SOURCES/$(RTEMS_VERSION)
 
+# For Mac OS X use curl.
+WGET=wget -c -O 
+# WGET=curl -o 
+
 BINUTILS_VERSION=2.21
 GCC_CORE_VERSION=4.5.2
 NEWLIB_VERSION=1.19.0
@@ -35,7 +39,7 @@ NEWLIB=newlib-$(NEWLIB_VERSION).tar.gz
 GCC_G++=gcc-g++-$(GCC_G++_VERSION).tar.bz2 
 GDB=gdb-$(GDB_VERSION).tar.bz2
 GMP=gmp-$(GMP_VERSION).tar.bz2
-MPC=mpc-$(MPC_VERSION).tar.bz2
+MPC=mpc-$(MPC_VERSION).tar.gz 
 MPFR=mpfr-$(MPFR_VERSION).tar.bz2
 
 BINUTILS_PATCH=binutils-$(BINUTILS_VERSION)-rtems$(RTEMS_VERSION)-20110107.diff
@@ -99,11 +103,18 @@ gcc-$(GCC_CORE_VERSION)/newlib: .unzip.ok
 	)
 	touch $@
 
-.unzip.ok: $(DL)/$(BINUTILS).ok $(DL)/$(GCC_CORE).ok $(DL)/$(NEWLIB).ok $(DL)/$(GDB).ok
+.unzip.ok: $(DL)/$(BINUTILS).ok $(DL)/$(GCC_CORE).ok $(DL)/$(NEWLIB).ok $(DL)/$(GDB).ok $(DL)/$(MPFR).ok $(DL)/$(MPC).ok $(DL)/$(GMP).ok
 	tar xf $(DL)/$(BINUTILS)
 	tar xf $(DL)/$(GCC_CORE)
 	tar xf $(DL)/$(NEWLIB)
 	tar xf $(DL)/$(GDB)
+	tar xf $(DL)/$(GMP)
+	tar xf $(DL)/$(MPC)
+	tar xf $(DL)/$(MPFR)
+	rm -rf gcc-$(GCC_CORE_VERSION)/gmp gcc-$(GCC_CORE_VERSION)/mpc gcc-$(GCC_CORE_VERSION)/mpfr
+	ln -s  ../gmp-$(GMP_VERSION) gcc-$(GCC_CORE_VERSION)/gmp
+	ln -s  ../mpc-$(MPC_VERSION) gcc-$(GCC_CORE_VERSION)/mpc
+	ln -s  ../mpfr-$(MPFR_VERSION) gcc-$(GCC_CORE_VERSION)/mpfr
 	touch $@
 
 .install.gdb.ok: .compile.gdb.ok
@@ -121,43 +132,51 @@ gcc-$(GCC_CORE_VERSION)/newlib: .unzip.ok
 
 $(RTEMS_PATCHES_DIR)/.ok:
 	mkdir -p $(RTEMS_PATCHES_DIR)
-	wget -c -O $(RTEMS_PATCHES_DIR)/$(BINUTILS_PATCH) $(RTEMS_SOURCES_URL)/$(BINUTILS_PATCH)
-	wget -c -O $(RTEMS_PATCHES_DIR)/$(GCC_CORE_PATCH) $(RTEMS_SOURCES_URL)/$(GCC_CORE_PATCH)
-	wget -c -O $(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH) $(RTEMS_SOURCES_URL)/$(NEWLIB_PATCH)
-	wget -c -O $(RTEMS_PATCHES_DIR)/$(GCC_G++_PATCH) $(RTEMS_SOURCES_URL)/$(GCC_G++_PATCH)
-	wget -c -O $(RTEMS_PATCHES_DIR)/$(GDB_PATCH) $(RTEMS_SOURCES_URL)/$(GDB_PATCH)
+	$(WGET) $(RTEMS_PATCHES_DIR)/$(BINUTILS_PATCH) $(RTEMS_SOURCES_URL)/$(BINUTILS_PATCH)
+	$(WGET) $(RTEMS_PATCHES_DIR)/$(GCC_CORE_PATCH) $(RTEMS_SOURCES_URL)/$(GCC_CORE_PATCH)
+	$(WGET) $(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH) $(RTEMS_SOURCES_URL)/$(NEWLIB_PATCH)
+	$(WGET) $(RTEMS_PATCHES_DIR)/$(GCC_G++_PATCH) $(RTEMS_SOURCES_URL)/$(GCC_G++_PATCH)
+	$(WGET) $(RTEMS_PATCHES_DIR)/$(GDB_PATCH) $(RTEMS_SOURCES_URL)/$(GDB_PATCH)
 	touch $@
+
 $(DL)/$(BINUTILS).ok:
 	mkdir -p $(DL)
-	wget -c -O $(DL)/$(BINUTILS) $(RTEMS_SOURCES_URL)/$(BINUTILS)
+	$(WGET) $(DL)/$(BINUTILS) $(RTEMS_SOURCES_URL)/$(BINUTILS)
 	touch $@
+
 $(DL)/$(GCC_CORE).ok:
 	mkdir -p $(DL)
-	wget -c -O $(DL)/$(GCC_CORE) $(RTEMS_SOURCES_URL)/$(GCC_CORE)
+	$(WGET) $(DL)/$(GCC_CORE) $(RTEMS_SOURCES_URL)/$(GCC_CORE)
 	touch $@
+
 $(DL)/$(GCC_G++).ok:
 	mkdir -p $(DL)
-	wget -c -O $(DL)/$(GCC_G++) $(RTEMS_SOURCES_URL)/$(GCC_G++)
+	$(WGET) $(DL)/$(GCC_G++) $(RTEMS_SOURCES_URL)/$(GCC_G++)
 	touch $@
+
 $(DL)/$(NEWLIB).ok:
 	mkdir -p $(DL)
-	wget -c -O $(DL)/$(NEWLIB) $(RTEMS_SOURCES_URL)/$(NEWLIB)
+	$(WGET) $(DL)/$(NEWLIB) $(RTEMS_SOURCES_URL)/$(NEWLIB)
 	touch $@
+
 $(DL)/$(GDB).ok:
 	mkdir -p $(DL)
-	wget -c -O $(DL)/$(GDB) $(RTEMS_SOURCES_URL)/$(GDB)
+	$(WGET) $(DL)/$(GDB) $(RTEMS_SOURCES_URL)/$(GDB)
 	touch $@
+
 $(DL)/$(GMP).ok:
 	mkdir -p $(DL)
-	wget -c -O $(DL)/$(GMP) $(RTEMS_SOURCES_URL)/$(GMP)
+	$(WGET) $(DL)/$(GMP) $(RTEMS_SOURCES_URL)/$(GMP)
 	touch $@
+
 $(DL)/$(MPC).ok:
 	mkdir -p $(DL)
-	wget -c -O $(DL)/$(MPC) $(RTEMS_SOURCES_URL)/$(MPC)
+	$(WGET) $(DL)/$(MPC) $(RTEMS_SOURCES_URL)/$(MPC)
 	touch $@
+
 $(DL)/$(MPFR).ok:
 	mkdir -p $(DL)
-	wget -c -O $(DL)/$(MPFR) $(RTEMS_SOURCES_URL)/$(MPFR)
+	$(WGET) $(DL)/$(MPFR) $(RTEMS_SOURCES_URL)/$(MPFR)
 	touch $@
 
 clean:
@@ -168,5 +187,8 @@ clean:
 	rm -rf newlib-$(NEWLIB_VERSION)
 	rm -rf gdb-$(GDB_VERSION)
 	rm -rf $(RTEMS_PATCHES_DIR)
+	rm -rf gmp-$(GMP_VERSION)
+	rm -rf mpc-$(MPC_VERSION)
+	rm -rf mpfr-$(MPFR_VERSION)
 	rm -rf .unzip.ok
 	rm -rf .patch.ok
