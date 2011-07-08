@@ -28,6 +28,7 @@ OS X 10.6 and prior require updated autotools.  Download, build, and install aut
 /usr/bin/aclocal
 /usr/bin/autom4te
 /usr/share/autoconf
+/usr/share/automake
 
 * Install wget
 The Makefiles use wget instead of curl. So build and install wget:
