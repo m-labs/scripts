@@ -50,6 +50,7 @@ $ cp lemon lempar.c /opt/bin
 OS X also needs re2c from http://sourceforge.net/projects/re2c/
 $ curl http://surfnet.dl.sourceforge.net/project/re2c/re2c/0.13.5/re2c-0.13.5.tar.gz -o re2c-0.13.5.tar.gz
 $ tar xzvf re2c-0.13.5.tar.gz
+$ cd re2c-0.13.5
 $ ./configure --prefix=/opt
 $ make
 $ make install
