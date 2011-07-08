@@ -44,7 +44,7 @@ OS X also needs the Lemon parser generator. It needs to be built from source as 
 $ curl http://www.sqlite.org/cvstrac/getfile/sqlite/tool/lemon.c -o lemon.c
 $ curl http://www.sqlite.org/cvstrac/getfile/sqlite/tool/lempar.c -o lempar.c
 $ gcc -o lemon lemon.c
-$ cp lemon lemon.c /opt/bin
+$ cp lemon lempar.c /opt/bin
 
 * Install re2c
 OS X also needs re2c from http://sourceforge.net/projects/re2c/
