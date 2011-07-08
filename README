@@ -18,6 +18,43 @@
   compile flickernoise
     $ make -C compile-flickernoise flickernoise.fbi
 
+Notes for OS X:
+
+* Update autotools
+OS X 10.6 and prior require updated autotools.  Download, build, and install automake and autoconf and add them to your path.  Note that aclocal does not call the autoconf binary, so the _path_ that your autoconf is in doesn't matter. It _does_ look at m4 macros, though, and it appears to find autoconf macros out of /usr/share, which corresponds to the system autoconf (2.61 on osx). Therefore you must rename or delete the following to use the newly installed versions:
+
+/usr/bin/autoheader
+/usr/bin/autoconf
+/usr/bin/aclocal
+/usr/bin/autom4te
+/usr/share/autoconf
+
+* Install wget
+The Makefiles use wget instead of curl. So build and install wget:
+$ curl ftp://ftp.gnu.org/gnu/wget/wget-1.12.tar.gz -o wget-1.12.tar.gz
+$ tar xzvf wget-1.12.tar.gz
+$ cd wget-1.12
+$ ./configure --prefix=/opt
+$ make 
+$ make install
+
+* Install lemon
+OS X also needs the Lemon parser generator. It needs to be built from source as shown:
+$ curl http://www.sqlite.org/cvstrac/getfile/sqlite/tool/lemon.c -o lemon.c
+$ curl http://www.sqlite.org/cvstrac/getfile/sqlite/tool/lempar.c -o lempar.c
+$ gcc -o lemon lemon.c
+$ cp lemon lemon.c /opt/bin
+
+* Install re2c
+OS X also needs re2c from http://sourceforge.net/projects/re2c/
+$ curl http://surfnet.dl.sourceforge.net/project/re2c/re2c/0.13.5/re2c-0.13.5.tar.gz -o re2c-0.13.5.tar.gz
+$ tar xzvf re2c-0.13.5.tar.gz
+$ ./configure --prefix=/opt
+$ make
+$ make install
+
+
+
 ====
  `build' script file is for build all milkymist one images, you need the 
  Xilinx ISE tools for synthesis the bitstream
