@@ -17,6 +17,10 @@
 
 # before compile flickernoise. you need the lm32-rtems toolchain and rtems
 
+# For Mac OS X use curl.
+WGET=wget -c -O 
+# WGET=curl -o 
+
 # export PATH=/opt/rtems-4.11/bin:$PATH 
 # export RTEMS_MAKEFILE_PATH=/opt/rtems-4.11/lm32-rtems4.11/milkymist
 
@@ -247,54 +251,54 @@ autotest-m1-boot.bin:
 ####
 $(DL)/$(ZLIB).ok:
 	mkdir -p dl
-	wget -c -O $(DL)/$(ZLIB) http://zlib.net/$(ZLIB)
+	$(WGET) $(DL)/$(ZLIB) http://zlib.net/$(ZLIB)
 	touch $@
 
 $(DL)/$(LIBPNG).ok:
 	mkdir -p dl
-	wget -c -O $(DL)/$(LIBPNG) \
+	$(WGET) $(DL)/$(LIBPNG) \
           http://dfn.dl.sourceforge.net/project/libpng/libpng15/$(LIBPNG_VERSION)/$(LIBPNG)
 	touch $@
 
 $(DL)/$(LIBJPEG).ok:
 	mkdir -p dl
-	wget -c -O $(DL)/$(LIBJPEG) \
+	$(WGET) $(DL)/$(LIBJPEG) \
 	  http://www.ijg.org/files/$(LIBJPEG)
 	touch $@
 
 $(DL)/$(OPENJPEG).ok:
 	mkdir -p dl
-	wget -c -O $(DL)/$(OPENJPEG) \
+	$(WGET) $(DL)/$(OPENJPEG) \
 	  http://www.openjpeg.org/$(OPENJPEG)
 	touch $@
 
 $(DL)/$(JBIG2DEC).ok:
 	mkdir -p dl
-	wget -c -O $(DL)/$(JBIG2DEC) \
+	$(WGET) $(DL)/$(JBIG2DEC) \
 	  http://ghostscript.com/~giles/jbig2/jbig2dec/$(JBIG2DEC)
 	touch $@
 
 $(DL)/$(FREETYPE2).ok:
 	mkdir -p dl
-	wget -c -O $(DL)/$(FREETYPE2) \
+	$(WGET) $(DL)/$(FREETYPE2) \
 	  http://ufpr.dl.sourceforge.net/project/freetype/freetype2/$(FREETYPE2_VERSION)/$(FREETYPE2)
 	touch $@
 
 $(DL)/$(MUPDF).ok:
 	mkdir -p dl
-	wget -c -O $(DL)/$(MUPDF) \
+	$(WGET) $(DL)/$(MUPDF) \
           http://mupdf.com/download/archive/$(MUPDF)
 	touch $@
 
 $(DL)/$(CURL).ok:
 	mkdir -p dl
-	wget -c -O $(DL)/$(CURL) \
+	$(WGET) $(DL)/$(CURL) \
 	 http://curl.haxx.se/download/$(CURL)
 	touch $@
 
 $(DL)/$(EXPAT).ok:
 	mkdir -p dl
-	wget -c -O $(DL)/$(EXPAT) \
+	$(WGET) $(DL)/$(EXPAT) \
 	 http://download.sourceforge.net/project/expat/expat/$(EXPAT_VERSION)/expat-$(EXPAT_VERSION).tar.gz
 	touch $@
 clean:
