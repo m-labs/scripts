@@ -3,7 +3,7 @@ Install the following packages (package / package name):
 autotools: autotools-dev
 automake: automake
 freetype: libfreetype6-dev
-jpeg: libjpeg8-dev
+jpeg: libjpeg62-dev  (libgd2-xpm-dev uses this version)
 clang: clang
 gcc-multilib: gcc-multilib (for flterm 'asm/ioctls.h' file not found error)
 GD graphics library: libgd2-xpm-dev
