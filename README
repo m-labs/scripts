@@ -1,21 +1,39 @@
-====
-0. make sure you have write access to `/opt/rtems-4.11'
+Ubuntu 11.04 Desktop notes:
+Install the following packages (package / package name):
+autotools: autotools-dev
+automake: automake
+freetype: libfreetype6-dev
+jpeg: libjpeg8-dev
+clang: clang
+gcc-multilib: gcc-multilib (for flterm 'asm/ioctls.h' file not found error)
+GD graphics library: libgd2-xpm-dev
 
-1. export variables needed to compile Milkymist, add those to your .bashrc
+====
+The scripts checkout the milkymist git repository to "../" so you need write access to the
+ parent directory from where you issue the following commands.
+
+
+0. Make sure you have write access to `/opt/rtems-4.11'
+
+1. Export variables needed to compile Milkymist, add those to your .bashrc:
     $ RTEMS_MAKEFILE_PATH=/opt/rtems-4.11/lm32-rtems4.11/milkymist
     $ export RTEMS_MAKEFILE_PATH
 
     $ PATH=/opt/rtems-4.11/bin:${PATH}
     $ export PATH
 
-2. compile and install
-  download toolchain sources and compile toolchain
+2. Compile and install.
+  download toolchain sources and compile toolchain:
     $ make -C compile-lm32-rtems  
   
-  clone all milkymist one git repos
+  clone all milkymist one git repos:
     $ make -C compile-flickernoise milkymist-git-clone
 
-  compile flickernoise
+  build the host tools:
+    $ make -C ../milkymist/milkymist.git/tools
+    $ sudo make -C ../milkymist/milkymist.git/tools install
+
+  compile flickernoise:
     $ make -C compile-flickernoise flickernoise.fbi
 
 Notes for OS X:
