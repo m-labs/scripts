@@ -7,6 +7,7 @@ jpeg: libjpeg-dev
 clang: clang
 gcc-multilib: gcc-multilib (for flterm 'asm/ioctls.h' file not found error)
 GD graphics library: libgd2-xpm-dev
+makeinfo: texinfo
 
 ====
 The scripts checkout the milkymist git repository to "../" so you need write access to the
