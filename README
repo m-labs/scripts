@@ -77,6 +77,15 @@ $ ./configure --prefix=/opt
 $ make
 $ make install
 
+* Install sed
+(OS X sed behaves differently from what the Makefile expects):
+$ curl ftp://ftp.gnu.org/gnu/sed/sed-4.2.tar.gz 
+$ tar xzvf sed-4.2.tar.gz 
+$ cd sed-4.2
+$ ./configure --prefix=/opt
+$ make
+$ make install
+
 
 
 ====
