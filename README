@@ -40,7 +40,7 @@ The scripts checkout the milkymist git repository to "../" so you need write acc
   compile flickernoise:
     $ make -C compile-flickernoise flickernoise.fbi
 
-Notes for OS X:
+Notes for OS X 10.6 Snow Leopard:
 
 * Update autotools
 OS X 10.6 and prior require updated autotools.  Download, build, and install automake and autoconf and add them to your path.  Note that aclocal does not call the autoconf binary, so the _path_ that your autoconf is in doesn't matter. It _does_ look at m4 macros, though, and it appears to find autoconf macros out of /usr/share, which corresponds to the system autoconf (2.61 on osx). Therefore you must rename or delete the following to use the newly installed versions:
@@ -87,11 +87,47 @@ $ make
 $ make install
 
 * Install Freetype
-$ curl http://download.savannah.gnu.org/releases/freetype/freetype-2.4.5.tar.gz
+$ curl http://download.savannah.gnu.org/releases/freetype/freetype-2.4.5.tar.gz -o freetype-2.4.5.tar.gz
 $ tar xzvf freetype-2.4.5.tar.gz
+$ cd freetype-2.4.5
 $ ./configure --prefix=/opt
 $ make
 $ make install
+
+* Install libjpeg
+$ curl http://www.ijg.org/files/jpegsrc.v8c.tar.gz -o jpegsrc.v8c.tar.gz
+$ tar xzvf jpegsrc.v8c.tar.gz
+$ cd jpeg-8c
+$ ./configure --prefix=/opt
+$ make
+$ make install
+
+* Install XMP library
+$ curl ftp://ftp.x.org/contrib/libraries/xpm-3.4k.tar.gz -o xpm-3.4k.tar.gz
+$ make -f Makefile.noX
+$ make -f Makefile.noX install
+
+* Install Portable Network Graphics library 
+$ curl http://cdnetworks-us-1.dl.sourceforge.net/project/libpng/libpng15/1.5.4/libpng-1.5.4.tar.gz -o libpng-1.5.4.tar.gz
+$ tar xzvf libpng-1.5.4.tar.gz
+$ cd libpng-1.5.4
+$ ./configure --prefix=/opt
+$ make
+$ make install
+
+
+* Install the GD Graphics Library
+$ curl https://bitbucket.org/pierrejoye/gd-libgd/get/GD_2_0_33.tar.gz -o GD_2_0_33.tar.gz
+$ tar xzvf GD_2_0_33.tar.gz
+$ cd pierrejoye-gd-libgd-5551f61978e3/src
+$ ./configure
+edit the generated config.h file and comment out the line:
+    #define HAVE_LIBFONTCONFIG 1
+to 
+    /* #define HAVE_LIBFONTCONFIG 1 */
+$ make
+$ make install
+
 
 
 ====
