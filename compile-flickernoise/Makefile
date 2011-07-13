@@ -53,6 +53,8 @@ MILKYMIST_GIT_DIR:=../../milkymist
 
 CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \
 	AR=lm32-rtems4.11-ar \
+	LD=lm32-rtems4.11-ld \
+	RANLIB=lm32-rtems4.11-ranlib \
 	CFLAGS="-O9 -Wall -mbarrel-shift-enabled \
 	  -mmultiply-enabled -mdivide-enabled -msign-extend-enabled \
 	  -I $(RTEMS_MAKEFILE_PATH)/lib/include \
