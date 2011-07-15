@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html lang="en">
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<TITLE>MilkyMist Scripts README</TITLE>
+</HEAD>
+
+<body>
+<h1 align="center">MilkyMist Scripts README</h1>
+
+<h2>Contents</h2>
+
+<ol>
+<li><a href="#secDownload">Where to get the MilkyMist scripts</a>
+<li><a href="#secRun">Running the scripts</a>
+<ol>
+<li><a href="#secToolchain">Build the MilkyMist tool chain and Flickernoise</a>
+<li><a href="#secBitstream">Bitstream Synthesis</a>
+<li><a href="#secReflash">MilkyMist reflash</a>
+</ol>
+<li><a href="#secHost">Host Specific Requirements</a>
+<ol>
+<li><a href="#secUbuntu">Ubuntu 11.04 Desktop</a>
+<li><a href="#secOSX">Mac OS X 10.6 Snow Leopard</a>
+</ol>
+</ol>
+
+<h2><a name="secDownload">Where to get the MilkyMist scripts</a></h2>
+The scripts can be downloaded from the MilkyMist git repository at github:
+<pre>
+git clone git://github.com/milkymist/scripts.git 
+</pre>
+
+<h2><a name="secRun">Running the scripts</a></h2>
+<h3><a name="secToolchain">Build the MilkyMist tool chain and Flickernoise</a></h3>
+The scripts checkout the milkymist git repository to "../" so you need write access to the parent directory from where you issue the following commands.
+
+<OL>
+<LI>Check the <a href="#secHost">Host Specific Requirements</a> for your computer.
+<LI>Make sure you have write access to `/opt/rtems-4.11'
+
+<LI>Export variables needed to compile Milkymist, add those to your .bashrc:
+    <pre>
+    $ RTEMS_MAKEFILE_PATH=/opt/rtems-4.11/lm32-rtems4.11/milkymist
+    $ export RTEMS_MAKEFILE_PATH
+
+    $ PATH=/opt/rtems-4.11/bin:${PATH}
+    $ export PATH
+    </pre>
+
+<LI>Compile and install.
+  download toolchain sources and compile toolchain:
+    <pre>
+    $ make -C compile-lm32-rtems  
+    </pre>
+  
+<LI>Clone all milkymist one git repos:
+    <pre>
+    $ make -C compile-flickernoise milkymist-git-clone
+    </pre>
+
+<LI>Build the host tools:
+    <pre>
+    $ make -C ../milkymist/milkymist.git/tools
+    $ sudo make -C ../milkymist/milkymist.git/tools install
+    </pre>
+
+<LI>Compile flickernoise:
+    <pre>
+    $ make -C compile-flickernoise flickernoise.fbi
+    </pre>
+</OL>
+
+
+<h3><a name="secBitstream">Bitstream Synthesis</a></h3>
+
+ `build' script file is for build all milkymist one images, you need the 
+ Xilinx ISE tools for synthesis of the bitstream.
+
+<h3><a name="secReflash">MilkyMist reflash script</a></h3>
+
+ `reflash_m1.sh' script file is for download images and reflash milkymist one
+ by using UrJtag, you need UrJtag to flash the milkymist one.
+
+<h2><a name="secHost">Host Specific Requirements</a></h2>
+<h3><a name="secUbuntu">Ubuntu 11.04 Desktop</a></h3>
+<p>
+Install the following packages (package / package name): 
+<UL>
+	<LI>autotools: autotools-dev
+	<LI>automake: automake
+	<LI>jpeg: libjpeg-dev
+	<LI>freetype: libfreetype6-dev
+	<LI>clang: clang 
+	<LI>gcc-multilib: gcc-multilib (for flterm 'asm/ioctls.h' file not found error) 
+	<LI>GD graphics library: libgd2-xpm-dev 
+	<LI>makeinfo: texinfo 
+	<LI>curses: libncurses-dev 
+	<LI>lemon: lemon 
+	<LI>re2c: re2c
+</UL>
+
+<h3><a name="secOSX">Mac OS X 10.6 Snow Leopard</a></h3>
+<OL>
+<LI>Update autotools
+OS X 10.6 and prior require updated autotools.  Download, build, and install automake and autoconf and add them to your path.  Note that aclocal does not call the autoconf binary, so the _path_ that your autoconf is in doesn't matter. It _does_ look at m4 macros, though, and it appears to find autoconf macros out of /usr/share, which corresponds to the system autoconf (2.61 on osx). Therefore you must rename or delete the following to use the newly installed versions:
+
+<pre>
+/usr/bin/autoheader
+/usr/bin/autoconf
+/usr/bin/aclocal
+/usr/bin/autom4te
+/usr/share/autoconf
+/usr/share/automake
+</pre>
+
+<LI> Install wget.  The Makefiles use wget instead of curl. So build and install wget:
+<pre>
+$ curl ftp://ftp.gnu.org/gnu/wget/wget-1.12.tar.gz -o wget-1.12.tar.gz
+$ tar xzvf wget-1.12.tar.gz
+$ cd wget-1.12
+$ ./configure --prefix=/opt
+$ make 
+$ make install
+</pre>
+
+<LI> Install lemon.  OS X also needs the Lemon parser generator. It needs to be built from source as shown:
+<pre>
+$ curl http://www.sqlite.org/cvstrac/getfile/sqlite/tool/lemon.c -o lemon.c
+$ curl http://www.sqlite.org/cvstrac/getfile/sqlite/tool/lempar.c -o lempar.c
+$ gcc -o lemon lemon.c
+$ cp lemon lempar.c /opt/bin
+</pre>
+
+<LI> Install re2c.  OS X also needs re2c from http://sourceforge.net/projects/re2c/
+<pre>
+$ curl http://surfnet.dl.sourceforge.net/project/re2c/re2c/0.13.5/re2c-0.13.5.tar.gz -o re2c-0.13.5.tar.gz
+$ tar xzvf re2c-0.13.5.tar.gz
+$ cd re2c-0.13.5
+$ ./configure --prefix=/opt
+$ make
+$ make install
+</pre>
+
+<LI> Install sed.  (OS X sed behaves differently from what the Makefile expects):
+<pre>
+$ curl ftp://ftp.gnu.org/gnu/sed/sed-4.2.tar.gz -o sed-4.2.tar.gz
+$ tar xzvf sed-4.2.tar.gz 
+$ cd sed-4.2
+$ ./configure --prefix=/opt
+$ make
+$ make install
+</pre>
+
+<LI> Install Freetype.
+<pre>
+$ curl http://download.savannah.gnu.org/releases/freetype/freetype-2.4.5.tar.gz -o freetype-2.4.5.tar.gz
+$ tar xzvf freetype-2.4.5.tar.gz
+$ cd freetype-2.4.5
+$ ./configure --prefix=/opt
+$ make
+$ make install
+</pre>
+
+<LI> Install libjpeg.
+<pre>
+$ curl http://www.ijg.org/files/jpegsrc.v8c.tar.gz -o jpegsrc.v8c.tar.gz
+$ tar xzvf jpegsrc.v8c.tar.gz
+$ cd jpeg-8c
+$ ./configure --prefix=/opt
+$ make
+$ make install
+</pre>
+
+<LI> Install XMP library.
+<pre>
+$ curl ftp://ftp.x.org/contrib/libraries/xpm-3.4k.tar.gz -o xpm-3.4k.tar.gz
+$ make -f Makefile.noX
+$ make -f Makefile.noX install
+</pre>
+
+<LI> Install Portable Network Graphics library.
+<pre>
+$ curl http://cdnetworks-us-1.dl.sourceforge.net/project/libpng/libpng15/1.5.4/libpng-1.5.4.tar.gz -o libpng-1.5.4.tar.gz
+$ tar xzvf libpng-1.5.4.tar.gz
+$ cd libpng-1.5.4
+$ ./configure --prefix=/opt
+$ make
+$ make install
+</pre>
+
+<LI> Install the GD Graphics Library.
+<pre>
+$ curl https://bitbucket.org/pierrejoye/gd-libgd/get/GD_2_0_33.tar.gz -o GD_2_0_33.tar.gz
+$ tar xzvf GD_2_0_33.tar.gz
+$ cd pierrejoye-gd-libgd-5551f61978e3/src
+$ ./configure
+edit the generated config.h file and comment out the line:
+    #define HAVE_LIBFONTCONFIG 1
+to 
+    /* #define HAVE_LIBFONTCONFIG 1 */
+$ make
+$ make install
+</pre>
+</OL>
+</body>
