@@ -200,7 +200,7 @@ milkymist-git-clone:
 	mkdir -p $(MILKYMIST_GIT_DIR)
 	git clone $(MILKYMIST_GIT_URL)/milkymist.git $(MILKYMIST_GIT_DIR)/milkymist.git
 	git clone $(MILKYMIST_GIT_URL)/flickernoise.git $(MILKYMIST_GIT_DIR)/flickernoise.git
-	git clone $(MILKYMIST_GIT_URL)/rtems-yaffs2.git $(MILKYMIST_GIT_DIR)/rtems-yaffs2.git
+	git clone $(MILKYMIST_GIT_URL)/rtems-yaffs2-old.git $(MILKYMIST_GIT_DIR)/rtems-yaffs2-old.git
 	git clone $(MILKYMIST_GIT_URL)/rtems-milkymist.git $(MILKYMIST_GIT_DIR)/rtems-milkymist.git
 	git clone $(MILKYMIST_GIT_URL)/liboscparse.git $(MILKYMIST_GIT_DIR)/liboscparse.git
 	git clone $(MILKYMIST_GIT_URL)/mtk.git $(MILKYMIST_GIT_DIR)/mtk.git
@@ -209,7 +209,7 @@ milkymist-git-clone:
 milkymist-git-update:
 	(cd $(MILKYMIST_GIT_DIR)/milkymist.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git; git fetch -a; git reset --hard origin/master)
-	(cd $(MILKYMIST_GIT_DIR)/rtems-yaffs2.git; git fetch -a; git reset --hard origin/master)
+	(cd $(MILKYMIST_GIT_DIR)/rtems-yaffs2-old.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/rtems-milkymist.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/liboscparse.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/mtk.git; git fetch -a; git reset --hard origin/master)
@@ -225,7 +225,7 @@ mtk:
 liboscparse:
 	(cd $(MILKYMIST_GIT_DIR)/$@.git && make && make install)
 
-rtems-yaffs2:
+rtems-yaffs2-old:
 	(cd $(MILKYMIST_GIT_DIR)/$@.git/direct/rtems && make && make install)
 
 rtems-milkymist: $(BUILD_DIR)/bsp-milkymist/Makefile
@@ -238,7 +238,7 @@ $(BUILD_DIR)/bsp-milkymist/Makefile:
 	(cd $(BUILD_DIR)/bsp-milkymist && ../../$(MILKYMIST_GIT_DIR)/rtems-milkymist.git/configure $(RTEMS_CONFIGURE_FLAGS))
 
 #you will need clang for compile milkymist tools
-flickernoise.fbi: rtems-milkymist libfpvm mtk liboscparse rtems-yaffs2 $(BUILD_DIR)/mupdf $(BUILD_DIR)/curl $(BUILD_DIR)/expat
+flickernoise.fbi: rtems-milkymist libfpvm mtk liboscparse rtems-yaffs2-old $(BUILD_DIR)/mupdf $(BUILD_DIR)/curl $(BUILD_DIR)/expat
 	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git/src && make clean && make bin/flickernoise.fbi)
 	cp $(MILKYMIST_GIT_DIR)/flickernoise.git/src/bin/$@ ./
 
