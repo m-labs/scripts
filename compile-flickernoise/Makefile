@@ -27,15 +27,13 @@ WGET=wget -c -O
 RTEMS_VERSION=4.11
 RTEMS_MAKEFILE_PATH?=/opt/rtems-$(RTEMS_VERSION)/lm32-rtems$(RTEMS_VERSION)/milkymist
 
-ZLIB_VERSION=1.2.5
-LIBPNG_VERSION=1.5.2
+LIBPNG_VERSION=1.5.4
 JBIG2DEC_VERSION=0.11
 FREETYPE2_VERSION=2.4.4
 MUPDF_VERSION=0.8
-CURL_VERSION=7.21.6
+CURL_VERSION=7.21.7
 EXPAT_VERSION=2.0.1
 
-ZLIB=zlib-$(ZLIB_VERSION).tar.gz
 LIBPNG=libpng-$(LIBPNG_VERSION).tar.gz
 LIBJPEG=jpegsrc.v8b.tar.gz
 OPENJPEG=openjpeg_v1_2.tar.gz
@@ -69,17 +67,6 @@ ALL:flickernoise.fbi flickernoise-pdf.fbiz
 
 build_dir/.prepare:
 	mkdir -p build_dir
-	touch $@
-
-$(BUILD_DIR)/zlib: $(DL)/$(ZLIB).ok build_dir/.prepare
-	cd $(BUILD_DIR); tar xf ../$(DL)/$(ZLIB)
-	(cd $(BUILD_DIR)/zlib-$(ZLIB_VERSION); $(CONFIGURE_VARS) \
-	 ./configure --static --prefix=$(RTEMS_MAKEFILE_PATH); \
-	 make; \
-	 sed -i '/cp $$(SHAREDLIBV) $$(DESTDIR)$$(sharedlibdir)/d' Makefile; \
-	 make install; \
-	)
-	mv $(RTEMS_MAKEFILE_PATH)/include/z* $(RTEMS_MAKEFILE_PATH)/lib/include
 	touch $@
 
 $(BUILD_DIR)/libpng: $(DL)/$(LIBPNG).ok build_dir/.prepare
@@ -139,7 +126,7 @@ $(BUILD_DIR)/freetype2: $(DL)/$(FREETYPE2).ok build_dir/.prepare
 	touch $@
 
 $(BUILD_DIR)/mupdf: $(DL)/$(MUPDF).ok  build_dir/.prepare  \
-                    $(BUILD_DIR)/zlib $(BUILD_DIR)/libpng $(BUILD_DIR)/libjpeg \
+                    $(BUILD_DIR)/libpng $(BUILD_DIR)/libjpeg \
                     $(BUILD_DIR)/openjpeg $(BUILD_DIR)/jbig2dec $(BUILD_DIR)/freetype2
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(MUPDF)
 #First, compile the code generation tools natively:
@@ -175,7 +162,6 @@ $(BUILD_DIR)/curl: $(DL)/$(CURL).ok
 	 --without-librtmp --disable-ftp --disable-ldap --disable-ldaps --disable-rtsp --disable-dict \
 	 --disable-telnet --disable-tftp --disable-pop3 --disable-imap --disable-smtp --disable-gopher \
 	 --disable-manual; \
-	 sed -i '/^libcurl_la_CFLAGS/s/^/#/' lib/Makefile; \
 	 echo "#define HAVE_SOCKET 1" >> lib/setup.h; \
 	 make; \
 	 make install; \
@@ -200,8 +186,8 @@ milkymist-git-clone:
 	mkdir -p $(MILKYMIST_GIT_DIR)
 	git clone $(MILKYMIST_GIT_URL)/milkymist.git $(MILKYMIST_GIT_DIR)/milkymist.git
 	git clone $(MILKYMIST_GIT_URL)/flickernoise.git $(MILKYMIST_GIT_DIR)/flickernoise.git
-	git clone $(MILKYMIST_GIT_URL)/rtems-yaffs2-old.git $(MILKYMIST_GIT_DIR)/rtems-yaffs2-old.git
-	git clone $(MILKYMIST_GIT_URL)/rtems-milkymist.git $(MILKYMIST_GIT_DIR)/rtems-milkymist.git
+	git clone $(MILKYMIST_GIT_URL)/rtems-yaffs2.git $(MILKYMIST_GIT_DIR)/rtems-yaffs2.git
+	git clone -b mmstaging $(MILKYMIST_GIT_URL)/rtems.git $(MILKYMIST_GIT_DIR)/rtems.git
 	git clone $(MILKYMIST_GIT_URL)/liboscparse.git $(MILKYMIST_GIT_DIR)/liboscparse.git
 	git clone $(MILKYMIST_GIT_URL)/mtk.git $(MILKYMIST_GIT_DIR)/mtk.git
 	git clone $(MILKYMIST_GIT_URL)/autotest-m1.git $(MILKYMIST_GIT_DIR)/autotest-m1.git
@@ -209,8 +195,8 @@ milkymist-git-clone:
 milkymist-git-update:
 	(cd $(MILKYMIST_GIT_DIR)/milkymist.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git; git fetch -a; git reset --hard origin/master)
-	(cd $(MILKYMIST_GIT_DIR)/rtems-yaffs2-old.git; git fetch -a; git reset --hard origin/master)
-	(cd $(MILKYMIST_GIT_DIR)/rtems-milkymist.git; git fetch -a; git reset --hard origin/master)
+	(cd $(MILKYMIST_GIT_DIR)/rtems-yaffs2.git; git fetch -a; git reset --hard origin/master)
+	(cd $(MILKYMIST_GIT_DIR)/rtems.git; git fetch -a; git reset --hard origin/mmstaging)
 	(cd $(MILKYMIST_GIT_DIR)/liboscparse.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/mtk.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/autotest-m1.git; git fetch -a; git reset --hard origin/master)
@@ -225,20 +211,20 @@ mtk:
 liboscparse:
 	(cd $(MILKYMIST_GIT_DIR)/$@.git && make && make install)
 
-rtems-yaffs2-old:
-	(cd $(MILKYMIST_GIT_DIR)/$@.git/direct/rtems && make && make install)
+rtems-yaffs2:
+	(cd $(MILKYMIST_GIT_DIR)/$@.git && make -f Makefile.rtems && make -f Makefile.rtems  install)
 
-rtems-milkymist: $(BUILD_DIR)/bsp-milkymist/Makefile
+rtems: $(BUILD_DIR)/bsp-milkymist/Makefile
 	(cd $(BUILD_DIR)/bsp-milkymist; make all; make install)
 	touch $@
 
 $(BUILD_DIR)/bsp-milkymist/Makefile:
 	mkdir -p $(BUILD_DIR)/bsp-milkymist
-	(cd $(MILKYMIST_GIT_DIR)/rtems-milkymist.git && ./bootstrap -c && ./bootstrap -p && ./bootstrap)
-	(cd $(BUILD_DIR)/bsp-milkymist && ../../$(MILKYMIST_GIT_DIR)/rtems-milkymist.git/configure $(RTEMS_CONFIGURE_FLAGS))
+	(cd $(MILKYMIST_GIT_DIR)/rtems.git && ./bootstrap -c && ./bootstrap -p && ./bootstrap)
+	(cd $(BUILD_DIR)/bsp-milkymist && ../../$(MILKYMIST_GIT_DIR)/rtems.git/configure $(RTEMS_CONFIGURE_FLAGS))
 
 #you will need clang for compile milkymist tools
-flickernoise.fbi: rtems-milkymist libfpvm mtk liboscparse rtems-yaffs2-old $(BUILD_DIR)/mupdf $(BUILD_DIR)/curl $(BUILD_DIR)/expat
+flickernoise.fbi: rtems libfpvm mtk liboscparse rtems-yaffs2 $(BUILD_DIR)/mupdf $(BUILD_DIR)/curl $(BUILD_DIR)/expat
 	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git/src && make clean && make bin/flickernoise.fbi)
 	cp $(MILKYMIST_GIT_DIR)/flickernoise.git/src/bin/$@ ./
 
@@ -251,11 +237,6 @@ autotest-m1-boot.bin:
 	cp $(MILKYMIST_GIT_DIR)/autotest-m1.git/src/boot.bin ./$@
 
 ####
-$(DL)/$(ZLIB).ok:
-	mkdir -p dl
-	$(WGET) $(DL)/$(ZLIB) http://zlib.net/$(ZLIB)
-	touch $@
-
 $(DL)/$(LIBPNG).ok:
 	mkdir -p dl
 	$(WGET) $(DL)/$(LIBPNG) \
