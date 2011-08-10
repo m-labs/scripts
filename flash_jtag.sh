@@ -2,7 +2,7 @@
 
 USB_ORIGIN=0403:6010
 
-DATE=$(date "+%m%d")
+DATE=$(date "+%Y%m" | cut -b3-)
 
 BUS=$(lsusb | grep ${USB_ORIGIN} | awk -F":" '{print $1}' | awk '{print $2}')
 DEV=$(lsusb | grep ${USB_ORIGIN} | awk -F":" '{print $1}' | awk '{print $4}')
