@@ -67,10 +67,14 @@ cat ${WORKING_DIR}/${HEAD_TMP} \
 
 #UrJtag option ####################################################
 NOVERIFY="noverify"
+#DEBUG="debug all"
+DEBUG=""
 
 #UrJtag batch file
 BATCH_FILE=`mktemp`
 cat > ${BATCH_FILE}<<EOF
+#{DEBUG}
+
 cable milkymist
 detect
 instruction CFG_OUT 000100 BYPASS

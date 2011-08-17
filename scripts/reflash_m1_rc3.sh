@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###################################################################
-__VERSION__="2011-08-12"
+__VERSION__="2011-08-17"
 echo "Version of me: ${__VERSION__}"
 echo "File name: $0"
 
@@ -58,12 +58,16 @@ cat ${MAC_DIR}/${HEAD_TMP} \
 mkmmimg ${MAC_DIR}/${BIOS_RESCUE_MAC} write
 
 ###################################################################
-#UrJtag option, if you don't want verify, enable the next line
+#UrJtag option
 NOVERIFY="noverify" 
+#DEBUG="debug all"
+DEBUG=""
 
 #UrJtag batch file
 BATCH_FILE=`mktemp`
 cat > ${BATCH_FILE}<<EOF
+${DEBUG}
+
 cable milkymist
 detect
 instruction CFG_OUT 000100 BYPASS
@@ -113,3 +117,6 @@ fi
 
 # __VERSION__="2011-08-12"
 #  * erase whole flash before wirte anything
+
+# __VERSION__="2011-08-17"
+#  * add debug all
