@@ -182,6 +182,7 @@ $(DL)/$(MPFR).ok:
 clean:
 	rm -rf b-binutils
 	rm -rf b-gcc
+	rm -rf b-gdb
 	rm -rf binutils-$(BINUTILS_VERSION)
 	rm -rf gcc-$(GCC_CORE_VERSION)
 	rm -rf newlib-$(NEWLIB_VERSION)
