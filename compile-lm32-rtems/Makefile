@@ -25,9 +25,8 @@ WGET=wget -c -O
 # WGET=curl -o 
 
 BINUTILS_VERSION=2.21
-GCC_CORE_VERSION=4.5.2
+GCC_CORE_VERSION=4.5.3
 NEWLIB_VERSION=1.19.0
-GCC_G++_VERSION=4.5.2
 GDB_VERSION=7.2
 GMP_VERSION=4.3.2
 MPC_VERSION=0.8.1
@@ -36,16 +35,14 @@ MPFR_VERSION=2.4.2
 BINUTILS=binutils-$(BINUTILS_VERSION).tar.bz2 
 GCC_CORE=gcc-core-$(GCC_CORE_VERSION).tar.bz2 
 NEWLIB=newlib-$(NEWLIB_VERSION).tar.gz
-GCC_G++=gcc-g++-$(GCC_G++_VERSION).tar.bz2 
 GDB=gdb-$(GDB_VERSION).tar.bz2
 GMP=gmp-$(GMP_VERSION).tar.bz2
 MPC=mpc-$(MPC_VERSION).tar.gz 
 MPFR=mpfr-$(MPFR_VERSION).tar.bz2
 
 BINUTILS_PATCH=binutils-$(BINUTILS_VERSION)-rtems$(RTEMS_VERSION)-20110107.diff
-GCC_CORE_PATCH=gcc-core-$(GCC_CORE_VERSION)-rtems$(RTEMS_VERSION)-20110220.diff
+GCC_CORE_PATCH=gcc-core-$(GCC_CORE_VERSION)-rtems$(RTEMS_VERSION)-20110426.diff
 NEWLIB_PATCH=newlib-$(NEWLIB_VERSION)-rtems$(RTEMS_VERSION)-20110109.diff
-GCC_G++_PATCH=gcc-g++-$(GCC_G++_VERSION)-rtems$(RTEMS_VERSION)-20110131.diff
 GDB_PATCH=gdb-$(GDB_VERSION)-rtems$(RTEMS_VERSION)-20100907.diff
 
 DL=$(if $(wildcard ../dl/.),../dl,dl)
@@ -135,7 +132,6 @@ $(RTEMS_PATCHES_DIR)/.ok:
 	$(WGET) $(RTEMS_PATCHES_DIR)/$(BINUTILS_PATCH) $(RTEMS_SOURCES_URL)/$(BINUTILS_PATCH)
 	$(WGET) $(RTEMS_PATCHES_DIR)/$(GCC_CORE_PATCH) $(RTEMS_SOURCES_URL)/$(GCC_CORE_PATCH)
 	$(WGET) $(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH) $(RTEMS_SOURCES_URL)/$(NEWLIB_PATCH)
-	$(WGET) $(RTEMS_PATCHES_DIR)/$(GCC_G++_PATCH) $(RTEMS_SOURCES_URL)/$(GCC_G++_PATCH)
 	$(WGET) $(RTEMS_PATCHES_DIR)/$(GDB_PATCH) $(RTEMS_SOURCES_URL)/$(GDB_PATCH)
 	touch $@
 
@@ -147,11 +143,6 @@ $(DL)/$(BINUTILS).ok:
 $(DL)/$(GCC_CORE).ok:
 	mkdir -p $(DL)
 	$(WGET) $(DL)/$(GCC_CORE) $(RTEMS_SOURCES_URL)/$(GCC_CORE)
-	touch $@
-
-$(DL)/$(GCC_G++).ok:
-	mkdir -p $(DL)
-	$(WGET) $(DL)/$(GCC_G++) $(RTEMS_SOURCES_URL)/$(GCC_G++)
 	touch $@
 
 $(DL)/$(NEWLIB).ok:
@@ -191,5 +182,5 @@ clean:
 	rm -rf gmp-$(GMP_VERSION)
 	rm -rf mpc-$(MPC_VERSION)
 	rm -rf mpfr-$(MPFR_VERSION)
-	rm -rf .unzip.ok
-	rm -rf .patch.ok
+	rm -rf .*.ok
+	rm -rf .ok
