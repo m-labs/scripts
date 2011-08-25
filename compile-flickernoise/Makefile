@@ -220,6 +220,8 @@ rtems: $(BUILD_DIR)/bsp-milkymist/Makefile
 
 $(BUILD_DIR)/bsp-milkymist/Makefile:
 	mkdir -p $(BUILD_DIR)/bsp-milkymist
+	(cd $(MILKYMIST_GIT_DIR)/rtems.git && patch -Np1 < ${CURDIR}/patches/rtems-0001-zlib-git-cvs-bug.patch)
+	#workaround git cvs bug
 	(cd $(MILKYMIST_GIT_DIR)/rtems.git && ./bootstrap -c && ./bootstrap -p && ./bootstrap)
 	(cd $(BUILD_DIR)/bsp-milkymist && ../../$(MILKYMIST_GIT_DIR)/rtems.git/configure $(RTEMS_CONFIGURE_FLAGS))
 
