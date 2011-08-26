@@ -286,5 +286,12 @@ $(DL)/$(EXPAT).ok:
 	$(WGET) $(DL)/$(EXPAT) \
 	 http://download.sourceforge.net/project/expat/expat/$(EXPAT_VERSION)/expat-$(EXPAT_VERSION).tar.gz
 	touch $@
+
+.PHONY: clean clean-rtems
+
 clean:
 	rm -rf build_dir/*
+
+clean-rtems:
+	(cd $(MILKYMIST_GIT_DIR)/rtems.git && git checkout cpukit/zlib/zconf.h.in)
+	rm -rf build_dir/bsp-milkymist/
