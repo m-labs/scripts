@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###################################################################
-__VERSION__="2011-08-17"
+__VERSION__="2011-08-26"
 echo "Version of me: ${__VERSION__}"
 echo "File name: $0"
 
@@ -87,7 +87,7 @@ flashmem 0x220000 ${MAC_DIR}/${BIOS_RESCUE_MAC} ${NOVERIFY}
 flashmem 0x240000 ${WORKING_DIR}/${SPLASH_RESCUE} ${NOVERIFY}
 flashmem 0x2E0000 ${WORKING_DIR}/${FLICKERNOISE} ${NOVERIFY}
 
-#lockflash 0x000000 55
+lockflash 0x000000 55
 
 flashmem 0x6E0000 ${WORKING_DIR}/${SOC} ${NOVERIFY}
 flashmem 0x860000 ${WORKING_DIR}/${BIOS} ${NOVERIFY}
