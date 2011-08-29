@@ -1,11 +1,9 @@
 #!/bin/bash
 
 # version of me
-__VERSION__="2011-04-21"
+__VERSION__="2011-08-28"
+echo "File name: $0, Version of me: ${__VERSION__}"
 
-BASE_URL_HTTP="http://www.milkymist.org/snapshots"
-VERSION="latest"
-WORKING_DIR="${HOME}/.qi/milkymist/${VERSION}"
 
 FJMEM="fjmem.bit"
 STANDBY="standby.fpg"
@@ -18,47 +16,54 @@ SPLASH="splash.raw"
 FLICKERNOISE="flickernoise.fbi"
 DATA="data.flash5.bin"
 
-mkdir -p ${WORKING_DIR}
+# Functions ###########################################################
+call-help() {
+        echo "
+Usage: ./reflash_m1.sh                    version: ${__VERSION__}
+	--release [VERSION]          # by default it will download 'currect' release
+	--snapshot <VERSION> [data]  # if 'data' enable will reflash data partitions
+	--local-folder <PATH>        # all files must be under <PATH>
+	--lock-flash                 # lock 'standby' and 'rescue' partitions
+	--bios-mac 00 2a             # '00' '2a' is the last MAC address
+	--rc3 00 2a                  # used in factory flash
 
-MD5SUMS_SERVER=$(\
-wget -O - ${BASE_URL_HTTP}/${VERSION}/md5sums 2> /dev/null |\
-grep -E "(${FJMEM}|${STANDBY}|${SOC_RESCUE}|${BIOS_RESCUE}|${SPLASH_RESCUE}|\
-${SOC}|${BIOS}|${SPLASH}|${FLICKERNOISE}|${DATA})" | sort)
-if [ "${MD5SUMS_SERVER}" == "" ]; then
-    echo "ERROR: can't fetch files from server"
-    exit 1
-fi
+Written by: Xiangfu Liu <xiangfu@sharism.cc>
+Please report bugs to <devel@lists.milkymist.org>
+"
 
-MD5SUMS_LOCAL=$( (cd "${WORKING_DIR}" ; \
-    md5sum --binary ${FJMEM} ${STANDBY} ${SOC_RESCUE} ${BIOS_RESCUE} ${SPLASH_RESCUE} \
-    ${SOC} ${BIOS} ${SPLASH} ${FLICKERNOISE} ${DATA} 2> /dev/null) | sort )
+}
 
-if [ "${MD5SUMS_SERVER}" == "${MD5SUMS_LOCAL}" ]; then
-    echo "present files are identical to the ones on the server - do not download them again"
-else
-    (cd "${WORKING_DIR}" ; rm -f ${FJMEM} ${STANDBY} ${SOC_RESCUE} ${BIOS_RESCUE} ${SPLASH_RESCUE} \
-        ${SOC} ${BIOS} ${SPLASH} ${FLICKERNOISE} ${DATA})
-    wget -P "${WORKING_DIR}" "${BASE_URL_HTTP}/${VERSION}/${FJMEM}"
-    wget -P "${WORKING_DIR}" "${BASE_URL_HTTP}/${VERSION}/${STANDBY}"
-    wget -P "${WORKING_DIR}" "${BASE_URL_HTTP}/${VERSION}/${SOC_RESCUE}"
-    wget -P "${WORKING_DIR}" "${BASE_URL_HTTP}/${VERSION}/${BIOS_RESCUE}"
-    wget -P "${WORKING_DIR}" "${BASE_URL_HTTP}/${VERSION}/${SPLASH_RESCUE}"
-    wget -P "${WORKING_DIR}" "${BASE_URL_HTTP}/${VERSION}/${SOC}"
-    wget -P "${WORKING_DIR}" "${BASE_URL_HTTP}/${VERSION}/${BIOS}"
-    wget -P "${WORKING_DIR}" "${BASE_URL_HTTP}/${VERSION}/${SPLASH}"
-    wget -P "${WORKING_DIR}" "${BASE_URL_HTTP}/${VERSION}/${FLICKERNOISE}"
-    wget -P "${WORKING_DIR}" "${BASE_URL_HTTP}/${VERSION}/${DATA}"
-fi
+call-download() {
+    wget -O "${WORKING_DIR}/${STANDBY}"       "${BASE_URL_HTTP}/${VERSION}/${STANDBY}"
 
-#UrJtag option
-NOVERIFY="noverify"
-#DEBUG="debug all"
-DEBUG=""
+    wget -O "${WORKING_DIR}/${SOC_RESCUE}"    "${BASE_URL_HTTP}/${VERSION}/${SOC_RESCUE}"
+    wget -O "${WORKING_DIR}/${BIOS_RESCUE}"   "${BASE_URL_HTTP}/${VERSION}/${BIOS_RESCUE}"
+    wget -O "${WORKING_DIR}/${SPLASH_RESCUE}" "${BASE_URL_HTTP}/${VERSION}/${SPLASH_RESCUE}"
 
-#UrJtag batch file
-BATCH_FILE=`mktemp`
-cat > ${BATCH_FILE}<<EOF
-${DEBUG}
+    wget -O "${WORKING_DIR}/${SOC}"           "${BASE_URL_HTTP}/${VERSION}/${SOC}"
+    wget -O "${WORKING_DIR}/${BIOS}"          "${BASE_URL_HTTP}/${VERSION}/${BIOS}"
+    wget -O "${WORKING_DIR}/${SPLASH}"        "${BASE_URL_HTTP}/${VERSION}/${SPLASH}"
+
+    wget -O "${WORKING_DIR}/${FLICKERNOISE}"  "${BASE_URL_HTTP}/${VERSION}/${FLICKERNOISE}"
+}
+
+call-jtag() {
+    if [ ! -f ${WORKING_DIR}/${FJMEM} ]; then
+        wget -O "${WORKING_DIR}/${FJMEM}" http://milkymist.org/updates/2011-07-13/for-rc3/fjmem.bit
+    fi
+
+    # UrJtag option ##########################################
+    JTAG_DEBUG=""
+    #JTAG_DEBUG="debug all"
+
+    JTAG_NOVERIFY="noverify"
+    # UrJtag option ##########################################
+
+    #UrJtag batch file
+    JTAG_BATCH_FILE=`mktemp`
+
+    cat > ${JTAG_BATCH_FILE}<<EOF
+${JTAG_DEBUG}
 
 cable milkymist
 detect
@@ -70,33 +75,135 @@ frequency 6000000
 detectflash 0
 endian big
 
-flashmem 0x000000 ${WORKING_DIR}/${STANDBY} ${NOVERIFY}
-
-flashmem 0x0A0000 ${WORKING_DIR}/${SOC_RESCUE} ${NOVERIFY}
-flashmem 0x220000 ${WORKING_DIR}/${BIOS_RESCUE} ${NOVERIFY}
-flashmem 0x240000 ${WORKING_DIR}/${SPLASH_RESCUE} ${NOVERIFY}
-flashmem 0x2E0000 ${WORKING_DIR}/${FLICKERNOISE} ${NOVERIFY}
-
-flashmem 0x6E0000 ${WORKING_DIR}/${SOC} ${NOVERIFY}
-flashmem 0x860000 ${WORKING_DIR}/${BIOS} ${NOVERIFY}
-flashmem 0x880000 ${WORKING_DIR}/${SPLASH} ${NOVERIFY}
-
-flashmem 0x920000 ${WORKING_DIR}/${FLICKERNOISE} ${NOVERIFY}
-
-eraseflash 0xD20000 151
-flashmem   0xD20000 ${WORKING_DIR}/${DATA} ${NOVERIFY}
-
-pld reconfigure
 EOF
 
-jtag  ${BATCH_FILE}
-if [ "$?" == "0" ]; then
-    rm -f ${BATCH_FILE}
+    echo "eraseflash 0x000000 105" >> ${JTAG_BATCH_FILE}
 
+    echo "flashmem 0x000000 ${WORKING_DIR}/${STANDBY} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
+    echo "flashmem 0x0A0000 ${WORKING_DIR}/${SOC_RESCUE} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
+    echo "flashmem 0x220000 ${WORKING_DIR}/${BIOS_RESCUE} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
+    echo "flashmem 0x240000 ${WORKING_DIR}/${SPLASH_RESCUE} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
+    echo "flashmem 0x2E0000 ${WORKING_DIR}/${FLICKERNOISE} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
+
+    echo "lockflash 0x000000  55" >> ${JTAG_BATCH_FILE}
+
+    echo "flashmem 0x6E0000 ${WORKING_DIR}/${SOC} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
+    echo "flashmem 0x860000 ${WORKING_DIR}/${BIOS} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
+    echo "flashmem 0x880000 ${WORKING_DIR}/${SPLASH} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
+    echo "flashmem 0x920000 ${WORKING_DIR}/${FLICKERNOISE} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
+
+    if [ "$1" == "--snapshot" ] && [ "$2" == "data" ] && [ -f "${WORKING_DIR}/${DATA}" ]; then
+        echo "eraseflash 0xD20000 151" >> ${JTAG_BATCH_FILE}
+        echo "flashmem   0xD20000 ${WORKING_DIR}/${DATA} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
+    fi
+
+    echo "pld reconfigure" >> ${JTAG_BATCH_FILE}
+
+    jtag  ${JTAG_BATCH_FILE}
     echo "-------------------------------------------------------------"
+    echo "jtag batch file is ${JTAG_BATCH_FILE}"
     echo "Your m1 was successfully reflashed. To boot the new software,"
     echo "Please now press the middle button of your Milkymist One."
     echo "-------------------------------------------------------------"
-else
-    echo "there are errors when running jtag. "
+
+}
+
+
+# Main ###########################################################
+
+if [ "$1" == "--release" ]; then
+    BASE_URL_HTTP="http://milkymist.org/updates"
+    VERSION="$2"
+
+    if [ "${VERSION}" == "" ]; then
+        VERSION="current"
+    fi
+
+    VERSION_SERVER=$(wget -O - ${BASE_URL_HTTP}/${VERSION}/version-app 2> /dev/null)
+    if [ "${VERSION_SERVER}" == "" ]; then
+        echo "ERROR: can't fetch files: ${BASE_URL_HTTP}/${VERSION}/version-app"
+        exit 1
+    fi
+
+    WORKING_DIR="${HOME}/.qi/milkymist/release/${VERSION}"
+    mkdir -p ${WORKING_DIR}
+
+    VERSION_LOCAL=$(cat "${WORKING_DIR}/version-app")
+
+    if [ "${VERSION_SERVER}" == "${VERSION_LOCAL}" ]; then
+        echo "local version same with server version - do not download them again"
+    else
+        (cd "${WORKING_DIR}" ; rm -f \
+            ${STANDBY} ${SOC_RESCUE} ${BIOS_RESCUE} ${SPLASH_RESCUE} \
+            ${SOC} ${BIOS} ${SPLASH} ${FLICKERNOISE} \
+            version-app)
+        wget -O ${WORKING_DIR}/version-app ${BASE_URL_HTTP}/${VERSION}/version-app
+        call-download
+    fi
+
+    call-jtag $1
+    exit 0
 fi
+
+
+if [ "$1" == "--snapshot" ]; then
+    if [ "$2" == "" ]; then
+	call-help
+	exit 1
+    fi
+
+    BASE_URL_HTTP="http://fidelio.qi-hardware.com/~xiangfu/build-milkymist"
+    VERSION="$2"
+
+    MD5SUMS_SERVER=$(\
+    wget -O - ${BASE_URL_HTTP}/${VERSION}/md5sums 2> /dev/null |\
+    grep -E "(${STANDBY}|${SOC_RESCUE}|${BIOS_RESCUE}|${SPLASH_RESCUE}|${SOC}|${BIOS}|${SPLASH}|${FLICKERNOISE}|${DATA})" | sort)
+    if [ "${MD5SUMS_SERVER}" == "" ]; then
+        echo "ERROR: can't fetch files: ${BASE_URL_HTTP}/${VERSION}/md5sums"
+        exit 1
+    fi
+
+    WORKING_DIR="${HOME}/.qi/milkymist/snapshots/${VERSION}"
+    mkdir -p ${WORKING_DIR}
+
+    MD5SUMS_LOCAL=$( (cd "${WORKING_DIR}" ; \
+        md5sum --binary ${STANDBY} ${SOC_RESCUE} ${BIOS_RESCUE} ${SPLASH_RESCUE} \
+        ${SOC} ${BIOS} ${SPLASH} ${FLICKERNOISE} ${DATA} 2> /dev/null) | sort )
+
+    if [ "${MD5SUMS_SERVER}" == "${MD5SUMS_LOCAL}" ]; then
+        echo "present files are identical to the ones on the server - do not download them again"
+    else
+        (cd "${WORKING_DIR}" ; rm -f ${STANDBY} ${SOC_RESCUE} ${BIOS_RESCUE} ${SPLASH_RESCUE} \
+           ${SOC} ${BIOS} ${SPLASH} ${FLICKERNOISE} ${DATA})
+        wget -O "${WORKING_DIR}/${DATA}" "${BASE_URL_HTTP}/${VERSION}/${DATA}"
+        call-download
+    fi
+
+    call-jtag $1 $3
+    exit 0
+fi
+
+if [ "$1" == "--local-folder" ]; then
+    echo "Not support yet!"
+    exit 1
+fi
+
+if [ "$1" == "--lock-flash" ]; then
+    echo "Not support yet!"
+    exit 1
+fi
+
+if [ "$1" == "--bios-mac" ]; then
+    echo "Not support yet!"
+    exit 1
+fi
+
+if [ "$1" == "--rc3" ]; then
+    echo "Not support yet!"
+    exit 1
+fi
+
+
+# nomally not reach here
+call-help
+exit 1
