@@ -16,6 +16,9 @@ SPLASH="splash.raw"
 FLICKERNOISE="flickernoise.fbi"
 DATA="data.flash5.bin"
 
+MAC_DIR="${HOME}/.qi/milkymist/bios-mac/tmp"
+
+
 # Functions ###########################################################
 call-help() {
 	echo "
@@ -138,6 +141,10 @@ EOF
 
     fi
 
+    if [ "$1" == "--bios-mac" ]; then
+	echo "flashmem 0x220000 ${BIOS_RESCUE_PATH}/${BIOS_RESCUE} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
+    fi
+
     echo "pld reconfigure" >> ${JTAG_BATCH_FILE}
 
     jtag  ${JTAG_BATCH_FILE}
@@ -149,6 +156,39 @@ EOF
 
 }
 
+call-create-bios () {
+    HEAD_TMP="head.tmp"
+    MAC_TMP="mac.tmp"
+    REMAIN_TMP="remain.tmp"
+
+    mkdir -p ${MAC_DIR}
+
+    if [ ! -f "${BIOS_RESCUE_WITHOUT_CRC_PATH}/bios-rescue-without-CRC.bin" ]; then
+	wget -O "${BIOS_RESCUE_WITHOUT_CRC_PATH}/bios-rescue-without-CRC.bin" http://milkymist.org/updates/2011-07-13/for-rc3/bios-rescue-without-CRC.bin
+    fi
+
+
+    dd if="${BIOS_RESCUE_WITHOUT_CRC_PATH}/bios-rescue-without-CRC.bin"  of=${MAC_DIR}/${HEAD_TMP}   bs=8 count=28
+    dd if="${BIOS_RESCUE_WITHOUT_CRC_PATH}/bios-rescue-without-CRC.bin"  of=${MAC_DIR}/${REMAIN_TMP} bs=8  skip=29
+
+    printf "\\x$(printf "%x" 0x10)" >  ${MAC_DIR}/${MAC_TMP}
+    printf "\\x$(printf "%x" 0xe2)" >> ${MAC_DIR}/${MAC_TMP}
+    printf "\\x$(printf "%x" 0xd5)" >> ${MAC_DIR}/${MAC_TMP}
+    printf "\\x$(printf "%x" 0x00)" >> ${MAC_DIR}/${MAC_TMP}
+
+    printf "\\x$(printf "%x" 0x$2)" >> ${MAC_DIR}/${MAC_TMP}
+    printf "\\x$(printf "%x" 0x$3)" >> ${MAC_DIR}/${MAC_TMP}
+
+    printf "\\x$(printf "%x" 0x00)" >> ${MAC_DIR}/${MAC_TMP}
+    printf "\\x$(printf "%x" 0x00)" >> ${MAC_DIR}/${MAC_TMP}
+
+    cat ${MAC_DIR}/${HEAD_TMP} \
+        ${MAC_DIR}/${MAC_TMP} \
+        ${MAC_DIR}/${REMAIN_TMP} \
+        > $1
+
+    mkmmimg $1 write
+}
 
 # Main ###########################################################
 
@@ -252,8 +292,23 @@ if [ "$1" == "--read-flash" ]; then
 fi
 
 if [ "$1" == "--bios-mac" ]; then
-    echo "Not support yet!"
-    exit 1
+    if [ "$#" != "3" ]; then
+        call-help
+        exit 1
+    fi
+
+    BIOS_RESCUE_MAC="bios.$2$3.bin"
+    BIOS_RESCUE_WITHOUT_CRC_PATH="${MAC_DIR}/.."
+
+    call-create-bios "${MAC_DIR}/${BIOS_RESCUE_MAC}" "$2" "$3"
+
+    BIOS_RESCUE_PATH=${MAC_DIR}
+    BIOS_RESCUE=${BIOS_RESCUE_MAC}
+    FJMEM_PATH="${MAC_DIR}/.."
+
+    call-jtag "--bios-mac"
+
+    exit 0
 fi
 
 if [ "$1" == "--rc3" ]; then
@@ -262,41 +317,15 @@ if [ "$1" == "--rc3" ]; then
         exit 1
     fi
 
-    MAC_DIR="BIOSMAC"
-    BIOS_RESCUE="bios-rescue-without-CRC.bin"
-    HEAD_TMP="head.tmp"
-    MAC_TMP="mac.tmp"
-    REMAIN_TMP="remain.tmp"
     BIOS_RESCUE_MAC="bios.$2$3.bin"
+    BIOS_RESCUE_WITHOUT_CRC_PATH="."
 
-    mkdir -p ${MAC_DIR}
-
-    dd if=${BIOS_RESCUE} of=${MAC_DIR}/${HEAD_TMP}   bs=8 count=28
-    dd if=${BIOS_RESCUE} of=${MAC_DIR}/${REMAIN_TMP} bs=8  skip=29
-
-    printf "\\x$(printf "%x" 0x10)" >  ${MAC_DIR}/${MAC_TMP}
-    printf "\\x$(printf "%x" 0xe2)" >> ${MAC_DIR}/${MAC_TMP}
-    printf "\\x$(printf "%x" 0xd5)" >> ${MAC_DIR}/${MAC_TMP}
-    printf "\\x$(printf "%x" 0x00)" >> ${MAC_DIR}/${MAC_TMP}
-
-    printf "\\x$(printf "%x" 0x$2)" >> ${MAC_DIR}/${MAC_TMP}
-    printf "\\x$(printf "%x" 0x$3)" >> ${MAC_DIR}/${MAC_TMP}
-
-    printf "\\x$(printf "%x" 0x00)" >> ${MAC_DIR}/${MAC_TMP}
-    printf "\\x$(printf "%x" 0x00)" >> ${MAC_DIR}/${MAC_TMP}
-
-    cat ${MAC_DIR}/${HEAD_TMP} \
-        ${MAC_DIR}/${MAC_TMP} \
-        ${MAC_DIR}/${REMAIN_TMP} \
-        > ${MAC_DIR}/${BIOS_RESCUE_MAC}
-
-    mkmmimg ${MAC_DIR}/${BIOS_RESCUE_MAC} write
+    call-create-bios "${MAC_DIR}/${BIOS_RESCUE_MAC}" "$2" "$3"
 
     BIOS_RESCUE_PATH=${MAC_DIR}
     BIOS_RESCUE=${BIOS_RESCUE_MAC}
-
-    WORKING_DIR=".."
     FJMEM_PATH="."
+    WORKING_DIR=".."
 
     call-jtag "--release" "${DATA}"
 
