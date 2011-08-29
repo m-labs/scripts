@@ -24,6 +24,7 @@ Usage: ./reflash_m1.sh                    version: ${__VERSION__}
 	--snapshot <VERSION> [data]  # if 'data' enable will reflash data partitions
 	--local-folder <PATH>        # all files must be under <PATH>
 	--lock-flash                 # lock 'standby' and 'rescue' partitions
+	--read-flash                 # be default read 'standby.bin' from m1
 	--bios-mac 00 2a             # '00' '2a' is the last MAC address
 	--rc3 00 2a                  # used in factory flash
 
@@ -48,8 +49,12 @@ call-download() {
 }
 
 call-jtag() {
-    if [ ! -f ${WORKING_DIR}/${FJMEM} ]; then
-	wget -O "${WORKING_DIR}/${FJMEM}" http://milkymist.org/updates/2011-07-13/for-rc3/fjmem.bit
+    if [ "${FJMEM_PATH}" == "" ]; then
+	FJMEM_PATH=${WORKING_DIR}
+    fi
+
+    if [ ! -f "${FJMEM_PATH}/${FJMEM}" ]; then
+	wget -O "${FJMEM_PATH}/${FJMEM}" http://milkymist.org/updates/2011-07-13/for-rc3/fjmem.bit
     fi
 
     # UrJtag option ##########################################
@@ -69,7 +74,7 @@ cable milkymist
 detect
 instruction CFG_OUT 000100 BYPASS
 instruction CFG_IN 000101 BYPASS
-pld load ${WORKING_DIR}/${FJMEM}
+pld load ${FJMEM_PATH}/${FJMEM}
 initbus fjmem opcode=000010
 frequency 6000000
 detectflash 0
@@ -81,7 +86,23 @@ EOF
 	echo "lockflash 0x000000  55" >> ${JTAG_BATCH_FILE}
     fi
 
-    if [ "$1" == "--release" ] && [ "$1" == "--snapshot" ]; then
+    if [ "$1" == "--read-flash" ]; then
+	echo "readmem 0x000000 0x00A0000 ${WORKING_DIR}/${STANDBY}" >> ${JTAG_BATCH_FILE}
+
+	#echo "readmem 0x0A0000 0x0180000 ${WORKING_DIR}/${SOC_RESCUE}" >> ${JTAG_BATCH_FILE}
+	#echo "readmem 0x220000 0x0020000 ${WORKING_DIR}/${BIOS_RESCUE}" >> ${JTAG_BATCH_FILE}
+	#echo "readmem 0x240000 0x00A0000 ${WORKING_DIR}/${SPLASH_RESCUE}" >> ${JTAG_BATCH_FILE}
+	#echo "readmem 0x2E0000 0x0400000 ${WORKING_DIR}/${FLICKERNOISE_RESCUE}" >> ${JTAG_BATCH_FILE}
+
+	#echo "readmem 0x6E0000 0x0180000 ${WORKING_DIR}/${SOC}" >> ${JTAG_BATCH_FILE}
+	#echo "readmem 0x860000 0x0020000 ${WORKING_DIR}/${BIOS}" >> ${JTAG_BATCH_FILE}
+	#echo "readmem 0x880000 0x00A0000 ${WORKING_DIR}/${SPLASH}" >> ${JTAG_BATCH_FILE}
+	#echo "readmem 0x920000 0x0400000 ${WORKING_DIR}/${FLICKERNOISE}" >> ${JTAG_BATCH_FILE}
+
+	#echo "readmem 0xD20000 0x12E0000 ${WORKING_DIR}/${DATA}" >> ${JTAG_BATCH_FILE}
+    fi
+
+    if [ "$1" == "--release" ] || [ "$1" == "--snapshot" ]; then
 	echo "eraseflash 0x000000 105" >> ${JTAG_BATCH_FILE}
 
 	echo "flashmem 0x000000 ${WORKING_DIR}/${STANDBY} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
@@ -200,6 +221,20 @@ if [ "$1" == "--lock-flash" ]; then
     mkdir -p ${WORKING_DIR}
 
     call-jtag $1
+    exit 0
+fi
+
+if [ "$1" == "--read-flash" ]; then
+    DATE_TIME=`date +"%Y%m%d-%H%M"`
+    WORKING_DIR="${HOME}/.qi/milkymist/read-flash/${DATE_TIME}"
+    FJMEM_PATH=${WORKING_DIR}/..
+
+    mkdir -p ${WORKING_DIR}
+    call-jtag $1
+
+    echo "-------------------------------------------------------------"
+    echo "Read back files under ${WORKING_DIR}"
+    echo "-------------------------------------------------------------"
     exit 0
 fi
 
