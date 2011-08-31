@@ -24,20 +24,22 @@ call-help() {
 	echo "
 Usage: ./reflash_m1.sh                    version: ${__VERSION__}
 	--release [VERSION]          # by default it will download 'currect' release
-                                     # URL: http://milkymist.org/updates/
+                                     # VERSION can found at http://milkymist.org/updates/
 
 	--snapshot <VERSION> [data]  # if 'data' enable will reflash data partitions
-                                     # URL: http://fidelio.qi-hardware.com/~xiangfu/build-milkymist/
+                                     # VERSION can found at  http://fidelio.qi-hardware.com/~xiangfu/build-milkymist/
 
 	--local-folder <PATH>        # all files must be under <PATH>
 
 	--lock-flash                 # lock 'standby' and 'rescue' partitions
 
-	--read-flash                 # be default read 'standby.bin' from m1
+	--read-flash                 # by default only read 'standby.bin' from m1
 
 	--bios-mac 00 2a             # '00' '2a' is the last MAC address
+
 	--rc3 00 2a                  # used in factory flash
-                                     # --bios-mac and --rc3 needs 'mkmmimg'
+
+	                             # --bios-mac and --rc3 needs 'mkmmimg'
 
 Written by: Xiangfu Liu <xiangfu@sharism.cc>
 Please report bugs to <devel@lists.milkymist.org>
