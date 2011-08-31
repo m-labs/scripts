@@ -47,7 +47,7 @@ DL=$(if $(wildcard ../dl/.),../dl,dl)
 BUILD_DIR=build_dir
 
 MILKYMIST_GIT_URL:=git://github.com/milkymist
-MILKYMIST_GIT_DIR:=../../milkymist
+MILKYMIST_GIT_DIR?=../../milkymist
 
 CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \
 	AR=lm32-rtems4.11-ar \
