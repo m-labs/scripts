@@ -47,7 +47,7 @@ DL=$(if $(wildcard ../dl/.),../dl,dl)
 BUILD_DIR=build_dir
 
 MILKYMIST_GIT_URL:=git://github.com/milkymist
-MILKYMIST_GIT_DIR?=../../milkymist
+MILKYMIST_GIT_DIR?=/opt/milkymist
 
 CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \
 	AR=lm32-rtems4.11-ar \
@@ -223,7 +223,7 @@ $(BUILD_DIR)/bsp-milkymist/Makefile:
 	(cd $(MILKYMIST_GIT_DIR)/rtems.git && patch -Np1 < ${CURDIR}/patches/rtems-0001-zlib-git-cvs-bug.patch)
 	#workaround git cvs bug
 	(cd $(MILKYMIST_GIT_DIR)/rtems.git && ./bootstrap -c && ./bootstrap -p && ./bootstrap)
-	(cd $(BUILD_DIR)/bsp-milkymist && ../../$(MILKYMIST_GIT_DIR)/rtems.git/configure $(RTEMS_CONFIGURE_FLAGS))
+	(cd $(BUILD_DIR)/bsp-milkymist && $(MILKYMIST_GIT_DIR)/rtems.git/configure $(RTEMS_CONFIGURE_FLAGS))
 
 #you will need clang for compile milkymist tools
 flickernoise.fbi: rtems libfpvm mtk liboscparse rtems-yaffs2 $(BUILD_DIR)/mupdf $(BUILD_DIR)/curl $(BUILD_DIR)/expat
