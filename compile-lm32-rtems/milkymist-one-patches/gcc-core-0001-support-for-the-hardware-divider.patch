@@ -1,7 +1,0 @@
-diff -Naur gcc-4.5.1.orig/gcc/config/lm32/t-lm32 gcc-4.5.1/gcc/config/lm32/t-lm32
---- gcc-4.5.1.orig/gcc/config/lm32/t-lm32	2010-03-30 12:26:24.000000000 +0200
-+++ gcc-4.5.1/gcc/config/lm32/t-lm32	2010-11-28 12:42:30.047795004 +0100
-@@ -1,2 +1,2 @@
- # for multilib
--MULTILIB_OPTIONS = mmultiply-enabled mbarrel-shift-enabled
-+MULTILIB_OPTIONS = mbarrel-shift-enabled mmultiply-enabled mdivide-enabled msign-extend-enabled

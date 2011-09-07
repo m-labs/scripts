@@ -41,7 +41,7 @@ MPC=mpc-$(MPC_VERSION).tar.gz
 MPFR=mpfr-$(MPFR_VERSION).tar.bz2
 
 BINUTILS_PATCH=binutils-$(BINUTILS_VERSION)-rtems$(RTEMS_VERSION)-20110107.diff
-GCC_CORE_PATCH=gcc-core-$(GCC_CORE_VERSION)-rtems$(RTEMS_VERSION)-20110426.diff
+GCC_CORE_PATCH=gcc-core-$(GCC_CORE_VERSION)-rtems$(RTEMS_VERSION)-20110905.diff
 NEWLIB_PATCH=newlib-$(NEWLIB_VERSION)-rtems$(RTEMS_VERSION)-20110724.diff
 GDB_PATCH=gdb-$(GDB_VERSION)-rtems$(RTEMS_VERSION)-20100907.diff
 
@@ -91,7 +91,6 @@ gcc-$(GCC_CORE_VERSION)/newlib: .unzip.ok
 	(cd binutils-$(BINUTILS_VERSION); cat ../$(RTEMS_PATCHES_DIR)/$(BINUTILS_PATCH) | patch -p1)
 	(cd gcc-$(GCC_CORE_VERSION); \
 	 cat ../$(RTEMS_PATCHES_DIR)/$(GCC_CORE_PATCH) | patch -p1; \
-	 cat ../$(MM1_PATCHES_DIR)/gcc-core-0001-support-for-the-hardware-divider.patch | patch -p1; \
 	)
 	(cd newlib-$(NEWLIB_VERSION); cat ../$(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH) | patch -p1)
 	(cd gdb-$(GDB_VERSION); \
