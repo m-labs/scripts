@@ -235,7 +235,7 @@ flickernoise-pdf.fbiz: flickernoise.fbi
 	cp $(MILKYMIST_GIT_DIR)/flickernoise.git/src/bin/flickernoise.fbiz ./$@
 
 autotest-m1-boot.bin:
-	(cd $(MILKYMIST_GIT_DIR)/autotest-m1.git/src && MMDIR=../$(MILKYMIST_GIT_DIR)/milkymist.git make)
+	(cd $(MILKYMIST_GIT_DIR)/autotest-m1.git/src && MMDIR=$(MILKYMIST_GIT_DIR)/milkymist.git make)
 	cp $(MILKYMIST_GIT_DIR)/autotest-m1.git/src/boot.bin ./$@
 
 ####
