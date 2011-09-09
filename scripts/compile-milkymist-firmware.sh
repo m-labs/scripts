@@ -18,7 +18,7 @@ MILKYMIST_GIT_DIR=/home/xiangfu/milkymist-firmware/milkymist/
 SCRIPTS_GIT_DIR=/home/xiangfu/milkymist-firmware/scripts.git
 
 
-MD5_BINARIES="bios.bin bios-rescue.bin boot.bin data.flash5.bin flickernoise flickernoise.bin flickernoise.fbi flickernoise.ralf soc.fpg soc-rescue.fpg splash.raw splash-rescue.raw standby.fpg"
+MD5_BINARIES="bios.bin bios-rescue.bin boot.bin data.flash5.bin flickernoise flickernoise.bin flickernoise.fbi soc.fpg soc-rescue.fpg splash.raw splash-rescue.raw standby.fpg"
 
 
 abort() {
@@ -89,9 +89,6 @@ echo "compile soc ..."
 if [ "$?" != "0" ]; then
 	abort "ERROR: compile SOC"
 fi
-
-
-echo "copy soc to bin/ ..."
 cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/standby.fpg ${IMAGES_DIR}
 cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/soc.fpg ${IMAGES_DIR}
 cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/bios.bin ${IMAGES_DIR}
@@ -99,23 +96,27 @@ cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/splash.raw ${IM
 cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/soc-rescue.fpg ${IMAGES_DIR}
 cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/bios-rescue.bin ${IMAGES_DIR}
 cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/splash-rescue.raw ${IMAGES_DIR}
-
 BIOS_LEN=`ls -l  ${IMAGES_DIR}/bios-rescue.bin  | awk '{printf "%d\n",$5-4}'`
 dd if=${IMAGES_DIR}/bios-rescue.bin of=${IMAGES_DIR}/bios-rescue-without-CRC.bin bs=1 count=${BIOS_LEN}
+
 
 echo "compile flickernoise ..."
 export PATH=${MILKYMIST_GIT_DIR}/milkymist.git/tools:$PATH
 export PATH=/home/xiangfu/openwrt-xburst.full_system/staging_dir/host/bin:$PATH  #for autoconf 2.68
-MILKYMIST_GIT_DIR=${MILKYMIST_GIT_DIR} IMAGES_DIR=${IMAGES_DIR} \
-  make -C ${SCRIPTS_GIT_DIR}/compile-flickernoise \
-  clean flickernoise.fbi boot.bin boot.crc.bin >> ${BUILD_LOG} 2>&1
+MILKYMIST_GIT_DIR=${MILKYMIST_GIT_DIR} make -C ${SCRIPTS_GIT_DIR}/compile-flickernoise \
+  clean flickernoise.fbi >> ${BUILD_LOG} 2>&1
 if [ "$?" != "0" ]; then
 	abort "ERROR: compile flickernoise"
 fi
-
-
-echo "copy flickernoise to bin/ ..."
 cp ${MILKYMIST_GIT_DIR}/flickernoise.git/src/bin/* ${IMAGES_DIR}/
+
+
+echo "compile autotest ..."
+MILKYMIST_GIT_DIR=${MILKYMIST_GIT_DIR} IMAGES_DIR=${IMAGES_DIR} make -C ${SCRIPTS_GIT_DIR}/compile-flickernoise \
+  boot.bin boot.crc.bin >> ${BUILD_LOG} 2>&1
+if [ "$?" != "0" ]; then
+	abort "ERROR: compile autotest"
+fi
 cp ${MILKYMIST_GIT_DIR}/autotest-m1.git/src/boot*.bin ${IMAGES_DIR}/
 
 
@@ -124,6 +125,7 @@ mkdir -p ${IMAGES_DIR}/data.flash5/patchpool
 find ${MILKYMIST_GIT_DIR}/flickernoise.git/patches -name "*.fnp" -exec cp {} ${IMAGES_DIR}/data.flash5/patchpool \;
 
 make -C ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils mm-mkyaffs2image
+
 ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils/mm-mkyaffs2image \
   ${IMAGES_DIR}/data.flash5 ${IMAGES_DIR}/data.flash5.bin convert  >> ${BUILD_LOG} 2>&1
 chmod 644 ${IMAGES_DIR}/data.flash5.bin
