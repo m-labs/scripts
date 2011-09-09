@@ -234,9 +234,14 @@ flickernoise-pdf.fbiz: flickernoise.fbi
 	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git/src && make clean && WITH_PDF=1 make bin/flickernoise.fbiz)
 	cp $(MILKYMIST_GIT_DIR)/flickernoise.git/src/bin/flickernoise.fbiz ./$@
 
-autotest-m1-boot.bin:
-	(cd $(MILKYMIST_GIT_DIR)/autotest-m1.git/src && MMDIR=$(MILKYMIST_GIT_DIR)/milkymist.git make)
+boot.bin:
+	MMDIR=$(MILKYMIST_GIT_DIR)/milkymist.git make -C $(MILKYMIST_GIT_DIR)/autotest-m1.git/src
 	cp $(MILKYMIST_GIT_DIR)/autotest-m1.git/src/boot.bin ./$@
+
+boot.crc.bin:
+	MMDIR=$(MILKYMIST_GIT_DIR)/milkymist.git IMAGES_DIR=$(IMAGES_DIR) \
+	  make -C $(MILKYMIST_GIT_DIR)/autotest-m1.git/src boot.crc.bin
+	cp $(MILKYMIST_GIT_DIR)/autotest-m1.git/src/boot.crc.*.bin ./
 
 ####
 $(DL)/$(LIBPNG).ok:
@@ -287,7 +292,7 @@ $(DL)/$(EXPAT).ok:
 	 http://download.sourceforge.net/project/expat/expat/$(EXPAT_VERSION)/expat-$(EXPAT_VERSION).tar.gz
 	touch $@
 
-.PHONY: clean clean-rtems
+.PHONY: clean clean-rtems boot.crc.bin
 
 clean:
 	rm -rf build_dir/*
