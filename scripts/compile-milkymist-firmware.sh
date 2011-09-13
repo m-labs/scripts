@@ -124,9 +124,9 @@ echo "build data patitions ..."
 mkdir -p ${IMAGES_DIR}/data.flash5/patchpool
 find ${MILKYMIST_GIT_DIR}/flickernoise.git/patches -name "*.fnp" -exec cp {} ${IMAGES_DIR}/data.flash5/patchpool \;
 
-make -C ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils mm-mkyaffs2image
+make -C ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils rtems-mkyaffs2image
 
-${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils/mm-mkyaffs2image \
+${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils/rtems-mkyaffs2image \
   ${IMAGES_DIR}/data.flash5 ${IMAGES_DIR}/data.flash5.bin convert  >> ${BUILD_LOG} 2>&1
 chmod 644 ${IMAGES_DIR}/data.flash5.bin
 
@@ -138,5 +138,9 @@ echo "generate md5sum ..."
 echo "create SDK ..."
 (cd /opt/ && tar cjvf ${IMAGES_DIR}/Flickernoise-lm32-rtems-4.11-SDK-for-Linux-x86_64.tar.bz2 rtems-4.11/)
 
+echo -e "\
+say #milkymist The Firmware build was successfull, \
+see images here: http://fidelio.qi-hardware.com/~xiangfu/build-milkymist/milkymist-firmware-${DATE_TIME}/\nclose" \
+     | nc turandot.qi-hardware.com 3858
 
 echo "DONE!"
