@@ -65,6 +65,15 @@ get-feeds-revision ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git
 get-feeds-revision ${SCRIPTS_GIT_DIR}/
 
 
+VERSIONS_NEW=`cat ${VERSIONS}`
+VERSIONS_OLD=`cat ${IMAGES_DIR}/../firmware-VERSIONS`
+if [ "${VERSIONS_NEW}" == "${VERSIONS_OLD}" ]; then
+	echo "No new commit, ignore build"
+	exit 0
+fi
+cp ${VERSIONS} ${IMAGES_DIR}/../firmware-VERSIONS
+
+
 echo "compile toolchain ..."
 rm -rf /opt/rtems-4.11/
 make -C ${SCRIPTS_GIT_DIR}/compile-lm32-rtems clean all >> ${BUILD_LOG} 2>&1
@@ -124,9 +133,9 @@ echo "build data patitions ..."
 mkdir -p ${IMAGES_DIR}/data.flash5/patchpool
 find ${MILKYMIST_GIT_DIR}/flickernoise.git/patches -name "*.fnp" -exec cp {} ${IMAGES_DIR}/data.flash5/patchpool \;
 
-make -C ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils rtems-mkyaffs2image
+make -C ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils nor-mkyaffs2image
 
-${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils/rtems-mkyaffs2image \
+${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils/nor-mkyaffs2image \
   ${IMAGES_DIR}/data.flash5 ${IMAGES_DIR}/data.flash5.bin convert  >> ${BUILD_LOG} 2>&1
 chmod 644 ${IMAGES_DIR}/data.flash5.bin
 

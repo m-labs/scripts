@@ -37,6 +37,15 @@ if [ "$?" != "0" ]; then
 fi
 
 
+HEAD_NEW=`git rev-parse HEAD`
+HEAD_OLD=`cat ${IMAGES_DIR}/../openwrt-HEAD`
+if [ "${HEAD_NEW}" == "${HEAD_OLD}" ]; then
+	echo "No new commit, ignore build"
+	exit 0
+fi
+echo ${HEAD_NEW} > ${IMAGES_DIR}/../openwrt-HEAD
+
+
 echo "update and install feeds..."
 ./scripts/feeds update -a && ./scripts/feeds install -a
 if [ "$?" != "0" ]; then
