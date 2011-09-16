@@ -296,5 +296,4 @@ clean:
 	rm -rf build_dir/*
 
 clean-rtems:
-	(cd $(MILKYMIST_GIT_DIR)/rtems && git checkout cpukit/zlib/zconf.h.in)
 	rm -rf build_dir/bsp-milkymist/
