@@ -69,6 +69,8 @@ VERSIONS_NEW=`cat ${VERSIONS}`
 VERSIONS_OLD=`cat ${IMAGES_DIR}/../firmware-VERSIONS`
 if [ "${VERSIONS_NEW}" == "${VERSIONS_OLD}" ]; then
 	echo "No new commit, ignore build"
+	rm -f ${BUILD_LOG} ${VERSIONS}
+	rmdir ${IMAGES_DIR}
 	exit 0
 fi
 cp ${VERSIONS} ${IMAGES_DIR}/../firmware-VERSIONS

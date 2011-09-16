@@ -19,7 +19,7 @@ mkdir -p ${IMAGES_DIR}
 
 BUILD_LOG="${IMAGES_DIR}/BUILD_LOG"
 VERSIONS_FILE="${IMAGES_DIR}/VERSIONS"
-
+touch ${BUILD_LOG} ${VERSIONS}
 
 ########################################################################
 cd ${OPENWRT_DIR}
@@ -41,13 +41,15 @@ HEAD_NEW=`git rev-parse HEAD`
 HEAD_OLD=`cat ${IMAGES_DIR}/../openwrt-HEAD`
 if [ "${HEAD_NEW}" == "${HEAD_OLD}" ]; then
 	echo "No new commit, ignore build"
+	rm -f ${BUILD_LOG} ${VERSIONS_FILE}
+	rmdir ${IMAGES_DIR}
 	exit 0
 fi
 echo ${HEAD_NEW} > ${IMAGES_DIR}/../openwrt-HEAD
 
 
 echo "update and install feeds..."
-./scripts/feeds update -a && ./scripts/feeds install -a
+./scripts/feeds update -a && ./scripts/feeds install -a >> ${BUILD_LOG}
 if [ "$?" != "0" ]; then
 	echo "ERROR: update and install feeds failed"
 	exit 1
@@ -66,10 +68,10 @@ ${PATCH_OPENWRT_SH} ${OPENWRT_DIR}
 
 
 echo "starting compiling - this may take several hours..."
-time make ${MAKE_VARS} > ${IMAGES_DIR}/BUILD_LOG 2>&1
+time make ${MAKE_VARS} >> ${BUILD_LOG} 2>&1
 if [ "$?" != "0" ]; then
 	echo "ERROR: Build failed! Please refer to the log file"
-	tail -n 100 ${IMAGES_DIR}/BUILD_LOG > ${IMAGES_DIR}/BUILD_LOG.`date +"%m%d%Y-%H%M"`.last100
+	tail -n 100 ${BUILD_LOG} > ${IMAGES_DIR}/BUILD_LOG.`date +"%m%d%Y-%H%M"`.last100
         echo -e "\
 say #milkymist The Openwrt build has FAILED, \
 see log here: http://fidelio.qi-hardware.com/~xiangfu/build-milkymist/milkymist-openwrt.$1-${DATE_TIME}/\nclose" \
@@ -83,7 +85,7 @@ fi
 
 
 echo "getting version numbers of used repositories..."
-${GET_FEEDS_VERSION_SH} ${OPENWRT_DIR} > ${VERSIONS_FILE}
+${GET_FEEDS_VERSION_SH} ${OPENWRT_DIR} >> ${VERSIONS_FILE}
 
 
 echo "copy all files to IMAGES_DIR..."
