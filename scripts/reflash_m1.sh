@@ -141,10 +141,14 @@ EOF
 	fi
 
 	echo "lockflash 0x000000  55" >> ${JTAG_BATCH_FILE}
+	# we have to lockflash after all flashmem finished
+	# see: http://lists.milkymist.org/pipermail/devel-milkymist.org/2011-October/001939.html
     fi
 
     if [ "$1" == "--bios-mac" ]; then
 	echo "flashmem 0x220000 ${BIOS_RESCUE_PATH}/${BIOS_RESCUE} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
+	echo "lockflash 0x000000  55" >> ${JTAG_BATCH_FILE}
+	# same as before.
     fi
 
     echo "pld reconfigure" >> ${JTAG_BATCH_FILE}
