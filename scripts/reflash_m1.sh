@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # version of me
-__VERSION__="2011-08-28"
+__VERSION__="2011-10-14"
 echo "File name: $0, Version of me: ${__VERSION__}"
 
 
@@ -124,12 +124,11 @@ EOF
 	echo "eraseflash 0x000000 105" >> ${JTAG_BATCH_FILE}
 
 	echo "flashmem 0x000000 ${WORKING_DIR}/${STANDBY} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
+
 	echo "flashmem 0x0A0000 ${WORKING_DIR}/${SOC_RESCUE} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
 	echo "flashmem 0x220000 ${BIOS_RESCUE_PATH}/${BIOS_RESCUE} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
 	echo "flashmem 0x240000 ${WORKING_DIR}/${SPLASH_RESCUE} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
 	echo "flashmem 0x2E0000 ${WORKING_DIR}/${FLICKERNOISE} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
-
-	echo "lockflash 0x000000  55" >> ${JTAG_BATCH_FILE}
 
 	echo "flashmem 0x6E0000 ${WORKING_DIR}/${SOC} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
 	echo "flashmem 0x860000 ${WORKING_DIR}/${BIOS} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
@@ -141,6 +140,7 @@ EOF
 	    echo "flashmem   0xD20000 $2 ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
 	fi
 
+	echo "lockflash 0x000000  55" >> ${JTAG_BATCH_FILE}
     fi
 
     if [ "$1" == "--bios-mac" ]; then
