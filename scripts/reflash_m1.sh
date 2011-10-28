@@ -33,7 +33,8 @@ Usage: ./reflash_m1.sh                    version: ${__VERSION__}
 
 	--lock-flash                 # lock 'standby' and 'rescue' partitions
 
-	--read-flash                 # by default only read 'standby.bin' from m1
+	--read-flash <PARTITION>     # read from RESCUE partition, by default only read 'standby.bin' from m1
+	                             # PARTITION: standby soc bios splash flickernoise
 
 	--bios-mac 00 2a             # '00' '2a' is the last MAC address
 
@@ -105,12 +106,21 @@ EOF
     fi
 
     if [ "$1" == "--read-flash" ]; then
-	echo "readmem 0x000000 0x00A0000 ${WORKING_DIR}/${STANDBY}" >> ${JTAG_BATCH_FILE}
-
-	#echo "readmem 0x0A0000 0x0180000 ${WORKING_DIR}/${SOC_RESCUE}" >> ${JTAG_BATCH_FILE}
-	#echo "readmem 0x220000 0x0020000 ${BIOS_RESCUE_PATH}/${BIOS_RESCUE}" >> ${JTAG_BATCH_FILE}
-	#echo "readmem 0x240000 0x00A0000 ${WORKING_DIR}/${SPLASH_RESCUE}" >> ${JTAG_BATCH_FILE}
-	#echo "readmem 0x2E0000 0x0400000 ${WORKING_DIR}/${FLICKERNOISE_RESCUE}" >> ${JTAG_BATCH_FILE}
+	if [ "$2" == "standby" ] || [ "$2" == "" ]; then
+	    echo "readmem 0x000000 0x00A0000 ${WORKING_DIR}/${STANDBY}" >> ${JTAG_BATCH_FILE}
+	fi
+	if [ "$2" == "soc" ]; then
+	    echo "readmem 0x0A0000 0x0180000 ${WORKING_DIR}/${SOC_RESCUE}" >> ${JTAG_BATCH_FILE}
+	fi
+	if [ "$2" == "bios" ]; then
+	    echo "readmem 0x220000 0x0020000 ${WORKING_DIR}/${BIOS_RESCUE}" >> ${JTAG_BATCH_FILE}
+	fi
+	if [ "$2" == "splash" ]; then
+	    echo "readmem 0x240000 0x00A0000 ${WORKING_DIR}/${SPLASH_RESCUE}" >> ${JTAG_BATCH_FILE}
+	fi
+	if [ "$2" == "flickernoise" ]; then
+	    echo "readmem 0x2E0000 0x0400000 ${WORKING_DIR}/${FLICKERNOISE_RESCUE}" >> ${JTAG_BATCH_FILE}
+	fi
 
 	#echo "readmem 0x6E0000 0x0180000 ${WORKING_DIR}/${SOC}" >> ${JTAG_BATCH_FILE}
 	#echo "readmem 0x860000 0x0020000 ${WORKING_DIR}/${BIOS}" >> ${JTAG_BATCH_FILE}
