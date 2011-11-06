@@ -38,9 +38,9 @@ Usage: ./reflash_m1.sh                    version: ${__VERSION__}
 
 	--bios-mac 00 2a             # '00' '2a' is the last MAC address
 
-	--rc3 00 2a                  # used in factory flash
+	--rc3 00 2a                  # used in factory flash, this options will reflash data partition
 
-	                             # --bios-mac and --rc3 needs 'mkmmimg'
+	                             # NOTICE: '--bios-mac' and '--rc3' needs command 'mkmmimg'
 
 Written by: Xiangfu Liu <xiangfu@sharism.cc>
 Please report bugs to <devel@lists.milkymist.org>
