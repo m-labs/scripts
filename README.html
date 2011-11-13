@@ -10,35 +10,41 @@
 
 <h2>Contents</h2>
 
-<ol>
-<li><a href="#secDownload">Where to get the Milkymist scripts</a>
+<ul>
+<li><a href="#secDownload">Where to get the Milkymist scripts</a> </li>
 <li><a href="#secRun">Running the scripts</a>
 <ol>
-<li><a href="#secToolchain">Build the Milkymist tool chain and Flickernoise</a>
-<li><a href="#secBitstream">Bitstream Synthesis</a>
-<li><a href="#secReflash">Milkymist reflash</a>
+<li><a href="#secToolchain">Build the Milkymist tool chain and Flickernoise</a> </li>
+<li><a href="#secBitstream">Bitstream Synthesis</a> </li>
+<li><a href="#secReflash">Milkymist reflash</a> </li>
 </ol>
+</li>
 <li><a href="#secHost">Host Specific Requirements</a>
 <ol>
-<li><a href="#secUbuntu">Ubuntu 11.04 Desktop</a>
-<li><a href="#secOSX">Mac OS X 10.6 Snow Leopard</a>
+<li><a href="#secUbuntu">Ubuntu 11.04 Desktop</a> </li>
+<li><a href="#secOSX">Mac OS X 10.6 Snow Leopard</a> </li>
 </ol>
-</ol>
+</li>
+</ul>
 
 <h2><a name="secDownload">Where to get the Milkymist scripts</a></h2>
 The scripts can be downloaded from the Milkymist git repository at github:
 <pre>
-git clone git://github.com/milkymist/scripts.git 
+$ git clone git://github.com/milkymist/scripts.git 
 </pre>
 
 <h2><a name="secRun">Running the scripts</a></h2>
 <h3><a name="secToolchain">Build the Milkymist tool chain and Flickernoise</a></h3>
-The scripts checkout the milkymist git repository to "../" so you need write access to the parent directory from where you issue the following commands.
-
 <OL>
-<LI>Check the <a href="#secHost">Host Specific Requirements</a> for your computer.
-<LI>Make sure you have write access to `/opt/rtems-4.11'
+<LI>Check the <a href="#secHost">Host Specific Requirements</a> for your computer and do those steps first.
+</LI>
+<li>Make sure you have write access to `/opt/rtems-4.11' and `/opt/milkymist'.
+    <pre>
+     $ sudo mkdir /opt/milkymist /opt/rtems-4.11
+     $ sudo chown your_username /opt/milkymist /opt/rtems-4.11
+    </pre>
 
+</li>
 <LI>Export variables needed to compile Milkymist, add those to your .bashrc:
     <pre>
     $ RTEMS_MAKEFILE_PATH=/opt/rtems-4.11/lm32-rtems4.11/milkymist
@@ -47,34 +53,38 @@ The scripts checkout the milkymist git repository to "../" so you need write acc
     $ PATH=/opt/rtems-4.11/bin:${PATH}
     $ export PATH
     </pre>
-
+</LI>
 <LI>Compile and install.
   download toolchain sources and compile toolchain:
     <pre>
     $ make -C compile-lm32-rtems  
     </pre>
+</LI>
   
 <LI>Clone all milkymist one git repos:
     <pre>
     $ make -C compile-flickernoise milkymist-git-clone
     </pre>
+</LI>
 
 <LI>Build the host tools:
     <pre>
-    $ make -C ../milkymist/milkymist.git/tools
-    $ sudo make -C ../milkymist/milkymist.git/tools install
+    $ make -C /opt/milkymist/milkymist.git/tools
+    $ sudo make -C /opt/milkymist/milkymist.git/tools install
     </pre>
+</LI>
 
 <LI>Compile flickernoise:
     <pre>
     $ make -C compile-flickernoise flickernoise.fbi
     </pre>
+</LI>
 </OL>
 
 
 <h3><a name="secBitstream">Bitstream Synthesis</a></h3>
 
- `build' script file is for build all milkymist one images, you need the 
+ `compile-milkymist-firmware.sh' script file is for build all milkymist one images, you need the
  Xilinx ISE tools for synthesis of the bitstream.
 
 <h3><a name="secReflash">Milkymist reflash script</a></h3>
@@ -83,22 +93,66 @@ The scripts checkout the milkymist git repository to "../" so you need write acc
  by using UrJtag, you need UrJtag to flash the milkymist one.
 
 <h2><a name="secHost">Host Specific Requirements</a></h2>
+<ol>
+<li><a href="#secUbuntu">Ubuntu 11.04 Desktop</a>
+</li><li><a href="#secOSX">Mac OS X 10.6 Snow Leopard</a>
+</li>
+</ol>
+
 <h3><a name="secUbuntu">Ubuntu 11.04 Desktop</a></h3>
 <p>
-Install the following packages (package / package name): 
+Ubuntu 11.04 comes with autotools 2.67 but rtems needs autotools 2.68.  Some of the autotools have hard coded paths so any existing installtion interfers with an installation done in an alternate path.  (There's probably a way around this but I don't know what it is.)  To get around this we remove the old autotools and install news ones.
+<OL>
+<LI>Remove the folowing packages (sudo apt-get remove `packagename`):
 <UL>
-	<LI>autotools: autotools-dev
-	<LI>automake: automake
-	<LI>jpeg: libjpeg-dev
-	<LI>freetype: libfreetype6-dev
-	<LI>clang: clang 
-	<LI>gcc-multilib: gcc-multilib (for flterm 'asm/ioctls.h' file not found error) 
-	<LI>GD graphics library: libgd2-xpm-dev 
-	<LI>makeinfo: texinfo 
-	<LI>curses: libncurses-dev 
-	<LI>lemon: lemon 
-	<LI>re2c: re2c
+	<LI>autotools-dev</LI>
+	<LI>autoconf</LI>
+	<LI>automake</LI>
+	<LI>libtool</LI>
+	<LI>m4</LI>
 </UL>
+</LI>
+<LI>Install the latest autotools, M4, and libtool:
+<pre>$ cd /tmp
+$ wget http://ftp.gnu.org/gnu/autoconf/autoconf-2.68.tar.gz
+$ tar xzvf autoconf-2.68.tar.gz
+$ cd ./autoconf-2.68/
+$ ./configure --prefix=/opt/autotools
+$ make
+$ sudo make install
+
+$ cd /tmp
+$ wget http://ftp.gnu.org/gnu/automake/automake-1.11.1.tar.gz
+$ tar xzvf automake-1.11.1.tar.gz
+$ cd automake-1.11.1/
+$ ./configure --prefix=/opt/autotools
+$ make
+$ sudo make install
+
+Do the same for libtool and m4:
+wget http://ftp.gnu.org/gnu/libtool/libtool-2.4.tar.gz
+wget http://ftp.gnu.org/gnu/m4/m4-1.4.16.tar.gz
+
+Make sure the new tools are found:
+$ PATH=/opt/autotools/bin:$PATH
+$ M4=/opt/autotools/bin/m4
+$ export PATH M4
+</pre>
+</LI>
+<LI>Install the following packages (needed tool / package name): 
+<UL>
+	<LI>jpeg: libjpeg-dev</LI>
+	<LI>freetype: libfreetype6-dev</LI>
+	<LI>clang: clang </LI>
+	<LI>gcc-multilib: gcc-multilib (for flterm 'asm/ioctls.h' file not found error) </LI>
+	<LI>GD graphics library: libgd2-xpm-dev </LI>
+	<LI>makeinfo: texinfo </LI>
+	<LI>curses: libncurses-dev </LI>
+	<LI>lemon: lemon </LI>
+	<LI>re2c: re2c</LI>
+</UL>
+</LI>
+</OL>
 
 <h3><a name="secOSX">Mac OS X 10.6 Snow Leopard</a></h3>
 <OL>

@@ -47,7 +47,7 @@ DL=$(if $(wildcard ../dl/.),../dl,dl)
 BUILD_DIR=build_dir
 
 MILKYMIST_GIT_URL:=git://github.com/milkymist
-MILKYMIST_GIT_DIR:=../../milkymist
+MILKYMIST_GIT_DIR?=/opt/milkymist
 
 CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \
 	AR=lm32-rtems4.11-ar \
@@ -187,7 +187,7 @@ milkymist-git-clone:
 	git clone $(MILKYMIST_GIT_URL)/milkymist.git $(MILKYMIST_GIT_DIR)/milkymist.git
 	git clone $(MILKYMIST_GIT_URL)/flickernoise.git $(MILKYMIST_GIT_DIR)/flickernoise.git
 	git clone $(MILKYMIST_GIT_URL)/rtems-yaffs2.git $(MILKYMIST_GIT_DIR)/rtems-yaffs2.git
-	git clone -b mmstaging $(MILKYMIST_GIT_URL)/rtems.git $(MILKYMIST_GIT_DIR)/rtems.git
+	(cd $(MILKYMIST_GIT_DIR); cvs -d :pserver:anoncvs@www.rtems.com:/usr1/CVS co rtems) 
 	git clone $(MILKYMIST_GIT_URL)/liboscparse.git $(MILKYMIST_GIT_DIR)/liboscparse.git
 	git clone $(MILKYMIST_GIT_URL)/mtk.git $(MILKYMIST_GIT_DIR)/mtk.git
 	git clone $(MILKYMIST_GIT_URL)/autotest-m1.git $(MILKYMIST_GIT_DIR)/autotest-m1.git
@@ -196,7 +196,7 @@ milkymist-git-update:
 	(cd $(MILKYMIST_GIT_DIR)/milkymist.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/rtems-yaffs2.git; git fetch -a; git reset --hard origin/master)
-	(cd $(MILKYMIST_GIT_DIR)/rtems.git; git fetch -a; git reset --hard origin/mmstaging)
+	(cd $(MILKYMIST_GIT_DIR)/rtems; cvs -q -z3 update -PdC)
 	(cd $(MILKYMIST_GIT_DIR)/liboscparse.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/mtk.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/autotest-m1.git; git fetch -a; git reset --hard origin/master)
@@ -220,8 +220,8 @@ rtems: $(BUILD_DIR)/bsp-milkymist/Makefile
 
 $(BUILD_DIR)/bsp-milkymist/Makefile:
 	mkdir -p $(BUILD_DIR)/bsp-milkymist
-	(cd $(MILKYMIST_GIT_DIR)/rtems.git && ./bootstrap -c && ./bootstrap -p && ./bootstrap)
-	(cd $(BUILD_DIR)/bsp-milkymist && ../../$(MILKYMIST_GIT_DIR)/rtems.git/configure $(RTEMS_CONFIGURE_FLAGS))
+	(cd $(MILKYMIST_GIT_DIR)/rtems && ./bootstrap -c && ./bootstrap -p && ./bootstrap)
+	(cd $(BUILD_DIR)/bsp-milkymist && $(MILKYMIST_GIT_DIR)/rtems/configure $(RTEMS_CONFIGURE_FLAGS))
 
 #you will need clang for compile milkymist tools
 flickernoise.fbi: rtems libfpvm mtk liboscparse rtems-yaffs2 $(BUILD_DIR)/mupdf $(BUILD_DIR)/curl $(BUILD_DIR)/expat
@@ -232,9 +232,14 @@ flickernoise-pdf.fbiz: flickernoise.fbi
 	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git/src && make clean && WITH_PDF=1 make bin/flickernoise.fbiz)
 	cp $(MILKYMIST_GIT_DIR)/flickernoise.git/src/bin/flickernoise.fbiz ./$@
 
-autotest-m1-boot.bin:
-	(cd $(MILKYMIST_GIT_DIR)/autotest-m1.git/src && MMDIR=../$(MILKYMIST_GIT_DIR)/milkymist.git make)
+boot.bin:
+	MMDIR=$(MILKYMIST_GIT_DIR)/milkymist.git make -C $(MILKYMIST_GIT_DIR)/autotest-m1.git/src
 	cp $(MILKYMIST_GIT_DIR)/autotest-m1.git/src/boot.bin ./$@
+
+boot.crc.bin:
+	MMDIR=$(MILKYMIST_GIT_DIR)/milkymist.git IMAGES_DIR=$(IMAGES_DIR) \
+	  make -C $(MILKYMIST_GIT_DIR)/autotest-m1.git/src boot.crc.bin
+	cp $(MILKYMIST_GIT_DIR)/autotest-m1.git/src/boot.crc.*.bin ./
 
 ####
 $(DL)/$(LIBPNG).ok:
@@ -284,5 +289,11 @@ $(DL)/$(EXPAT).ok:
 	$(WGET) $(DL)/$(EXPAT) \
 	 http://download.sourceforge.net/project/expat/expat/$(EXPAT_VERSION)/expat-$(EXPAT_VERSION).tar.gz
 	touch $@
+
+.PHONY: clean clean-rtems boot.crc.bin
+
 clean:
 	rm -rf build_dir/*
+
+clean-rtems:
+	rm -rf build_dir/bsp-milkymist/
