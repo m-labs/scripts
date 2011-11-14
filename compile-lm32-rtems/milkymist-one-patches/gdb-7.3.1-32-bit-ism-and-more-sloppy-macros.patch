@@ -1,0 +1,21 @@
+diff --git a/gdb/lm32-tdep.c b/gdb/lm32-tdep.c
+index d83c6a4..f75a9d2 100644
+--- a/gdb/lm32-tdep.c
++++ b/gdb/lm32-tdep.c
+@@ -40,11 +40,11 @@
+ #include "gdb_string.h"
+ 
+ /* Macros to extract fields from an instruction.  */
+-#define LM32_OPCODE(insn)       ((insn >> 26) & 0x3f)
+-#define LM32_REG0(insn)         ((insn >> 21) & 0x1f)
+-#define LM32_REG1(insn)         ((insn >> 16) & 0x1f)
+-#define LM32_REG2(insn)         ((insn >> 11) & 0x1f)
+-#define LM32_IMM16(insn)        ((((long)insn & 0xffff) << 16) >> 16)
++#define LM32_OPCODE(insn)       (((insn) >> 26) & 0x3f)
++#define LM32_REG0(insn)         (((insn) >> 21) & 0x1f)
++#define LM32_REG1(insn)         (((insn) >> 16) & 0x1f)
++#define LM32_REG2(insn)         (((insn) >> 11) & 0x1f)
++#define LM32_IMM16(insn)        ((long) (int16_t) (insn))
+ 
+ struct gdbarch_tdep
+ {
