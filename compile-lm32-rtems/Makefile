@@ -27,7 +27,7 @@ WGET=wget -c -O
 BINUTILS_VERSION=2.21
 GCC_CORE_VERSION=4.5.3
 NEWLIB_VERSION=1.19.0
-GDB_VERSION=7.2
+GDB_VERSION=7.3.1
 GMP_VERSION=4.3.2
 MPC_VERSION=0.8.1
 MPFR_VERSION=2.4.2
@@ -43,7 +43,7 @@ MPFR=mpfr-$(MPFR_VERSION).tar.bz2
 BINUTILS_PATCH=binutils-$(BINUTILS_VERSION)-rtems$(RTEMS_VERSION)-20110107.diff
 GCC_CORE_PATCH=gcc-core-$(GCC_CORE_VERSION)-rtems$(RTEMS_VERSION)-20110905.diff
 NEWLIB_PATCH=newlib-$(NEWLIB_VERSION)-rtems$(RTEMS_VERSION)-20110724.diff
-GDB_PATCH=gdb-$(GDB_VERSION)-rtems$(RTEMS_VERSION)-20100907.diff
+GDB_PATCH=gdb-$(GDB_VERSION)-rtems$(RTEMS_VERSION)-20110905.diff
 
 DL=$(if $(wildcard ../dl/.),../dl,dl)
 
@@ -95,7 +95,6 @@ gcc-$(GCC_CORE_VERSION)/newlib: .unzip.ok
 	(cd newlib-$(NEWLIB_VERSION); cat ../$(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH) | patch -p1)
 	(cd gdb-$(GDB_VERSION); \
 	 cat ../$(RTEMS_PATCHES_DIR)/$(GDB_PATCH) | patch -p1; \
-	 cat ../$(MM1_PATCHES_DIR)/gdb-remote-target-interrupt-before-ack.patch | patch -p1; \
 	)
 	touch $@
 
