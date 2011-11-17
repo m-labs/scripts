@@ -225,20 +225,20 @@ $(BUILD_DIR)/bsp-milkymist/Makefile:
 
 #you will need clang for compile milkymist tools
 flickernoise.fbi: rtems libfpvm mtk liboscparse rtems-yaffs2 $(BUILD_DIR)/mupdf $(BUILD_DIR)/curl $(BUILD_DIR)/expat
-	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git/src && make clean && make bin/flickernoise.fbi)
+	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git/src && make clean bin/flickernoise.fbi)
 	cp $(MILKYMIST_GIT_DIR)/flickernoise.git/src/bin/$@ ./
 
 flickernoise-pdf.fbiz: flickernoise.fbi
-	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git/src && make clean && WITH_PDF=1 make bin/flickernoise.fbiz)
+	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git/src && WITH_PDF=1 make clean bin/flickernoise.fbiz)
 	cp $(MILKYMIST_GIT_DIR)/flickernoise.git/src/bin/flickernoise.fbiz ./$@
 
 boot.bin:
-	MMDIR=$(MILKYMIST_GIT_DIR)/milkymist.git make -C $(MILKYMIST_GIT_DIR)/autotest-m1.git/src
+	MMDIR=$(MILKYMIST_GIT_DIR)/milkymist.git make -C $(MILKYMIST_GIT_DIR)/autotest-m1.git/src clean boot.bin
 	cp $(MILKYMIST_GIT_DIR)/autotest-m1.git/src/boot.bin ./$@
 
 boot.crc.bin:
 	MMDIR=$(MILKYMIST_GIT_DIR)/milkymist.git IMAGES_DIR=$(IMAGES_DIR) \
-	  make -C $(MILKYMIST_GIT_DIR)/autotest-m1.git/src boot.crc.bin
+	  make -C $(MILKYMIST_GIT_DIR)/autotest-m1.git/src clean boot.crc.bin
 	cp $(MILKYMIST_GIT_DIR)/autotest-m1.git/src/boot.crc.*.bin ./
 
 ####
