@@ -35,7 +35,7 @@ CURL_VERSION=7.22.0
 EXPAT_VERSION=2.0.1
 
 LIBPNG=libpng-$(LIBPNG_VERSION).tar.gz
-LIBJPEG=jpegsrc.v8b.tar.gz
+LIBJPEG=jpegsrc.v8c.tar.gz
 OPENJPEG=openjpeg_v1_2.tar.gz
 JBIG2DEC=jbig2dec-$(JBIG2DEC_VERSION).tar.gz
 FREETYPE2=freetype-$(FREETYPE2_VERSION).tar.gz
@@ -84,7 +84,7 @@ $(BUILD_DIR)/libpng: $(DL)/$(LIBPNG).ok build_dir/.prepare
 
 $(BUILD_DIR)/libjpeg: $(DL)/$(LIBJPEG).ok build_dir/.prepare
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(LIBJPEG)
-	(cd $(BUILD_DIR)/jpeg-8b; $(CONFIGURE_VARS) ./configure \
+	(cd $(BUILD_DIR)/jpeg-8c; $(CONFIGURE_VARS) ./configure \
 	 --host=lm32-rtems4.11 --disable-shared --prefix=$(RTEMS_MAKEFILE_PATH); \
 	 make; \
 	 make install;\
