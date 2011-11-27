@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # version of me
-__VERSION__="2011-10-14"
+__VERSION__="2011-11-28"
 echo "File name: $0, Version of me: ${__VERSION__}"
 
 
@@ -48,18 +48,27 @@ Please report bugs to <devel@lists.milkymist.org>
 
 }
 
+# $1: is the file name you want save
+# $2: is the URL
+call-wget() {
+    wget -O "$1" "$2"
+    if [ "$?" != "0" ]; then
+	rm -f "$1"
+    fi
+}
+
 call-download() {
-    wget -O "${WORKING_DIR}/${STANDBY}"       "${BASE_URL_HTTP}/${VERSION}/${STANDBY}"
+    call-wget "${WORKING_DIR}/${STANDBY}"       "${BASE_URL_HTTP}/${VERSION}/${STANDBY}"
 
-    wget -O "${WORKING_DIR}/${SOC_RESCUE}"    "${BASE_URL_HTTP}/${VERSION}/${SOC_RESCUE}"
-    wget -O "${WORKING_DIR}/${BIOS_RESCUE}"   "${BASE_URL_HTTP}/${VERSION}/${BIOS_RESCUE}"
-    wget -O "${WORKING_DIR}/${SPLASH_RESCUE}" "${BASE_URL_HTTP}/${VERSION}/${SPLASH_RESCUE}"
+    call-wget "${WORKING_DIR}/${SOC_RESCUE}"    "${BASE_URL_HTTP}/${VERSION}/${SOC_RESCUE}"
+    call-wget "${WORKING_DIR}/${BIOS_RESCUE}"   "${BASE_URL_HTTP}/${VERSION}/${BIOS_RESCUE}"
+    call-wget "${WORKING_DIR}/${SPLASH_RESCUE}" "${BASE_URL_HTTP}/${VERSION}/${SPLASH_RESCUE}"
 
-    wget -O "${WORKING_DIR}/${SOC}"           "${BASE_URL_HTTP}/${VERSION}/${SOC}"
-    wget -O "${WORKING_DIR}/${BIOS}"          "${BASE_URL_HTTP}/${VERSION}/${BIOS}"
-    wget -O "${WORKING_DIR}/${SPLASH}"        "${BASE_URL_HTTP}/${VERSION}/${SPLASH}"
+    call-wget "${WORKING_DIR}/${SOC}"           "${BASE_URL_HTTP}/${VERSION}/${SOC}"
+    call-wget "${WORKING_DIR}/${BIOS}"          "${BASE_URL_HTTP}/${VERSION}/${BIOS}"
+    call-wget "${WORKING_DIR}/${SPLASH}"        "${BASE_URL_HTTP}/${VERSION}/${SPLASH}"
 
-    wget -O "${WORKING_DIR}/${FLICKERNOISE}"  "${BASE_URL_HTTP}/${VERSION}/${FLICKERNOISE}"
+    call-wget "${WORKING_DIR}/${FLICKERNOISE}"  "${BASE_URL_HTTP}/${VERSION}/${FLICKERNOISE}"
 }
 
 call-jtag() {
@@ -68,7 +77,7 @@ call-jtag() {
     fi
 
     if [ ! -f "${FJMEM_PATH}/${FJMEM}" ]; then
-	wget -O "${FJMEM_PATH}/${FJMEM}" http://milkymist.org/updates/2011-07-13/for-rc3/fjmem.bit
+	call-wget "${FJMEM_PATH}/${FJMEM}" http://milkymist.org/updates/2011-07-13/for-rc3/fjmem.bit
     fi
 
     if [ "${BIOS_RESCUE_PATH}" == "" ]; then
@@ -131,8 +140,6 @@ EOF
     fi
 
     if [ "$1" == "--release" ] || [ "$1" == "--snapshot" ]; then
-	echo "eraseflash 0x000000 105" >> ${JTAG_BATCH_FILE}
-
 	echo "flashmem 0x000000 ${WORKING_DIR}/${STANDBY} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
 
 	echo "flashmem 0x0A0000 ${WORKING_DIR}/${SOC_RESCUE} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
@@ -180,7 +187,7 @@ call-create-bios () {
     mkdir -p ${MAC_DIR}
 
     if [ ! -f "${BIOS_RESCUE_WITHOUT_CRC_PATH}/bios-rescue-without-CRC.bin" ]; then
-	wget -O "${BIOS_RESCUE_WITHOUT_CRC_PATH}/bios-rescue-without-CRC.bin" http://milkymist.org/updates/2011-07-13/for-rc3/bios-rescue-without-CRC.bin
+	call-wget "${BIOS_RESCUE_WITHOUT_CRC_PATH}/bios-rescue-without-CRC.bin" http://milkymist.org/updates/2011-07-13/for-rc3/bios-rescue-without-CRC.bin
     fi
 
 
@@ -234,7 +241,7 @@ if [ "$1" == "--release" ]; then
 	    ${STANDBY} ${SOC_RESCUE} ${BIOS_RESCUE} ${SPLASH_RESCUE} \
 	    ${SOC} ${BIOS} ${SPLASH} ${FLICKERNOISE} \
 	    version-app)
-	wget -O ${WORKING_DIR}/version-app ${BASE_URL_HTTP}/${VERSION}/version-app
+	call-wget ${WORKING_DIR}/version-app ${BASE_URL_HTTP}/${VERSION}/version-app
 	call-download
     fi
 
@@ -272,7 +279,7 @@ if [ "$1" == "--snapshot" ]; then
     else
 	(cd "${WORKING_DIR}" ; rm -f ${STANDBY} ${SOC_RESCUE} ${BIOS_RESCUE} ${SPLASH_RESCUE} \
 	   ${SOC} ${BIOS} ${SPLASH} ${FLICKERNOISE} ${DATA})
-	wget -O "${WORKING_DIR}/${DATA}" "${BASE_URL_HTTP}/${VERSION}/${DATA}"
+	call-wget "${WORKING_DIR}/${DATA}" "${BASE_URL_HTTP}/${VERSION}/${DATA}"
 	call-download
     fi
 
