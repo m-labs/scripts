@@ -55,11 +55,11 @@ fi
 
 #this needs you manully clont the wernermisc.git to MILKYMIST_GIT_DIR
 echo "handle cvs rtems and werner's patch ..."
-rm -rf $(MILKYMIST_GIT_DIR)/rtems
-(cd $(MILKYMIST_GIT_DIR)       && cvs -d :pserver:anoncvs@www.rtems.com:/usr1/CVS co rtems)
-(cd $(MILKYMIST_GIT_DIR)/rtems && rm -f patches && ln -s ../wernermisc.git/m1/patches/rtems/ patches)
-(cd $(MILKYMIST_GIT_DIR)/rtems/patches && git fetch -a && git reset --hard origin/master)
-(cd $(MILKYMIST_GIT_DIR)/rtems && quilt push -a)
+rm -rf ${MILKYMIST_GIT_DIR}/rtems
+(cd ${MILKYMIST_GIT_DIR}       && cvs -d :pserver:anoncvs@www.rtems.com:/usr1/CVS co rtems)
+(cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ../wernermisc.git/m1/patches/rtems/ patches)
+(cd ${MILKYMIST_GIT_DIR}/rtems/patches && git fetch -a && git reset --hard origin/master)
+(cd ${MILKYMIST_GIT_DIR}/rtems && quilt push -a)
 
 echo "get git versions ..."
 get-feeds-revision ${MILKYMIST_GIT_DIR}/autotest-m1.git
