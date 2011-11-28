@@ -196,10 +196,10 @@ milkymist-git-update:
 	(cd $(MILKYMIST_GIT_DIR)/milkymist.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/rtems-yaffs2.git; git fetch -a; git reset --hard origin/master)
-	(cd $(MILKYMIST_GIT_DIR)/rtems; cvs -q -z3 update -PdC)
 	(cd $(MILKYMIST_GIT_DIR)/liboscparse.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/mtk.git; git fetch -a; git reset --hard origin/master)
 	(cd $(MILKYMIST_GIT_DIR)/autotest-m1.git; git fetch -a; git reset --hard origin/master)
+	-(cd $(MILKYMIST_GIT_DIR)/rtems && cvs -q -z3 update -PdC)
 
 #You will need Lemon and RE2C to compile libFPVM. 
 libfpvm:
