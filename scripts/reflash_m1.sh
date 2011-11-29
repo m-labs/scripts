@@ -174,7 +174,7 @@ EOF
     echo "-------------------------------------------------------------"
     echo "jtag batch file is ${JTAG_BATCH_FILE}"
     echo "Your m1 was successfully reflashed. To boot the new software,"
-    echo "Please now press the middle button of your Milkymist One."
+    echo "Please re-plug the power cable of your Milkymist One."
     echo "-------------------------------------------------------------"
 
 }
