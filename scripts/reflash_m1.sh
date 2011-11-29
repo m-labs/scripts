@@ -283,7 +283,12 @@ if [ "$1" == "--snapshot" ]; then
 	call-download
     fi
 
-    call-jtag $1 "${WORKING_DIR}/${DATA}"
+    if [ "$3" == "data" ]; then
+	call-jtag $1 "${WORKING_DIR}/${DATA}"
+    else
+	call-jtag $1
+    fi
+
     exit 0
 fi
 
