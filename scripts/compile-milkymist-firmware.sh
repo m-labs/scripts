@@ -140,7 +140,7 @@ cp ${MILKYMIST_GIT_DIR}/autotest-m1.git/src/boot*.bin ${IMAGES_DIR}/
 
 echo "build data patitions ..."
 mkdir -p ${IMAGES_DIR}/data.flash5/patchpool
-find ${MILKYMIST_GIT_DIR}/flickernoise.git/patches -name "*.fnp" -exec cp {} ${IMAGES_DIR}/data.flash5/patchpool \;
+cp -af ${MILKYMIST_GIT_DIR}/flickernoise.git/patches/* ${IMAGES_DIR}/data.flash5/patchpool
 
 make -C ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils nor-mkyaffs2image
 
