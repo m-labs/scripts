@@ -67,7 +67,6 @@ get-feeds-revision ${MILKYMIST_GIT_DIR}/flickernoise.git
 get-feeds-revision ${MILKYMIST_GIT_DIR}/liboscparse.git
 get-feeds-revision ${MILKYMIST_GIT_DIR}/milkymist.git
 get-feeds-revision ${MILKYMIST_GIT_DIR}/mtk.git
-get-feeds-revision ${MILKYMIST_GIT_DIR}/rtems.git
 get-feeds-revision ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git
 get-feeds-revision ${SCRIPTS_GIT_DIR}/
 
@@ -92,8 +91,7 @@ fi
 
 
 echo "compile tools ..."
-(cd ${MILKYMIST_GIT_DIR}/milkymist.git && ./clean_all.sh)
-make -C ${MILKYMIST_GIT_DIR}/milkymist.git/tools >> ${BUILD_LOG} 2>&1
+make -C ${MILKYMIST_GIT_DIR}/milkymist.git clean host >> ${BUILD_LOG} 2>&1
 if [ "$?" != "0" ]; then
 	abort "ERROR: milkymist.git/tools"
 fi
