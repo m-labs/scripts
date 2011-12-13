@@ -347,9 +347,38 @@ if [ "$1" == "--rc3" ]; then
 
     BIOS_RESCUE_PATH=${MAC_DIR}
     BIOS_RESCUE=${BIOS_RESCUE_MAC}
-    WORKING_DIR=".."
 
-    call-jtag "--release" "${DATA}"
+
+    BASE_URL_HTTP="http://milkymist.org/updates"
+    VERSION="2011-11-29"
+
+    MD5SUMS_SERVER=$(\
+      wget -O - "${BASE_URL_HTTP}/${VERSION}/for-rc3/md5sums" 2> /dev/null |\
+      grep -E "(${STANDBY}|${SOC_RESCUE}|${SPLASH_RESCUE}|${SOC}|${BIOS}|${SPLASH}|${FLICKERNOISE}|${DATA})" | sort)
+    if [ "${MD5SUMS_SERVER}" == "" ]; then
+	echo "ERROR: can't fetch files ${BASE_URL_HTTP}/${VERSION}/for-rc3/md5sums"
+	exit 1
+    fi
+
+    WORKING_DIR="${HOME}/.qi/milkymist/for-rc3"
+    mkdir -p ${WORKING_DIR}
+
+    MD5SUMS_LOCAL=$( (cd "${WORKING_DIR}" ; \
+	md5sum --binary ${STANDBY} ${SOC_RESCUE} ${SPLASH_RESCUE} \
+	${SOC} ${BIOS} ${SPLASH} ${FLICKERNOISE} ${DATA} 2> /dev/null) | sort )
+
+    if [ "${MD5SUMS_SERVER}" == "${MD5SUMS_LOCAL}" ]; then
+	echo "present files are identical to the ones on the server - do not download them again"
+    else
+	(cd "${WORKING_DIR}" ; rm -f ${STANDBY} ${SOC_RESCUE} ${SPLASH_RESCUE} \
+	   ${SOC} ${BIOS} ${SPLASH} ${FLICKERNOISE} ${DATA})
+	call-download
+	call-wget "${WORKING_DIR}/${SPLASH_RESCUE}" "${BASE_URL_HTTP}/${VERSION}/for-rc3/${SPLASH_RESCUE}"
+	call-wget "${WORKING_DIR}/${SPLASH}"        "${BASE_URL_HTTP}/${VERSION}/for-rc3/${SPLASH}"
+	call-wget "${WORKING_DIR}/${DATA}"          "${BASE_URL_HTTP}/${VERSION}/for-rc3/${DATA}"
+    fi
+
+    call-jtag "--release" "${WORKING_DIR}/${DATA}"
 
     exit 0
 fi
