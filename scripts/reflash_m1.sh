@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # version of me
-__VERSION__="2011-11-28"
+__VERSION__="2011-12-13"
 echo "File name: $0, Version of me: ${__VERSION__}"
 
 
