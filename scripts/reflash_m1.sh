@@ -5,7 +5,6 @@ __VERSION__="2011-11-28"
 echo "File name: $0, Version of me: ${__VERSION__}"
 
 
-FJMEM="fjmem.bit"
 STANDBY="standby.fpg"
 SOC_RESCUE="soc-rescue.fpg"
 BIOS_RESCUE="bios-rescue.bin"
@@ -16,8 +15,9 @@ SPLASH="splash.raw"
 FLICKERNOISE="flickernoise.fbi"
 DATA="data.flash5.bin"
 
+FJMEM="${HOME}/.qi/milkymist/fjmem/fjmem.bit"
+BIOS_RESCUE_WITHOUT_CRC="${HOME}/.qi/milkymist/bios-crc/bios-rescue-without-CRC.bin"
 MAC_DIR="${HOME}/.qi/milkymist/bios-mac/tmp"
-
 
 # Functions ###########################################################
 call-help() {
@@ -72,12 +72,10 @@ call-download() {
 }
 
 call-jtag() {
-    if [ "${FJMEM_PATH}" == "" ]; then
-	FJMEM_PATH=${WORKING_DIR}
-    fi
-
-    if [ ! -f "${FJMEM_PATH}/${FJMEM}" ]; then
-	call-wget "${FJMEM_PATH}/${FJMEM}" http://milkymist.org/updates/2011-07-13/for-rc3/fjmem.bit
+    if [ ! -f "${FJMEM}" ]; then
+	mkdir -p `dirname ${FJMEM}`
+	call-wget "${FJMEM}.bz2" http://milkymist.org/updates/fjmem.bit.bz2
+	bunzip2 "${FJMEM}.bz2"
     fi
 
     if [ "${BIOS_RESCUE_PATH}" == "" ]; then
@@ -102,7 +100,7 @@ cable milkymist
 detect
 instruction CFG_OUT 000100 BYPASS
 instruction CFG_IN 000101 BYPASS
-pld load ${FJMEM_PATH}/${FJMEM}
+pld load ${FJMEM}
 initbus fjmem opcode=000010
 frequency 6000000
 detectflash 0
@@ -186,13 +184,14 @@ call-create-bios () {
 
     mkdir -p ${MAC_DIR}
 
-    if [ ! -f "${BIOS_RESCUE_WITHOUT_CRC_PATH}/bios-rescue-without-CRC.bin" ]; then
-	call-wget "${BIOS_RESCUE_WITHOUT_CRC_PATH}/bios-rescue-without-CRC.bin" http://milkymist.org/updates/2011-07-13/for-rc3/bios-rescue-without-CRC.bin
+    if [ ! -f "${BIOS_RESCUE_WITHOUT_CRC}" ]; then
+	mkdir -p `dirname ${BIOS_RESCUE_WITHOUT_CRC}`
+	call-wget "${BIOS_RESCUE_WITHOUT_CRC}" http://milkymist.org/updates/2011-11-29/for-rc3/bios-rescue-without-CRC.bin
     fi
 
 
-    dd if="${BIOS_RESCUE_WITHOUT_CRC_PATH}/bios-rescue-without-CRC.bin"  of=${MAC_DIR}/${HEAD_TMP}   bs=8 count=28
-    dd if="${BIOS_RESCUE_WITHOUT_CRC_PATH}/bios-rescue-without-CRC.bin"  of=${MAC_DIR}/${REMAIN_TMP} bs=8  skip=29
+    dd if="${BIOS_RESCUE_WITHOUT_CRC}"  of=${MAC_DIR}/${HEAD_TMP}   bs=8 count=28
+    dd if="${BIOS_RESCUE_WITHOUT_CRC}"  of=${MAC_DIR}/${REMAIN_TMP} bs=8  skip=29
 
     printf "\\x$(printf "%x" 0x10)" >  ${MAC_DIR}/${MAC_TMP}
     printf "\\x$(printf "%x" 0xe2)" >> ${MAC_DIR}/${MAC_TMP}
@@ -308,7 +307,6 @@ fi
 if [ "$1" == "--read-flash" ]; then
     DATE_TIME=`date +"%Y%m%d-%H%M"`
     WORKING_DIR="${HOME}/.qi/milkymist/read-flash/${DATE_TIME}"
-    FJMEM_PATH=${WORKING_DIR}/..
 
     mkdir -p ${WORKING_DIR}
     call-jtag $1
@@ -326,13 +324,11 @@ if [ "$1" == "--bios-mac" ]; then
     fi
 
     BIOS_RESCUE_MAC="bios.$2$3.bin"
-    BIOS_RESCUE_WITHOUT_CRC_PATH="${MAC_DIR}/.."
 
     call-create-bios "${MAC_DIR}/${BIOS_RESCUE_MAC}" "$2" "$3"
 
     BIOS_RESCUE_PATH=${MAC_DIR}
     BIOS_RESCUE=${BIOS_RESCUE_MAC}
-    FJMEM_PATH="${MAC_DIR}/.."
 
     call-jtag "--bios-mac"
 
@@ -346,13 +342,11 @@ if [ "$1" == "--rc3" ]; then
     fi
 
     BIOS_RESCUE_MAC="bios.$2$3.bin"
-    BIOS_RESCUE_WITHOUT_CRC_PATH="."
 
     call-create-bios "${MAC_DIR}/${BIOS_RESCUE_MAC}" "$2" "$3"
 
     BIOS_RESCUE_PATH=${MAC_DIR}
     BIOS_RESCUE=${BIOS_RESCUE_MAC}
-    FJMEM_PATH="."
     WORKING_DIR=".."
 
     call-jtag "--release" "${DATA}"
