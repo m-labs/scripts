@@ -203,13 +203,13 @@ milkymist-git-update:
 
 #You will need Lemon and RE2C to compile libFPVM. 
 libfpvm:
-	(cd $(MILKYMIST_GIT_DIR)/milkymist.git/software/libfpvm/lm32-rtems && make && make install)
+	make -C $(MILKYMIST_GIT_DIR)/milkymist.git/software/libfpvm/ install
 
 mtk:
-	(cd $(MILKYMIST_GIT_DIR)/$@.git && make milkymist && make install-milkymist)
+	make -C $(MILKYMIST_GIT_DIR)/$@.git milkymist install-milkymist
 
 liboscparse:
-	(cd $(MILKYMIST_GIT_DIR)/$@.git && make && make install)
+	make -C $(MILKYMIST_GIT_DIR)/$@.git all install
 
 rtems-yaffs2:
 	(cd $(MILKYMIST_GIT_DIR)/$@.git && make -f Makefile.rtems && make -f Makefile.rtems  install)
@@ -225,11 +225,11 @@ $(BUILD_DIR)/bsp-milkymist/Makefile:
 
 #you will need clang for compile milkymist tools
 flickernoise.fbi: rtems libfpvm mtk liboscparse rtems-yaffs2 $(BUILD_DIR)/mupdf $(BUILD_DIR)/curl $(BUILD_DIR)/expat
-	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git/src && make clean bin/flickernoise.fbi)
+	make -C $(MILKYMIST_GIT_DIR)/flickernoise.git/src clean bin/flickernoise.fbi
 	cp $(MILKYMIST_GIT_DIR)/flickernoise.git/src/bin/$@ ./
 
 flickernoise-pdf.fbiz: flickernoise.fbi
-	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git/src && WITH_PDF=1 make clean bin/flickernoise.fbiz)
+	WITH_PDF=1 make -C $(MILKYMIST_GIT_DIR)/flickernoise.git/src clean bin/flickernoise.fbiz
 	cp $(MILKYMIST_GIT_DIR)/flickernoise.git/src/bin/flickernoise.fbiz ./$@
 
 boot.bin:
