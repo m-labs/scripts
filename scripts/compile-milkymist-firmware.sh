@@ -15,7 +15,7 @@ touch ${BUILD_LOG} ${VERSIONS}
 
 
 MILKYMIST_GIT_DIR=/home/xiangfu/milkymist-firmware/milkymist/
-SCRIPTS_GIT_DIR=/home/xiangfu/milkymist-firmware/scripts.git
+SCRIPTS_GIT_DIR=/home/xiangfu/milkymist-firmware/scripts
 
 
 MD5_BINARIES="bios.bin bios-rescue.bin boot.bin data.flash5.bin flickernoise flickernoise.bin flickernoise.fbi soc.fpg soc-rescue.fpg splash.raw splash-rescue.raw standby.fpg"
@@ -53,21 +53,21 @@ if [ "$?" != "0" ]; then
 	abort "ERROR: milkymist-git-update"
 fi
 
-#this needs you manully clont the wernermisc.git to MILKYMIST_GIT_DIR
+#this needs you manully clont the wernermisc to MILKYMIST_GIT_DIR
 echo "handle cvs rtems and werner's patch ..."
 rm -rf ${MILKYMIST_GIT_DIR}/rtems
 (cd ${MILKYMIST_GIT_DIR}       && cvs -d :pserver:anoncvs@www.rtems.com:/usr1/CVS co rtems)
-(cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ../wernermisc.git/m1/patches/rtems/ patches)
+(cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ../wernermisc/m1/patches/rtems/ patches)
 (cd ${MILKYMIST_GIT_DIR}/rtems/patches && git fetch -a && git reset --hard origin/master)
 (cd ${MILKYMIST_GIT_DIR}/rtems && quilt push -a)
 
 echo "get git versions ..."
-get-feeds-revision ${MILKYMIST_GIT_DIR}/autotest-m1.git
-get-feeds-revision ${MILKYMIST_GIT_DIR}/flickernoise.git
-get-feeds-revision ${MILKYMIST_GIT_DIR}/liboscparse.git
-get-feeds-revision ${MILKYMIST_GIT_DIR}/milkymist.git
-get-feeds-revision ${MILKYMIST_GIT_DIR}/mtk.git
-get-feeds-revision ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git
+get-feeds-revision ${MILKYMIST_GIT_DIR}/autotest-m1
+get-feeds-revision ${MILKYMIST_GIT_DIR}/flickernoise
+get-feeds-revision ${MILKYMIST_GIT_DIR}/liboscparse
+get-feeds-revision ${MILKYMIST_GIT_DIR}/milkymist
+get-feeds-revision ${MILKYMIST_GIT_DIR}/mtk
+get-feeds-revision ${MILKYMIST_GIT_DIR}/rtems-yaffs2
 get-feeds-revision ${SCRIPTS_GIT_DIR}/
 
 
@@ -91,9 +91,9 @@ fi
 
 
 echo "compile tools ..."
-make -C ${MILKYMIST_GIT_DIR}/milkymist.git clean host >> ${BUILD_LOG} 2>&1
+make -C ${MILKYMIST_GIT_DIR}/milkymist clean host >> ${BUILD_LOG} 2>&1
 if [ "$?" != "0" ]; then
-	abort "ERROR: milkymist.git/tools"
+	abort "ERROR: milkymist/tools"
 fi
 
 
@@ -101,30 +101,30 @@ echo "compile soc ..."
 #the Xilinx libs(libstdc++.so.6) have some conflict
 (source ~/.bashrc && \
  source /home/Xilinx/13.2/ISE_DS/settings64.sh && \
- make -C ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash)  >> ${BUILD_LOG} 2>&1
+ make -C ${MILKYMIST_GIT_DIR}/milkymist/boards/milkymist-one/flash)  >> ${BUILD_LOG} 2>&1
 if [ "$?" != "0" ]; then
 	abort "ERROR: compile SOC"
 fi
-cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/standby.fpg ${IMAGES_DIR}
-cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/soc.fpg ${IMAGES_DIR}
-cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/bios.bin ${IMAGES_DIR}
-cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/splash.raw ${IMAGES_DIR}
-cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/soc-rescue.fpg ${IMAGES_DIR}
-cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/bios-rescue.bin ${IMAGES_DIR}
-cp ${MILKYMIST_GIT_DIR}/milkymist.git/boards/milkymist-one/flash/splash-rescue.raw ${IMAGES_DIR}
+cp ${MILKYMIST_GIT_DIR}/milkymist/boards/milkymist-one/flash/standby.fpg ${IMAGES_DIR}
+cp ${MILKYMIST_GIT_DIR}/milkymist/boards/milkymist-one/flash/soc.fpg ${IMAGES_DIR}
+cp ${MILKYMIST_GIT_DIR}/milkymist/boards/milkymist-one/flash/bios.bin ${IMAGES_DIR}
+cp ${MILKYMIST_GIT_DIR}/milkymist/boards/milkymist-one/flash/splash.raw ${IMAGES_DIR}
+cp ${MILKYMIST_GIT_DIR}/milkymist/boards/milkymist-one/flash/soc-rescue.fpg ${IMAGES_DIR}
+cp ${MILKYMIST_GIT_DIR}/milkymist/boards/milkymist-one/flash/bios-rescue.bin ${IMAGES_DIR}
+cp ${MILKYMIST_GIT_DIR}/milkymist/boards/milkymist-one/flash/splash-rescue.raw ${IMAGES_DIR}
 BIOS_LEN=`ls -l  ${IMAGES_DIR}/bios-rescue.bin  | awk '{printf "%d\n",$5-4}'`
 dd if=${IMAGES_DIR}/bios-rescue.bin of=${IMAGES_DIR}/bios-rescue-without-CRC.bin bs=1 count=${BIOS_LEN}
 
 
 echo "compile flickernoise ..."
-export PATH=${MILKYMIST_GIT_DIR}/milkymist.git/tools:$PATH
+export PATH=${MILKYMIST_GIT_DIR}/milkymist/tools:$PATH
 export PATH=/home/xiangfu/openwrt-xburst.full_system/staging_dir/host/bin:$PATH  #for autoconf 2.68
 MILKYMIST_GIT_DIR=${MILKYMIST_GIT_DIR} make -C ${SCRIPTS_GIT_DIR}/compile-flickernoise \
   clean flickernoise.fbi >> ${BUILD_LOG} 2>&1
 if [ "$?" != "0" ]; then
 	abort "ERROR: compile flickernoise"
 fi
-cp ${MILKYMIST_GIT_DIR}/flickernoise.git/src/bin/* ${IMAGES_DIR}/
+cp ${MILKYMIST_GIT_DIR}/flickernoise/src/bin/* ${IMAGES_DIR}/
 
 
 echo "compile autotest ..."
@@ -133,16 +133,16 @@ MILKYMIST_GIT_DIR=${MILKYMIST_GIT_DIR} IMAGES_DIR=${IMAGES_DIR} make -C ${SCRIPT
 if [ "$?" != "0" ]; then
 	abort "ERROR: compile autotest"
 fi
-cp ${MILKYMIST_GIT_DIR}/autotest-m1.git/src/boot*.bin ${IMAGES_DIR}/
+cp ${MILKYMIST_GIT_DIR}/autotest-m1/src/boot*.bin ${IMAGES_DIR}/
 
 
 echo "build data patitions ..."
 mkdir -p ${IMAGES_DIR}/data.flash5/patchpool
-cp -af ${MILKYMIST_GIT_DIR}/flickernoise.git/patches/* ${IMAGES_DIR}/data.flash5/patchpool
+cp -af ${MILKYMIST_GIT_DIR}/flickernoise/patches/* ${IMAGES_DIR}/data.flash5/patchpool
 
-make -C ${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils nor-mkyaffs2image
+make -C ${MILKYMIST_GIT_DIR}/rtems-yaffs2/utils nor-mkyaffs2image
 
-${MILKYMIST_GIT_DIR}/rtems-yaffs2.git/utils/nor-mkyaffs2image \
+${MILKYMIST_GIT_DIR}/rtems-yaffs2/utils/nor-mkyaffs2image \
   ${IMAGES_DIR}/data.flash5 ${IMAGES_DIR}/data.flash5.bin convert  >> ${BUILD_LOG} 2>&1
 chmod 644 ${IMAGES_DIR}/data.flash5.bin
 
