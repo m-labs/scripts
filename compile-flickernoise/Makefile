@@ -50,19 +50,18 @@ BUILD_DIR=build_dir
 MILKYMIST_GIT_URL:=git://github.com/milkymist
 MILKYMIST_GIT_DIR?=/opt/milkymist
 
-CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \
-	AR=lm32-rtems4.11-ar \
-	LD=lm32-rtems4.11-ld \
-	RANLIB=lm32-rtems4.11-ranlib \
-	CFLAGS="-O9 -Wall -mbarrel-shift-enabled \
-	  -mmultiply-enabled -mdivide-enabled -msign-extend-enabled \
-	  -I $(RTEMS_MAKEFILE_PATH)/lib/include \
-	  -B $(RTEMS_MAKEFILE_PATH)/lib \
+CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \R=lm32-rtems4.11-ar \
+	LD=lm32-rtems4.11-ld RANLIB=lm32-rtems4.11-ranlib \
+	CFLAGS="-O9 -Wall -mbarrel-shift-enabled -mmultiply-enabled \
+	  -mdivide-enabled -msign-extend-enabled \
+	  -I $(RTEMS_MAKEFILE_PATH)/lib/include -B $(RTEMS_MAKEFILE_PATH)/lib \
 	  -specs bsp_specs -qrtems"
 
 RTEMS_CONFIGURE_FLAGS=--target=lm32-rtems4.11 --enable-rtemsbsp=milkymist \
 	--enable-testsuites=samples --enable-posix --disable-itron \
 	--enable-networking --disable-multiprocessing
+
+HOST_CC=gcc
 
 ALL:flickernoise.fbi flickernoise-pdf.fbiz
 
@@ -71,62 +70,53 @@ build_dir/.prepare:
 	touch $@
 
 $(BUILD_DIR)/libpng: $(DL)/$(LIBPNG).ok build_dir/.prepare
-	cd $(BUILD_DIR); tar xf ../$(DL)/$(LIBPNG)
-	(cd $(BUILD_DIR)/libpng-$(LIBPNG_VERSION); $(CONFIGURE_VARS) \
+	tar xf $(DL)/$(LIBPNG) -C $(BUILD_DIR)
+	(cd $(BUILD_DIR)/libpng-$(LIBPNG_VERSION) && $(CONFIGURE_VARS) \
 	CPPFLAGS="-DPNG_NO_FLOATING_ARITHMETIC -DPNG_NO_FLOATING_POINT" \
 	 ./configure --disable-shared --prefix=$(RTEMS_MAKEFILE_PATH) \
-	 --host=lm32-rtems4.11; \
-	 make; \
-	 make install; \
-	)
+	 --host=lm32-rtems4.11 && \
+	 make all install)
 	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* \
 	 $(RTEMS_MAKEFILE_PATH)/lib/include
 	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
 	touch $@
 
 $(BUILD_DIR)/libjpeg: $(DL)/$(LIBJPEG).ok build_dir/.prepare
-	cd $(BUILD_DIR); tar xf ../$(DL)/$(LIBJPEG)
-	(cd $(BUILD_DIR)/jpeg-8c; $(CONFIGURE_VARS) ./configure \
+	tar xf $(DL)/$(LIBJPEG) -C $(BUILD_DIR)
+	(cd $(BUILD_DIR)/jpeg-8c && $(CONFIGURE_VARS) ./configure \
 	 --host=lm32-rtems4.11 --disable-shared \
-	 --prefix=$(RTEMS_MAKEFILE_PATH); \
-	 make; \
-	 make install;\
-	)
+	 --prefix=$(RTEMS_MAKEFILE_PATH) && \
+	 make all install)
 	mv $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
 	touch $@
 
 $(BUILD_DIR)/openjpeg: $(DL)/$(OPENJPEG).ok build_dir/.prepare
-	cd $(BUILD_DIR); tar xf ../$(DL)/$(OPENJPEG); mv trunk openjpeg-trunk
-	cd $(BUILD_DIR)/openjpeg-trunk; \
-	 patch -Np1 < ../../patches/openjpeg-0001-for-milkymist-one.patch
-	cd $(BUILD_DIR)/openjpeg-trunk; $(CONFIGURE_VARS) make; \
-	 lm32-rtems4.11-ranlib libopenjpeg.a; \
-	 cp libopenjpeg.a $(RTEMS_MAKEFILE_PATH)/lib; \
-	 cp libopenjpeg/openjpeg.h $(RTEMS_MAKEFILE_PATH)/lib/include
+	tar xf $(DL)/$(OPENJPEG) -C $(BUILD_DIR)
+	mv $(BUILD_DIR)/trunk $(BUILD_DIR)/openjpeg-trunk
+	(cd $(BUILD_DIR)/openjpeg-trunk && \
+	 patch -Np1 < ../../patches/openjpeg-0001-for-milkymist-one.patch)
+	(cd $(BUILD_DIR)/openjpeg-trunk && $(CONFIGURE_VARS) make && \
+	 lm32-rtems4.11-ranlib libopenjpeg.a && \
+	 cp libopenjpeg.a $(RTEMS_MAKEFILE_PATH)/lib && \
+	 cp libopenjpeg/openjpeg.h $(RTEMS_MAKEFILE_PATH)/lib/include)
 	touch $@
 
 $(BUILD_DIR)/jbig2dec: $(DL)/$(JBIG2DEC).ok build_dir/.prepare
-	cd $(BUILD_DIR); tar xf ../$(DL)/$(JBIG2DEC)
-	cd $(BUILD_DIR)/jbig2dec-$(JBIG2DEC_VERSION); rm config.sub; \
-	 automake --add-missing; exit 0
-	(cd $(BUILD_DIR)/jbig2dec-$(JBIG2DEC_VERSION); $(CONFIGURE_VARS) \
-	 ./configure \
-	 --host=lm32-rtems4.11 --disable-shared \
-	 --prefix=$(RTEMS_MAKEFILE_PATH); \
-	 make; \
-	 make install; \
-	)
+	tar xf $(DL)/$(JBIG2DEC) -C $(BUILD_DIR)
+	(cd $(BUILD_DIR)/jbig2dec-$(JBIG2DEC_VERSION) && rm config.sub && \
+	 automake --add-missing && exit 0)
+	(cd $(BUILD_DIR)/jbig2dec-$(JBIG2DEC_VERSION) && $(CONFIGURE_VARS) \
+	 ./configure --host=lm32-rtems4.11 --disable-shared \
+	 --prefix=$(RTEMS_MAKEFILE_PATH) && \
+	 make all install)
 	mv $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
 	touch $@
 
 $(BUILD_DIR)/freetype2: $(DL)/$(FREETYPE2).ok build_dir/.prepare
-	cd $(BUILD_DIR); tar xf ../$(DL)/$(FREETYPE2)
-	(cd $(BUILD_DIR)/freetype-$(FREETYPE2_VERSION); \
+	tar xf $(DL)/$(FREETYPE2) -C $(BUILD_DIR)
+	(cd $(BUILD_DIR)/freetype-$(FREETYPE2_VERSION) && \
 	 $(CONFIGURE_VARS) ./configure --host=lm32-rtems4.11 --disable-shared \
-	 --prefix=$(RTEMS_MAKEFILE_PATH); \
-	 make; \
-	 make install; \
-	)
+	 --prefix=$(RTEMS_MAKEFILE_PATH) && make all install)
 	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* \
 	 $(RTEMS_MAKEFILE_PATH)/lib/include
 	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
@@ -136,63 +126,54 @@ $(BUILD_DIR)/mupdf: $(DL)/$(MUPDF).ok  build_dir/.prepare  \
                     $(BUILD_DIR)/libpng $(BUILD_DIR)/libjpeg \
                     $(BUILD_DIR)/openjpeg $(BUILD_DIR)/jbig2dec \
 		    $(BUILD_DIR)/freetype2
-	cd $(BUILD_DIR); tar xf ../$(DL)/$(MUPDF)
+	tar xf $(DL)/$(MUPDF) -C $(BUILD_DIR)
 #First, compile the code generation tools natively:
-	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION); \
-	 patch -Np1 < ../../patches/mupdf-0001-for-milkymist-one.patch; \
-	)
-	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION); \
-	 mkdir -p build/release; \
-	 gcc -o build/release/cmapdump ./mupdf/cmapdump.c  \
-	     -lfreetype -ljpeg -lz -lm -Ifitz; \
-	 gcc -o build/release/fontdump ./mupdf/fontdump.c  \
-	     -lfreetype -ljpeg -lz -lm -Ifitz; \
-	 mkdir -p build/generated; \
-	)
-	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION); \
-	 OS=Rtems \
-	 CC=lm32-rtems4.11-gcc \
+	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION) && \
+	 patch -Np1 < ../../patches/mupdf-0001-for-milkymist-one.patch)
+	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION) && \
+	 mkdir -p build/release && \
+	 $(HOST_CC) -o build/release/cmapdump ./mupdf/cmapdump.c  \
+	     -lfreetype -ljpeg -lz -lm -Ifitz && \
+	 $(HOST_CC) -o build/release/fontdump ./mupdf/fontdump.c  \
+	     -lfreetype -ljpeg -lz -lm -Ifitz && \
+	 mkdir -p build/generated)
+	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION) && \
+	 OS=Rtems CC=lm32-rtems4.11-gcc \
 	 CFLAGS="-O9 -mbarrel-shift-enabled -mmultiply-enabled \
 	  -mdivide-enabled -msign-extend-enabled \
 	  -I $(RTEMS_MAKEFILE_PATH)/lib/include -I \
 	  $(RTEMS_MAKEFILE_PATH)/lib/include/freetype2 \
 	  -B $(RTEMS_MAKEFILE_PATH)/lib -specs bsp_specs -qrtems" \
 	 LDFLAGS="-L $(RTEMS_MAKEFILE_PATH)/lib" \
-	 make build=release build/release/libmupdf.a; \
-	)
-	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION); \
-	 cp fitz/fitz.h   $(RTEMS_MAKEFILE_PATH)/lib/include; \
-	 cp mupdf/mupdf.h $(RTEMS_MAKEFILE_PATH)/lib/include; \
-	 cp build/release/libmupdf.a $(RTEMS_MAKEFILE_PATH)/lib; \
-	)
+	 make build=release build/release/libmupdf.a)
+	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION) && \
+	 cp fitz/fitz.h   $(RTEMS_MAKEFILE_PATH)/lib/include && \
+	 cp mupdf/mupdf.h $(RTEMS_MAKEFILE_PATH)/lib/include && \
+	 cp build/release/libmupdf.a $(RTEMS_MAKEFILE_PATH)/lib)
 	touch $@
 
 $(BUILD_DIR)/curl: $(DL)/$(CURL).ok
-	cd $(BUILD_DIR); tar xf ../$(DL)/$(CURL)
-	(cd $(BUILD_DIR)/curl-$(CURL_VERSION); \
+	tar xf $(DL)/$(CURL) -C $(BUILD_DIR)
+	(cd $(BUILD_DIR)/curl-$(CURL_VERSION) && \
 	 $(CONFIGURE_VARS) ./configure --host=lm32-rtems4.11 --disable-shared \
 	  --prefix=$(RTEMS_MAKEFILE_PATH) --without-librtmp --disable-ftp \
 	  --disable-ldap --disable-ldaps --disable-rtsp --disable-dict \
 	  --disable-telnet --disable-tftp --disable-pop3 --disable-imap \
-	  --disable-smtp --disable-gopher --disable-manual; \
-	 echo "#define HAVE_SOCKET 1" >> lib/setup.h; \
-	 make; \
-	 make install; \
-	)
+	  --disable-smtp --disable-gopher --disable-manual && \
+	 echo "#define HAVE_SOCKET 1" >> lib/setup.h && \
+	 make all install)
 	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* \
 	  $(RTEMS_MAKEFILE_PATH)/lib/include
 	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
 	touch $@
 
 $(BUILD_DIR)/expat: $(DL)/$(EXPAT).ok
-	cd $(BUILD_DIR); tar xf ../$(DL)/$(EXPAT)
-	(cd $(BUILD_DIR)/expat-$(EXPAT_VERSION); \
-	 sed -i 's/ppc)/lm32)/' conftools/config.sub; \
+	tar xf $(DL)/$(EXPAT) -C $(BUILD_DIR)
+	(cd $(BUILD_DIR)/expat-$(EXPAT_VERSION) && \
+	 sed -i 's/ppc)/lm32)/' conftools/config.sub && \
 	 $(CONFIGURE_VARS) ./configure --host=lm32-rtems4.11 --disable-shared \
-	  --prefix=$(RTEMS_MAKEFILE_PATH); \
-	 make; \
-	 make install; \
-	)
+	  --prefix=$(RTEMS_MAKEFILE_PATH) && \
+	 make all install)
 	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* \
 	  $(RTEMS_MAKEFILE_PATH)/lib/include
 	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
@@ -229,7 +210,7 @@ rtems-yaffs2:
 	(cd $(MILKYMIST_GIT_DIR)/$@ && make -f Makefile.rtems all install)
 
 rtems: $(BUILD_DIR)/bsp-milkymist/Makefile
-	(cd $(BUILD_DIR)/bsp-milkymist; make all; make install)
+	(cd $(BUILD_DIR)/bsp-milkymist && make all install)
 	touch $@
 
 $(BUILD_DIR)/bsp-milkymist/Makefile:
