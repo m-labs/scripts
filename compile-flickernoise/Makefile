@@ -25,7 +25,8 @@ WGET=wget -c -O
 # export RTEMS_MAKEFILE_PATH=/opt/rtems-4.11/lm32-rtems4.11/milkymist
 
 RTEMS_VERSION=4.11
-RTEMS_MAKEFILE_PATH?=/opt/rtems-$(RTEMS_VERSION)/lm32-rtems$(RTEMS_VERSION)/milkymist
+RTEMS_MAKEFILE_PATH?=\
+/opt/rtems-$(RTEMS_VERSION)/lm32-rtems$(RTEMS_VERSION)/milkymist
 
 LIBPNG_VERSION=1.5.6
 JBIG2DEC_VERSION=0.11
@@ -78,14 +79,16 @@ $(BUILD_DIR)/libpng: $(DL)/$(LIBPNG).ok build_dir/.prepare
 	 make; \
 	 make install; \
 	)
-	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
+	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* \
+	 $(RTEMS_MAKEFILE_PATH)/lib/include
 	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
 	touch $@
 
 $(BUILD_DIR)/libjpeg: $(DL)/$(LIBJPEG).ok build_dir/.prepare
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(LIBJPEG)
 	(cd $(BUILD_DIR)/jpeg-8c; $(CONFIGURE_VARS) ./configure \
-	 --host=lm32-rtems4.11 --disable-shared --prefix=$(RTEMS_MAKEFILE_PATH); \
+	 --host=lm32-rtems4.11 --disable-shared \
+	 --prefix=$(RTEMS_MAKEFILE_PATH); \
 	 make; \
 	 make install;\
 	)
@@ -104,9 +107,12 @@ $(BUILD_DIR)/openjpeg: $(DL)/$(OPENJPEG).ok build_dir/.prepare
 
 $(BUILD_DIR)/jbig2dec: $(DL)/$(JBIG2DEC).ok build_dir/.prepare
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(JBIG2DEC)
-	cd $(BUILD_DIR)/jbig2dec-$(JBIG2DEC_VERSION); rm config.sub; automake --add-missing; exit 0
-	(cd $(BUILD_DIR)/jbig2dec-$(JBIG2DEC_VERSION); $(CONFIGURE_VARS) ./configure \
-	  --host=lm32-rtems4.11 --disable-shared --prefix=$(RTEMS_MAKEFILE_PATH); \
+	cd $(BUILD_DIR)/jbig2dec-$(JBIG2DEC_VERSION); rm config.sub; \
+	 automake --add-missing; exit 0
+	(cd $(BUILD_DIR)/jbig2dec-$(JBIG2DEC_VERSION); $(CONFIGURE_VARS) \
+	 ./configure \
+	 --host=lm32-rtems4.11 --disable-shared \
+	 --prefix=$(RTEMS_MAKEFILE_PATH); \
 	 make; \
 	 make install; \
 	)
@@ -121,13 +127,15 @@ $(BUILD_DIR)/freetype2: $(DL)/$(FREETYPE2).ok build_dir/.prepare
 	 make; \
 	 make install; \
 	)
-	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
+	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* \
+	 $(RTEMS_MAKEFILE_PATH)/lib/include
 	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
 	touch $@
 
 $(BUILD_DIR)/mupdf: $(DL)/$(MUPDF).ok  build_dir/.prepare  \
                     $(BUILD_DIR)/libpng $(BUILD_DIR)/libjpeg \
-                    $(BUILD_DIR)/openjpeg $(BUILD_DIR)/jbig2dec $(BUILD_DIR)/freetype2
+                    $(BUILD_DIR)/openjpeg $(BUILD_DIR)/jbig2dec \
+		    $(BUILD_DIR)/freetype2
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(MUPDF)
 #First, compile the code generation tools natively:
 	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION); \
@@ -135,16 +143,20 @@ $(BUILD_DIR)/mupdf: $(DL)/$(MUPDF).ok  build_dir/.prepare  \
 	)
 	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION); \
 	 mkdir -p build/release; \
-	 gcc -o build/release/cmapdump ./mupdf/cmapdump.c  -lfreetype -ljpeg -lz -lm -Ifitz; \
-	 gcc -o build/release/fontdump ./mupdf/fontdump.c  -lfreetype -ljpeg -lz -lm -Ifitz; \
+	 gcc -o build/release/cmapdump ./mupdf/cmapdump.c  \
+	     -lfreetype -ljpeg -lz -lm -Ifitz; \
+	 gcc -o build/release/fontdump ./mupdf/fontdump.c  \
+	     -lfreetype -ljpeg -lz -lm -Ifitz; \
 	 mkdir -p build/generated; \
 	)
 	(cd $(BUILD_DIR)/mupdf-$(MUPDF_VERSION); \
 	 OS=Rtems \
 	 CC=lm32-rtems4.11-gcc \
-	 CFLAGS="-O9 -mbarrel-shift-enabled -mmultiply-enabled -mdivide-enabled -msign-extend-enabled \
-	 -I $(RTEMS_MAKEFILE_PATH)/lib/include -I $(RTEMS_MAKEFILE_PATH)/lib/include/freetype2 \
-	 -B $(RTEMS_MAKEFILE_PATH)/lib -specs bsp_specs -qrtems" \
+	 CFLAGS="-O9 -mbarrel-shift-enabled -mmultiply-enabled \
+	  -mdivide-enabled -msign-extend-enabled \
+	  -I $(RTEMS_MAKEFILE_PATH)/lib/include -I \
+	  $(RTEMS_MAKEFILE_PATH)/lib/include/freetype2 \
+	  -B $(RTEMS_MAKEFILE_PATH)/lib -specs bsp_specs -qrtems" \
 	 LDFLAGS="-L $(RTEMS_MAKEFILE_PATH)/lib" \
 	 make build=release build/release/libmupdf.a; \
 	)
@@ -158,15 +170,17 @@ $(BUILD_DIR)/mupdf: $(DL)/$(MUPDF).ok  build_dir/.prepare  \
 $(BUILD_DIR)/curl: $(DL)/$(CURL).ok
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(CURL)
 	(cd $(BUILD_DIR)/curl-$(CURL_VERSION); \
-	 $(CONFIGURE_VARS) ./configure --host=lm32-rtems4.11 --disable-shared --prefix=$(RTEMS_MAKEFILE_PATH) \
-	 --without-librtmp --disable-ftp --disable-ldap --disable-ldaps --disable-rtsp --disable-dict \
-	 --disable-telnet --disable-tftp --disable-pop3 --disable-imap --disable-smtp --disable-gopher \
-	 --disable-manual; \
+	 $(CONFIGURE_VARS) ./configure --host=lm32-rtems4.11 --disable-shared \
+	  --prefix=$(RTEMS_MAKEFILE_PATH) --without-librtmp --disable-ftp \
+	  --disable-ldap --disable-ldaps --disable-rtsp --disable-dict \
+	  --disable-telnet --disable-tftp --disable-pop3 --disable-imap \
+	  --disable-smtp --disable-gopher --disable-manual; \
 	 echo "#define HAVE_SOCKET 1" >> lib/setup.h; \
 	 make; \
 	 make install; \
 	)
-	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
+	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* \
+	  $(RTEMS_MAKEFILE_PATH)/lib/include
 	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
 	touch $@
 
@@ -174,45 +188,45 @@ $(BUILD_DIR)/expat: $(DL)/$(EXPAT).ok
 	cd $(BUILD_DIR); tar xf ../$(DL)/$(EXPAT)
 	(cd $(BUILD_DIR)/expat-$(EXPAT_VERSION); \
 	 sed -i 's/ppc)/lm32)/' conftools/config.sub; \
-	 $(CONFIGURE_VARS) ./configure --host=lm32-rtems4.11 --disable-shared --prefix=$(RTEMS_MAKEFILE_PATH); \
+	 $(CONFIGURE_VARS) ./configure --host=lm32-rtems4.11 --disable-shared \
+	  --prefix=$(RTEMS_MAKEFILE_PATH); \
 	 make; \
 	 make install; \
 	)
-	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
+	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* \
+	  $(RTEMS_MAKEFILE_PATH)/lib/include
 	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
 	touch $@
 
+REPO_DIRS=milkymist flickernoise rtems-yaffs2 liboscparse mtk autotest-m1 
 milkymist-git-clone:
 	mkdir -p $(MILKYMIST_GIT_DIR)
-	git clone $(MILKYMIST_GIT_URL)/milkymist.git $(MILKYMIST_GIT_DIR)/milkymist.git
-	git clone $(MILKYMIST_GIT_URL)/flickernoise.git $(MILKYMIST_GIT_DIR)/flickernoise.git
-	git clone $(MILKYMIST_GIT_URL)/rtems-yaffs2.git $(MILKYMIST_GIT_DIR)/rtems-yaffs2.git
-	(cd $(MILKYMIST_GIT_DIR); cvs -d :pserver:anoncvs@www.rtems.com:/usr1/CVS co rtems) 
-	git clone $(MILKYMIST_GIT_URL)/liboscparse.git $(MILKYMIST_GIT_DIR)/liboscparse.git
-	git clone $(MILKYMIST_GIT_URL)/mtk.git $(MILKYMIST_GIT_DIR)/mtk.git
-	git clone $(MILKYMIST_GIT_URL)/autotest-m1.git $(MILKYMIST_GIT_DIR)/autotest-m1.git
+	(cd $(MILKYMIST_GIT_DIR) && \
+	 cvs -d :pserver:anoncvs@www.rtems.com:/usr1/CVS co rtems) 
+	for d in $(REPO_DIRS); \
+	  do (git clone $(MILKYMIST_GIT_URL)/$$d.git \
+	      $(MILKYMIST_GIT_DIR)/$$d) || exit 1; \
+	done
 
 milkymist-git-update:
-	(cd $(MILKYMIST_GIT_DIR)/milkymist.git; git fetch -a; git reset --hard origin/master)
-	(cd $(MILKYMIST_GIT_DIR)/flickernoise.git; git fetch -a; git reset --hard origin/master)
-	(cd $(MILKYMIST_GIT_DIR)/rtems-yaffs2.git; git fetch -a; git reset --hard origin/master)
-	(cd $(MILKYMIST_GIT_DIR)/liboscparse.git; git fetch -a; git reset --hard origin/master)
-	(cd $(MILKYMIST_GIT_DIR)/mtk.git; git fetch -a; git reset --hard origin/master)
-	(cd $(MILKYMIST_GIT_DIR)/autotest-m1.git; git fetch -a; git reset --hard origin/master)
-	-(cd $(MILKYMIST_GIT_DIR)/rtems && cvs -q -z3 update -PdC)
+	-(cd $(MILKYMIST_GIT_DIR)/rtems       && cvs -q -z3 update -PdC)
+	for d in $(REPO_DIRS); \
+	  do (cd $(MILKYMIST_GIT_DIR)/$$d  && git fetch -a && \
+	      git reset --hard origin/master) || exit 1; \
+	done
 
 #You will need Lemon and RE2C to compile libFPVM. 
 libfpvm:
-	make -C $(MILKYMIST_GIT_DIR)/milkymist.git/software/libfpvm/ install
+	make -C $(MILKYMIST_GIT_DIR)/milkymist/software/libfpvm/ install
 
 mtk:
-	make -C $(MILKYMIST_GIT_DIR)/$@.git milkymist install-milkymist
+	make -C $(MILKYMIST_GIT_DIR)/$@ milkymist install-milkymist
 
 liboscparse:
-	make -C $(MILKYMIST_GIT_DIR)/$@.git all install
+	make -C $(MILKYMIST_GIT_DIR)/$@ all install
 
 rtems-yaffs2:
-	(cd $(MILKYMIST_GIT_DIR)/$@.git && make -f Makefile.rtems && make -f Makefile.rtems  install)
+	(cd $(MILKYMIST_GIT_DIR)/$@ && make -f Makefile.rtems all install)
 
 rtems: $(BUILD_DIR)/bsp-milkymist/Makefile
 	(cd $(BUILD_DIR)/bsp-milkymist; make all; make install)
@@ -220,74 +234,76 @@ rtems: $(BUILD_DIR)/bsp-milkymist/Makefile
 
 $(BUILD_DIR)/bsp-milkymist/Makefile:
 	mkdir -p $(BUILD_DIR)/bsp-milkymist
-	(cd $(MILKYMIST_GIT_DIR)/rtems && ./bootstrap -c && ./bootstrap -p && ./bootstrap)
-	(cd $(BUILD_DIR)/bsp-milkymist && $(MILKYMIST_GIT_DIR)/rtems/configure $(RTEMS_CONFIGURE_FLAGS))
+	(cd $(MILKYMIST_GIT_DIR)/rtems && \
+	  ./bootstrap -c && ./bootstrap -p && ./bootstrap)
+	(cd $(BUILD_DIR)/bsp-milkymist && \
+	  $(MILKYMIST_GIT_DIR)/rtems/configure $(RTEMS_CONFIGURE_FLAGS))
 
 #you will need clang for compile milkymist tools
-flickernoise.fbi: rtems libfpvm mtk liboscparse rtems-yaffs2 $(BUILD_DIR)/mupdf $(BUILD_DIR)/curl $(BUILD_DIR)/expat
-	make -C $(MILKYMIST_GIT_DIR)/flickernoise.git/src clean bin/flickernoise.fbi
-	cp $(MILKYMIST_GIT_DIR)/flickernoise.git/src/bin/$@ ./
+flickernoise.fbi: rtems libfpvm mtk liboscparse rtems-yaffs2 \
+		  $(BUILD_DIR)/mupdf $(BUILD_DIR)/curl $(BUILD_DIR)/expat
+	make -C $(MILKYMIST_GIT_DIR)/flickernoise/src \
+	     clean bin/flickernoise.fbi
+	cp $(MILKYMIST_GIT_DIR)/flickernoise/src/bin/$@ .
 
 flickernoise-pdf.fbiz: flickernoise.fbi
-	WITH_PDF=1 make -C $(MILKYMIST_GIT_DIR)/flickernoise.git/src clean bin/flickernoise.fbiz
-	cp $(MILKYMIST_GIT_DIR)/flickernoise.git/src/bin/flickernoise.fbiz ./$@
+	WITH_PDF=1 make -C $(MILKYMIST_GIT_DIR)/flickernoise/src \
+	     clean bin/flickernoise.fbiz
+	cp $(MILKYMIST_GIT_DIR)/flickernoise/src/bin/flickernoise.fbiz ./$@
 
 boot.bin:
-	MMDIR=$(MILKYMIST_GIT_DIR)/milkymist.git make -C $(MILKYMIST_GIT_DIR)/autotest-m1.git/src clean boot.bin
-	cp $(MILKYMIST_GIT_DIR)/autotest-m1.git/src/boot.bin ./$@
+	MMDIR=$(MILKYMIST_GIT_DIR)/milkymist \
+	  make -C $(MILKYMIST_GIT_DIR)/autotest-m1/src clean boot.bin
+	cp $(MILKYMIST_GIT_DIR)/autotest-m1/src/boot.bin ./$@
 
 boot.crc.bin:
-	MMDIR=$(MILKYMIST_GIT_DIR)/milkymist.git IMAGES_DIR=$(IMAGES_DIR) \
-	  make -C $(MILKYMIST_GIT_DIR)/autotest-m1.git/src clean boot.crc.bin
-	cp $(MILKYMIST_GIT_DIR)/autotest-m1.git/src/boot.crc.*.bin ./
+	MMDIR=$(MILKYMIST_GIT_DIR)/milkymist IMAGES_DIR=$(IMAGES_DIR) \
+	  make -C $(MILKYMIST_GIT_DIR)/autotest-m1/src clean boot.crc.bin
+	cp $(MILKYMIST_GIT_DIR)/autotest-m1/src/boot.crc.*.bin ./
 
 ####
 $(DL)/$(LIBPNG).ok:
 	mkdir -p dl
-	$(WGET) $(DL)/$(LIBPNG) \
-          http://dfn.dl.sourceforge.net/project/libpng/libpng15/$(LIBPNG_VERSION)/$(LIBPNG)
+	$(WGET) $(DL)/$(LIBPNG) "http://dfn.dl.sourceforge.net/\
+project/libpng/libpng15/$(LIBPNG_VERSION)/$(LIBPNG)"
 	touch $@
 
 $(DL)/$(LIBJPEG).ok:
 	mkdir -p dl
-	$(WGET) $(DL)/$(LIBJPEG) \
-	  http://www.ijg.org/files/$(LIBJPEG)
+	$(WGET) $(DL)/$(LIBJPEG) "http://www.ijg.org/files/$(LIBJPEG)"
 	touch $@
 
 $(DL)/$(OPENJPEG).ok:
 	mkdir -p dl
-	$(WGET) $(DL)/$(OPENJPEG) \
-	  http://www.openjpeg.org/$(OPENJPEG)
+	$(WGET) $(DL)/$(OPENJPEG) "http://www.openjpeg.org/$(OPENJPEG)"
 	touch $@
 
 $(DL)/$(JBIG2DEC).ok:
 	mkdir -p dl
 	$(WGET) $(DL)/$(JBIG2DEC) \
-	  http://ghostscript.com/~giles/jbig2/jbig2dec/$(JBIG2DEC)
+	  "http://ghostscript.com/~giles/jbig2/jbig2dec/$(JBIG2DEC)"
 	touch $@
 
 $(DL)/$(FREETYPE2).ok:
 	mkdir -p dl
-	$(WGET) $(DL)/$(FREETYPE2) \
-	  http://ufpr.dl.sourceforge.net/project/freetype/freetype2/$(FREETYPE2_VERSION)/$(FREETYPE2)
+	$(WGET) $(DL)/$(FREETYPE2) "http://ufpr.dl.sourceforge.net/\
+project/freetype/freetype2/$(FREETYPE2_VERSION)/$(FREETYPE2)"
 	touch $@
 
 $(DL)/$(MUPDF).ok:
 	mkdir -p dl
-	$(WGET) $(DL)/$(MUPDF) \
-          http://mupdf.com/download/archive/$(MUPDF)
+	$(WGET) $(DL)/$(MUPDF) "http://mupdf.com/download/archive/$(MUPDF)"
 	touch $@
 
 $(DL)/$(CURL).ok:
 	mkdir -p dl
-	$(WGET) $(DL)/$(CURL) \
-	 http://curl.haxx.se/download/$(CURL)
+	$(WGET) $(DL)/$(CURL) "http://curl.haxx.se/download/$(CURL)"
 	touch $@
 
 $(DL)/$(EXPAT).ok:
 	mkdir -p dl
-	$(WGET) $(DL)/$(EXPAT) \
-	 http://download.sourceforge.net/project/expat/expat/$(EXPAT_VERSION)/expat-$(EXPAT_VERSION).tar.gz
+	$(WGET) $(DL)/$(EXPAT) "http://download.sourceforge.net/\
+project/expat/expat/$(EXPAT_VERSION)/expat-$(EXPAT_VERSION).tar.gz"
 	touch $@
 
 .PHONY: clean clean-rtems boot.crc.bin
