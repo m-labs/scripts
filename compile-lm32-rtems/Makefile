@@ -50,52 +50,51 @@ DL=$(if $(wildcard ../dl/.),../dl,dl)
 RTEMS_PATCHES_DIR=rtems-patches
 MM1_PATCHES_DIR=milkymist-one-patches
 
-.PHONY:	all clean
+.PHONY: all clean
 
 all: .install.gdb.ok .install.gcc.ok
 
 .install.gcc.ok: .compile.gcc.ok
-	cd b-gcc && make install
+	(cd b-gcc && make install)
 	touch $@
 
 .compile.gcc.ok: .install.binutils.ok .patch.ok gcc-$(GCC_CORE_VERSION)/newlib
 	export PATH=$(RTEMS_PREFIX)/bin:$$PATH
 	mkdir -p b-gcc
-	(cd b-gcc/;\
+	(cd b-gcc/ && \
 	  ../gcc-$(GCC_CORE_VERSION)/configure --target=lm32-rtems4.11 \
-	  --with-gnu-as --with-gnu-ld --with-newlib --verbose --enable-threads \
-	  --enable-languages="c" --disable-shared --prefix=$(RTEMS_PREFIX); \
-	 make all; \
-	 make info; \
-	)
+	  --with-gnu-as --with-gnu-ld --with-newlib --verbose \
+	  --enable-threads --enable-languages="c" --disable-shared \
+	  --prefix=$(RTEMS_PREFIX) && \
+	 make all info)
 	touch $@
 
 .install.binutils.ok: .compile.binutils.ok
 	mkdir -p $(RTEMS_PREFIX)
-	cd b-binutils && make install
+	(cd b-binutils && make install)
 	touch $@
 
 .compile.binutils.ok: .patch.ok
 	mkdir -p b-binutils
-	(cd b-binutils; \
-	 ../binutils-$(BINUTILS_VERSION)/configure --target=lm32-rtems4.11 --prefix=$(RTEMS_PREFIX); \
-	 make all; \
-	 make info; \
-	)
+	(cd b-binutils && \
+	 ../binutils-$(BINUTILS_VERSION)/configure --target=lm32-rtems4.11 \
+	 --prefix=$(RTEMS_PREFIX) && \
+	 make all info)
 	touch $@
 
 gcc-$(GCC_CORE_VERSION)/newlib: .unzip.ok
-	(cd gcc-$(GCC_CORE_VERSION); ln -s ../newlib-$(NEWLIB_VERSION)/newlib;)
+	(cd gcc-$(GCC_CORE_VERSION) && \
+	 ln -s ../newlib-$(NEWLIB_VERSION)/newlib)
 
 .patch.ok: .unzip.ok $(RTEMS_PATCHES_DIR)/.ok
-	(cd binutils-$(BINUTILS_VERSION); cat ../$(RTEMS_PATCHES_DIR)/$(BINUTILS_PATCH) | patch -p1)
-	(cd gcc-$(GCC_CORE_VERSION); \
-	 cat ../$(RTEMS_PATCHES_DIR)/$(GCC_CORE_PATCH) | patch -p1; \
-	)
-	(cd newlib-$(NEWLIB_VERSION); cat ../$(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH) | patch -p1)
-	(cd gdb-$(GDB_VERSION); \
-	 cat ../$(RTEMS_PATCHES_DIR)/$(GDB_PATCH) | patch -p1; \
-	)
+	(cd binutils-$(BINUTILS_VERSION) && \
+	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(BINUTILS_PATCH))
+	(cd gcc-$(GCC_CORE_VERSION) && \
+	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(GCC_CORE_PATCH))
+	(cd newlib-$(NEWLIB_VERSION) && \
+	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH))
+	(cd gdb-$(GDB_VERSION) && \
+	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(GDB_PATCH))
 	touch $@
 
 .unzip.ok: $(DL)/$(BINUTILS).ok $(DL)/$(GCC_CORE).ok $(DL)/$(NEWLIB).ok $(DL)/$(GDB).ok $(DL)/$(MPFR).ok $(DL)/$(MPC).ok $(DL)/$(GMP).ok
@@ -106,31 +105,35 @@ gcc-$(GCC_CORE_VERSION)/newlib: .unzip.ok
 	tar xf $(DL)/$(GMP)
 	tar xf $(DL)/$(MPC)
 	tar xf $(DL)/$(MPFR)
-	rm -rf gcc-$(GCC_CORE_VERSION)/gmp gcc-$(GCC_CORE_VERSION)/mpc gcc-$(GCC_CORE_VERSION)/mpfr
+	rm -rf gcc-$(GCC_CORE_VERSION)/gmp gcc-$(GCC_CORE_VERSION)/mpc \
+	  gcc-$(GCC_CORE_VERSION)/mpfr
 	ln -s  ../gmp-$(GMP_VERSION) gcc-$(GCC_CORE_VERSION)/gmp
 	ln -s  ../mpc-$(MPC_VERSION) gcc-$(GCC_CORE_VERSION)/mpc
 	ln -s  ../mpfr-$(MPFR_VERSION) gcc-$(GCC_CORE_VERSION)/mpfr
 	touch $@
 
 .install.gdb.ok: .compile.gdb.ok
-	cd b-gdb && make install
+	(cd b-gdb && make install)
 	touch $@
 
 .compile.gdb.ok: .install.binutils.ok .patch.ok
 	export PATH=$(RTEMS_PREFIX)/bin:$$PATH
 	mkdir -p b-gdb
-	(cd b-gdb/; \
-	  ../gdb-$(GDB_VERSION)/configure --target=lm32-rtems4.11 --prefix=$(RTEMS_PREFIX); \
-	 make all; \
-	)
+	(cd b-gdb/ && ../gdb-$(GDB_VERSION)/configure --target=lm32-rtems4.11 \
+	  --prefix=$(RTEMS_PREFIX) && \
+	 make all)
 	touch $@
 
 $(RTEMS_PATCHES_DIR)/.ok:
 	mkdir -p $(RTEMS_PATCHES_DIR)
-	$(WGET) $(RTEMS_PATCHES_DIR)/$(BINUTILS_PATCH) $(RTEMS_SOURCES_URL)/$(BINUTILS_PATCH)
-	$(WGET) $(RTEMS_PATCHES_DIR)/$(GCC_CORE_PATCH) $(RTEMS_SOURCES_URL)/$(GCC_CORE_PATCH)
-	$(WGET) $(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH) $(RTEMS_SOURCES_URL)/$(NEWLIB_PATCH)
-	$(WGET) $(RTEMS_PATCHES_DIR)/$(GDB_PATCH) $(RTEMS_SOURCES_URL)/$(GDB_PATCH)
+	$(WGET) $(RTEMS_PATCHES_DIR)/$(BINUTILS_PATCH) \
+	  $(RTEMS_SOURCES_URL)/$(BINUTILS_PATCH)
+	$(WGET) $(RTEMS_PATCHES_DIR)/$(GCC_CORE_PATCH) \
+	  $(RTEMS_SOURCES_URL)/$(GCC_CORE_PATCH)
+	$(WGET) $(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH) \
+	  $(RTEMS_SOURCES_URL)/$(NEWLIB_PATCH)
+	$(WGET) $(RTEMS_PATCHES_DIR)/$(GDB_PATCH) \
+	  $(RTEMS_SOURCES_URL)/$(GDB_PATCH)
 	touch $@
 
 $(DL)/$(BINUTILS).ok:
@@ -180,5 +183,5 @@ clean:
 	rm -rf gmp-$(GMP_VERSION)
 	rm -rf mpc-$(MPC_VERSION)
 	rm -rf mpfr-$(MPFR_VERSION)
-	rm -rf .*.ok
-	rm -rf .ok
+	rm -f .*.ok
+	rm -f .ok
