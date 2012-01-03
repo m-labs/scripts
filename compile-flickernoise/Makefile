@@ -25,45 +25,45 @@ WGET=wget -c -O
 # export RTEMS_MAKEFILE_PATH=/opt/rtems-4.11/lm32-rtems4.11/milkymist
 
 RTEMS_VERSION=4.11
-RTEMS_MAKEFILE_PATH?=\
-/opt/rtems-$(RTEMS_VERSION)/lm32-rtems$(RTEMS_VERSION)/milkymist
+RTEMS_MAKEFILE_PATH ?= \
+    /opt/rtems-$(RTEMS_VERSION)/lm32-rtems$(RTEMS_VERSION)/milkymist
 
-LIBPNG_VERSION=1.5.6
-JBIG2DEC_VERSION=0.11
-FREETYPE2_VERSION=2.4.4
-MUPDF_VERSION=0.8
-CURL_VERSION=7.22.0
-EXPAT_VERSION=2.0.1
+LIBPNG_VERSION    = 1.5.6
+JBIG2DEC_VERSION  = 0.11
+FREETYPE2_VERSION = 2.4.4
+MUPDF_VERSION     = 0.8
+CURL_VERSION      = 7.22.0
+EXPAT_VERSION     = 2.0.1
 
-LIBPNG=libpng-$(LIBPNG_VERSION).tar.gz
-LIBJPEG=jpegsrc.v8c.tar.gz
-OPENJPEG=openjpeg_v1_2.tar.gz
-JBIG2DEC=jbig2dec-$(JBIG2DEC_VERSION).tar.gz
-FREETYPE2=freetype-$(FREETYPE2_VERSION).tar.gz
-MUPDF=mupdf-$(MUPDF_VERSION)-source.tar.gz
-CURL=curl-$(CURL_VERSION).tar.bz2
-EXPAT=expat-$(EXPAT_VERSION).tar.gz
+LIBPNG    = libpng-$(LIBPNG_VERSION).tar.gz
+LIBJPEG   = jpegsrc.v8c.tar.gz
+OPENJPEG  = openjpeg_v1_2.tar.gz
+JBIG2DEC  = jbig2dec-$(JBIG2DEC_VERSION).tar.gz
+FREETYPE2 = freetype-$(FREETYPE2_VERSION).tar.gz
+MUPDF     = mupdf-$(MUPDF_VERSION)-source.tar.gz
+CURL      = curl-$(CURL_VERSION).tar.bz2
+EXPAT     = expat-$(EXPAT_VERSION).tar.gz
 
-DL=$(if $(wildcard ../dl/.),../dl,dl)
-BUILD_DIR=build_dir
+DL        = $(if $(wildcard ../dl/.),../dl,dl)
+BUILD_DIR = ./build_dir
 
-MILKYMIST_GIT_URL:=git://github.com/milkymist
-MILKYMIST_GIT_DIR?=/opt/milkymist
+MILKYMIST_GIT_URL  = git://github.com/milkymist
+MILKYMIST_GIT_DIR ?= /opt/milkymist
 
-CONFIGURE_VARS=CC=lm32-rtems4.11-gcc \R=lm32-rtems4.11-ar \
-	LD=lm32-rtems4.11-ld RANLIB=lm32-rtems4.11-ranlib \
-	CFLAGS="-O9 -Wall -mbarrel-shift-enabled -mmultiply-enabled \
-	  -mdivide-enabled -msign-extend-enabled \
-	  -I $(RTEMS_MAKEFILE_PATH)/lib/include -B $(RTEMS_MAKEFILE_PATH)/lib \
-	  -specs bsp_specs -qrtems"
+CONFIGURE_VARS = CC=lm32-rtems4.11-gcc AR=lm32-rtems4.11-ar \
+    LD=lm32-rtems4.11-ld RANLIB=lm32-rtems4.11-ranlib \
+    CFLAGS="-O9 -Wall -mbarrel-shift-enabled -mmultiply-enabled \
+           -mdivide-enabled -msign-extend-enabled \
+           -I $(RTEMS_MAKEFILE_PATH)/lib/include -B $(RTEMS_MAKEFILE_PATH)/lib \
+           -specs bsp_specs -qrtems"
 
-RTEMS_CONFIGURE_FLAGS=--target=lm32-rtems4.11 --enable-rtemsbsp=milkymist \
-	--enable-testsuites=samples --enable-posix --disable-itron \
-	--enable-networking --disable-multiprocessing
+RTEMS_CONFIGURE_FLAGS = --target=lm32-rtems4.11 --enable-rtemsbsp=milkymist \
+    --enable-testsuites=samples --enable-posix --disable-itron \
+    --enable-networking --disable-multiprocessing
 
-HOST_CC=gcc
+HOST_CC   = gcc
 
-ALL:flickernoise.fbi flickernoise-pdf.fbiz
+ALL: flickernoise.fbi flickernoise-pdf.fbiz
 
 build_dir/.prepare:
 	mkdir -p build_dir
