@@ -190,7 +190,7 @@ milkymist-git-clone:
 	done
 
 milkymist-git-update:
-	-(cd $(MILKYMIST_GIT_DIR)/rtems       && cvs -q -z3 update -PdC)
+	#(cd $(MILKYMIST_GIT_DIR)/rtems && cvs -q -z3 update -PdC)
 	for d in $(REPO_DIRS); \
 	  do (cd $(MILKYMIST_GIT_DIR)/$$d  && git fetch -a && \
 	      git reset --hard origin/master) || exit 1; \
