@@ -65,6 +65,7 @@ get-feeds-revision ${MILKYMIST_GIT_DIR}/flickernoise
 get-feeds-revision ${MILKYMIST_GIT_DIR}/liboscparse
 get-feeds-revision ${MILKYMIST_GIT_DIR}/milkymist
 get-feeds-revision ${MILKYMIST_GIT_DIR}/mtk
+get-feeds-revision ${MILKYMIST_GIT_DIR}/rtems
 get-feeds-revision ${MILKYMIST_GIT_DIR}/rtems-yaffs2
 get-feeds-revision ${SCRIPTS_GIT_DIR}/
 
