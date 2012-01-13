@@ -54,9 +54,7 @@ if [ "$?" != "0" ]; then
 fi
 
 #this needs you manully clont the wernermisc to MILKYMIST_GIT_DIR
-echo "handle cvs rtems and werner's patch ..."
-rm -rf ${MILKYMIST_GIT_DIR}/rtems
-(cd ${MILKYMIST_GIT_DIR}       && cvs -d :pserver:anoncvs@www.rtems.com:/usr1/CVS co rtems)
+echo "handle werner's patch on rtems ..."
 (cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ../wernermisc/m1/patches/rtems/ patches)
 (cd ${MILKYMIST_GIT_DIR}/rtems/patches && git fetch -a && git reset --hard origin/master)
 (cd ${MILKYMIST_GIT_DIR}/rtems && quilt push -a)
