@@ -182,15 +182,15 @@ $(BUILD_DIR)/expat: $(DL)/$(EXPAT).ok
 REPO_DIRS=milkymist flickernoise rtems-yaffs2 liboscparse mtk autotest-m1 
 milkymist-git-clone:
 	mkdir -p $(MILKYMIST_GIT_DIR)
-	(cd $(MILKYMIST_GIT_DIR) && \
-	 cvs -d :pserver:anoncvs@www.rtems.com:/usr1/CVS co rtems) 
+	git clone git://git.rtems.org/rtems.git $(MILKYMIST_GIT_DIR)/rtems
 	for d in $(REPO_DIRS); \
 	  do (git clone $(MILKYMIST_GIT_URL)/$$d.git \
 	      $(MILKYMIST_GIT_DIR)/$$d) || exit 1; \
 	done
 
 milkymist-git-update:
-	#(cd $(MILKYMIST_GIT_DIR)/rtems && cvs -q -z3 update -PdC)
+	(cd $(MILKYMIST_GIT_DIR)/rtems && git fetch -a && \
+	  git reset --hard origin/master) || exit 1;
 	for d in $(REPO_DIRS); \
 	  do (cd $(MILKYMIST_GIT_DIR)/$$d  && git fetch -a && \
 	      git reset --hard origin/master) || exit 1; \
