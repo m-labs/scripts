@@ -55,7 +55,7 @@ fi
 
 
 echo "handle werner's patches on rtems ..."
-if [ -e ${MILKYMIST_GIT_DIR}/wernermisc ]; then
+if [ ! -e ${MILKYMIST_GIT_DIR}/wernermisc ]; then
 	git clone git://projects.qi-hardware.com/wernermisc.git ${MILKYMIST_GIT_DIR}/wernermisc
 fi
 (cd ${MILKYMIST_GIT_DIR}/wernermisc && git fetch -a && git reset --hard origin/master)
