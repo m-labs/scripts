@@ -135,6 +135,7 @@ echo "compile autotest ..."
 MILKYMIST_GIT_DIR=${MILKYMIST_GIT_DIR} IMAGES_DIR=${IMAGES_DIR} make -C ${SCRIPTS_GIT_DIR}/compile-flickernoise \
   boot.bin boot.crc.bin >> ${BUILD_LOG} 2>&1
 if [ "$?" != "0" ]; then
+	(cd /opt/ && tar cjvf ${IMAGES_DIR}/Flickernoise-lm32-rtems-4.11-SDK-for-Linux-x86_64.tar.bz2 rtems-4.11/)
 	abort "ERROR: compile autotest"
 fi
 cp ${MILKYMIST_GIT_DIR}/autotest-m1/src/boot*.bin ${IMAGES_DIR}/
