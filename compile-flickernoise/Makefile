@@ -104,7 +104,7 @@ $(BUILD_DIR)/openjpeg: $(DL)/$(OPENJPEG).ok build_dir/.prepare
 $(BUILD_DIR)/jbig2dec: $(DL)/$(JBIG2DEC).ok build_dir/.prepare
 	tar xf $(DL)/$(JBIG2DEC) -C $(BUILD_DIR)
 	(cd $(BUILD_DIR)/jbig2dec-$(JBIG2DEC_VERSION) && rm config.sub && \
-	 automake --add-missing && exit 0)
+	 automake --add-missing ; exit 0)
 	(cd $(BUILD_DIR)/jbig2dec-$(JBIG2DEC_VERSION) && $(CONFIGURE_VARS) \
 	 ./configure --host=lm32-rtems4.11 --disable-shared \
 	 --prefix=$(RTEMS_MAKEFILE_PATH) && \
