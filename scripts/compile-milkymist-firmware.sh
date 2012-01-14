@@ -53,11 +53,15 @@ if [ "$?" != "0" ]; then
 	abort "ERROR: milkymist-git-update"
 fi
 
-#this needs you manully clont the wernermisc to MILKYMIST_GIT_DIR
-echo "handle werner's patch on rtems ..."
+
+# You have to manully clone the wernermisc to MILKYMIST_GIT_DIR
+# cd ${MILKYMIST_GIT_DIR} && git clone git://projects.qi-hardware.com/wernermisc.git
+echo "handle werner's patches on rtems ..."
 (cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ../wernermisc/m1/patches/rtems/ patches)
 (cd ${MILKYMIST_GIT_DIR}/rtems/patches && git fetch -a && git reset --hard origin/master)
 (cd ${MILKYMIST_GIT_DIR}/rtems && quilt push -a)
+cp -a ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems ${IMAGES_DIR}/rtems-patches
+
 
 echo "get git versions ..."
 get-feeds-revision ${MILKYMIST_GIT_DIR}/autotest-m1
@@ -67,6 +71,7 @@ get-feeds-revision ${MILKYMIST_GIT_DIR}/milkymist
 get-feeds-revision ${MILKYMIST_GIT_DIR}/mtk
 get-feeds-revision ${MILKYMIST_GIT_DIR}/rtems
 get-feeds-revision ${MILKYMIST_GIT_DIR}/rtems-yaffs2
+get-feeds-revision ${MILKYMIST_GIT_DIR}/wernermisc
 get-feeds-revision ${SCRIPTS_GIT_DIR}/
 
 
