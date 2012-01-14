@@ -5,7 +5,7 @@ TIME=$(date "+%H-%M-%S")
 DATE_TIME=`date +"%m%d%Y-%H%M"`
 
 
-IMAGES_DIR="/home/xiangfu/build-milkymist/milkymist-firmware-${DATE_TIME}/"
+IMAGES_DIR="/home/xiangfu/build-milkymist/milkymist-firmware-${DATE_TIME}"
 mkdir -p ${IMAGES_DIR}
 
 
@@ -14,7 +14,7 @@ VERSIONS="${IMAGES_DIR}/VERSIONS"
 touch ${BUILD_LOG} ${VERSIONS}
 
 
-MILKYMIST_GIT_DIR=/home/xiangfu/milkymist-firmware/milkymist/
+MILKYMIST_GIT_DIR=/home/xiangfu/milkymist-firmware/milkymist
 SCRIPTS_GIT_DIR=/home/xiangfu/milkymist-firmware/scripts
 
 
@@ -54,12 +54,12 @@ if [ "$?" != "0" ]; then
 fi
 
 
-# You have to manully clone the wernermisc to MILKYMIST_GIT_DIR
-# cd ${MILKYMIST_GIT_DIR} && git clone git://projects.qi-hardware.com/wernermisc.git
 echo "handle werner's patches on rtems ..."
-(cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ../wernermisc/m1/patches/rtems/ patches)
-(cd ${MILKYMIST_GIT_DIR}/rtems/patches && git fetch -a && git reset --hard origin/master)
-(cd ${MILKYMIST_GIT_DIR}/rtems && quilt push -a)
+if [ -e ${MILKYMIST_GIT_DIR}/wernermisc ]; then
+	git clone git://projects.qi-hardware.com/wernermisc.git ${MILKYMIST_GIT_DIR}/wernermisc
+fi
+(cd ${MILKYMIST_GIT_DIR}/wernermisc && git fetch -a && git reset --hard origin/master)
+(cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems patches && quilt push -a)
 cp -a ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems ${IMAGES_DIR}/rtems-patches
 
 
