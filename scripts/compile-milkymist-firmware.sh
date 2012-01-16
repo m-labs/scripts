@@ -60,7 +60,6 @@ if [ ! -e ${MILKYMIST_GIT_DIR}/wernermisc ]; then
 fi
 (cd ${MILKYMIST_GIT_DIR}/wernermisc && git fetch -a && git reset --hard origin/master)
 (cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems patches && quilt push -a)
-cp -a ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems ${IMAGES_DIR}/rtems-patches
 
 
 echo "get git versions ..."
@@ -155,6 +154,9 @@ chmod 644 ${IMAGES_DIR}/data.flash5.bin
 echo "generate md5sum ..."
 (cd ${IMAGES_DIR} && md5sum --binary ${MD5_BINARIES} > ${IMAGES_DIR}/md5sums)
 
+
+echo "copy rtems patches ..."
+cp -a ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems ${IMAGES_DIR}/rtems-patches
 
 echo "create SDK ..."
 (cd /opt/ && tar cjvf ${IMAGES_DIR}/Flickernoise-lm32-rtems-4.11-SDK-for-Linux-x86_64.tar.bz2 rtems-4.11/)
