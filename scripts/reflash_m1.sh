@@ -23,26 +23,25 @@ MAC_DIR="${HOME}/.qi/milkymist/bios-mac/tmp"
 call-help() {
 	echo "
 Usage: ./reflash_m1.sh                    version: ${__VERSION__}
-	--release [VERSION]          # by default it will download 'currect' release
-                                     # VERSION can found at http://milkymist.org/updates/
-
-	--snapshot <VERSION> [data]  # if 'data' enable will reflash data partitions
-                                     # VERSION can found at  http://fidelio.qi-hardware.com/~xiangfu/build-milkymist/
-
-	--local-folder <PATH>        # all files must be under <PATH>
-
-	--lock-flash                 # lock 'standby' and 'rescue' partitions
-
-	--read-flash <PARTITION>     # read from RESCUE partition, by default only read 'standby.bin' from m1
-	                             # PARTITION: standby soc bios splash flickernoise
-
-	--bios-mac 00 2a             # '00' '2a' is the last MAC address
-
-	--rc3 00 2a                  # used in factory flash, this options will reflash data partition
-
-	                             # NOTICE: '--bios-mac' and '--rc3' needs command 'mkmmimg'
-
-Written by: Xiangfu Liu <xiangfu@sharism.cc>
+	--release [VERSION]
+            by default it will download 'currect' release
+            VERSION can found at http://milkymist.org/updates/
+	--snapshot <VERSION> [data]
+            if 'data' enable will reflash data partitions <VERSION> can found
+            at http://fidelio.qi-hardware.com/~xiangfu/build-milkymist/
+	--local-folder <PATH>
+            all files must be under <PATH>
+	--lock-flash
+            lock 'standby' and 'rescue' partitions
+	--read-flash <PARTITION>
+            read from RESCUE partition, by default only read 'standby.bin'
+            PARTITION: standby soc bios splash flickernoise
+	--bios-mac 00 2a
+            '00' '2a' is the last MAC address
+	--rc3 00 2a
+             used in factory flash, this options will reflash data partition
+NOTICE: '--bios-mac' and '--rc3' needs command 'mkmmimg'
+Written by: Xiangfu Liu <xiangfu.z@gmail.com>
 Please report bugs to <devel@lists.milkymist.org>
 "
 
