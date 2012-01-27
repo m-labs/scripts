@@ -197,6 +197,11 @@ milkymist-git-update:
 	done
 
 #You will need Lemon and RE2C to compile libFPVM. 
+softusb-input:
+	make -C $(MILKYMIST_GIT_DIR)/milkymist/ sdk
+	cp ${MILKYMIST_GIT_DIR}/milkymist/software/libhal/softusb-input.h \
+	   ${MILKYMIST_GIT_DIR}/rtems/c/src/lib/libbsp/lm32/shared/milkymist_usbinput/softusb-input.h
+
 libfpvm:
 	make -C $(MILKYMIST_GIT_DIR)/milkymist/software/libfpvm/ install
 
@@ -209,7 +214,7 @@ liboscparse:
 rtems-yaffs2:
 	(cd $(MILKYMIST_GIT_DIR)/$@ && make -f Makefile.rtems all install)
 
-rtems: $(BUILD_DIR)/bsp-milkymist/Makefile
+rtems: $(BUILD_DIR)/bsp-milkymist/Makefile softusb-input
 	(cd $(BUILD_DIR)/bsp-milkymist && make all install)
 	touch $@
 
@@ -287,7 +292,7 @@ $(DL)/$(EXPAT).ok:
 project/expat/expat/$(EXPAT_VERSION)/expat-$(EXPAT_VERSION).tar.gz"
 	touch $@
 
-.PHONY: clean clean-rtems boot.crc.bin
+.PHONY: clean clean-rtems boot.crc.bin softusb-input
 
 clean:
 	rm -rf build_dir/*
