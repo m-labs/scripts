@@ -1,12 +1,12 @@
 #!/bin/bash
 
-DATE=$(date "+%Y-%m-%d")
-TIME=$(date "+%H-%M-%S")
-DATE_TIME=`date +"%m%d%Y-%H%M"`
+DATE_TIME=`date +"%Y%m%d-%H%M"`
 
 
-IMAGES_DIR="/home/xiangfu/build-milkymist/milkymist-firmware-${DATE_TIME}"
+IMAGES_DIR="/home/xiangfu/building/Milkymist/milkymist-firmware-${DATE_TIME}"
+DEST_DIR="/home/xiangfu/build-milkymist"
 mkdir -p ${IMAGES_DIR}
+mkdir -p ${DEST_DIR}
 
 
 BUILD_LOG="${IMAGES_DIR}/BUILD_LOG"
@@ -59,6 +59,7 @@ if [ ! -e ${MILKYMIST_GIT_DIR}/wernermisc ]; then
 	git clone git://projects.qi-hardware.com/wernermisc.git ${MILKYMIST_GIT_DIR}/wernermisc
 fi
 (cd ${MILKYMIST_GIT_DIR}/wernermisc && git fetch -a && git reset --hard origin/master)
+(cd ${MILKYMIST_GIT_DIR}/rtems && git reset --hard f80b3a3d825110b5d8826f72db3fa47a6d71b66a)
 (cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems patches && quilt push -a)
 
 
@@ -160,6 +161,8 @@ cp -a ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems ${IMAGES_DIR}/rtems-patch
 
 echo "create SDK ..."
 (cd /opt/ && tar cjvf ${IMAGES_DIR}/Flickernoise-lm32-rtems-4.11-SDK-for-Linux-x86_64.tar.bz2 rtems-4.11/)
+
+mv ${IMAGES_DIR} ${DEST_DIR}
 
 echo -e "\
 say #milkymist The Firmware build was successfull, \

@@ -7,15 +7,16 @@ CONFIG_FILE_TYPE="config."$1
 MAKE_VARS=" V=99 IGNORE_ERRORS=m -j4 "
 
 ########################################################################
-DATE=$(date "+%Y-%m-%d")
-TIME=$(date "+%H-%M-%S")
-DATE_TIME=`date +"%m%d%Y-%H%M"`
+DATE_TIME=`date +"%Y%m%d-%H%M"`
 
 GET_FEEDS_VERSION_SH="/home/xiangfu/bin/get-feeds-revision.sh"
 PATCH_OPENWRT_SH="/home/xiangfu/bin/patch-openwrt.sh"
 
-IMAGES_DIR="/home/xiangfu/build-milkymist/milkymist-openwrt.$1-${DATE_TIME}/"
+IMAGES_DIR="/home/xiangfu/building/Milkymist/milkymist-openwrt.$1-${DATE_TIME}/"
+DEST_DIR="/home/xiangfu/build-milkymist"
 mkdir -p ${IMAGES_DIR}
+mkdir -p ${DEST_DIR}
+
 
 BUILD_LOG="${IMAGES_DIR}/BUILD_LOG"
 VERSIONS_FILE="${IMAGES_DIR}/VERSIONS"
@@ -99,4 +100,6 @@ cp -a bin/lm32/* ${IMAGES_DIR} 2>/dev/null
  bzip2 -z BUILD_LOG; \
 )
 
-echo "DONE :)"
+mv ${IMAGES_DIR} ${DEST_DIR}
+
+echo "DONE!"
