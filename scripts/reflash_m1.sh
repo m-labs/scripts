@@ -2,7 +2,7 @@
 
 # version of me
 __VERSION__="2011-12-13"
-echo "File name: $0, Version of me: ${__VERSION__}"
+echo -e "File name: $0\t version: ${__VERSION__}"
 
 
 STANDBY="standby.fpg"
@@ -21,30 +21,26 @@ MAC_DIR="${HOME}/.qi/milkymist/bios-mac/tmp"
 
 # Functions ###########################################################
 call-help() {
-	echo "
-Usage: ./reflash_m1.sh                    version: ${__VERSION__}
-	--release [VERSION]
-            by default it will download 'currect' release
-            VERSION can found at http://milkymist.org/updates/
-	--snapshot <VERSION> [data]
-            if 'data' enable will reflash data partitions <VERSION> can found
-            at http://fidelio.qi-hardware.com/~xiangfu/build-milkymist/
-	--local-folder <PATH>
-            all files must be under <PATH>
-	--lock-flash
-            lock 'standby' and 'rescue' partitions
-	--read-flash <PARTITION>
-            read from RESCUE partition, by default only read 'standby.bin'
-            PARTITION: standby soc bios splash flickernoise
-	--bios-mac 00 2a
-            '00' '2a' is the last MAC address
-	--rc3 00 2a
-             used in factory flash, this options will reflash data partition
-NOTICE: '--bios-mac' and '--rc3' needs command 'mkmmimg'
-Written by: Xiangfu Liu <xiangfu.z@gmail.com>
-Please report bugs to <devel@lists.milkymist.org>
-"
+	echo -e \
+"Usage: ./reflash_m1.sh [OPTION] [PARAM]...
 
+  --release [VERSION]         by default it will download the latest release
+  --snapshot <VERSION> [data] if 'data' enable, it will REFLASH DATA PARTITION
+  --local-folder              please use m1nor instread
+  --lock-flash                lock 'standby' and 'rescue' partitions
+  --read-flash <PARTITION>    read from RESCUE partition, by default only read
+			      'standby.bin'
+			      PARTITION: standby soc bios splash flickernoise
+  --bios-mac XX XX            'XX' 'XX' is the last MAC address
+  --rc3 XX XX                 used in factory flash, reflash all partitions
+
+NOTICE: '--bios-mac' and '--rc3' needs command 'mkmmimg'
+	'--release'  VERSION can found at http://milkymist.org/updates/
+	'--snapshot' VERSION can found at
+		     http://fidelio.qi-hardware.com/~xiangfu/build-milkymist/
+
+Written by: Xiangfu Liu <xiangfu@openmobilefree.net>
+Please report bugs to <devel@lists.milkymist.org>\tversion: ${__VERSION__}"
 }
 
 # $1: is the file name you want save
@@ -204,9 +200,9 @@ call-create-bios () {
     printf "\\x$(printf "%x" 0x00)" >> ${MAC_DIR}/${MAC_TMP}
 
     cat ${MAC_DIR}/${HEAD_TMP} \
-        ${MAC_DIR}/${MAC_TMP} \
-        ${MAC_DIR}/${REMAIN_TMP} \
-        > $1
+	${MAC_DIR}/${MAC_TMP} \
+	${MAC_DIR}/${REMAIN_TMP} \
+	> $1
 
     mkmmimg $1 write
 }
@@ -291,7 +287,7 @@ if [ "$1" == "--snapshot" ]; then
 fi
 
 if [ "$1" == "--local-folder" ]; then
-    echo "Not support yet!"
+    echo "Please use m1nor from http://projects.qi-hardware.com/index.php/p/wernermisc/source/tree/master/m1/tools/m1nor"
     exit 1
 fi
 
@@ -318,8 +314,8 @@ fi
 
 if [ "$1" == "--bios-mac" ]; then
     if [ "$#" != "3" ]; then
-        call-help
-        exit 1
+	call-help
+	exit 1
     fi
 
     BIOS_RESCUE_MAC="bios.$2$3.bin"
@@ -336,8 +332,8 @@ fi
 
 if [ "$1" == "--rc3" ]; then
     if [ "$#" != "3" ]; then
-        call-help
-        exit 1
+	call-help
+	exit 1
     fi
 
     BIOS_RESCUE_MAC="bios.$2$3.bin"
@@ -381,7 +377,6 @@ if [ "$1" == "--rc3" ]; then
 
     exit 0
 fi
-
 
 # nomally not reach here
 call-help
