@@ -50,51 +50,54 @@ DL=$(if $(wildcard ../dl/.),../dl,dl)
 RTEMS_PATCHES_DIR=rtems-patches
 MM1_PATCHES_DIR=milkymist-one-patches
 
-.PHONY: all clean
-
+# make sure this rule stays at top
 all: .install.gdb.ok .install.gcc.ok
 
+.PHONY: all clean
+
 .install.gcc.ok: .compile.gcc.ok
-	(cd b-gcc && make install)
+	$(MAKE) -C b-gcc install
 	touch $@
 
 .compile.gcc.ok: .install.binutils.ok .patch.ok gcc-$(GCC_CORE_VERSION)/newlib
 	export PATH=$(RTEMS_PREFIX)/bin:$$PATH
 	mkdir -p b-gcc
-	(cd b-gcc/ && \
+	cd b-gcc/ && \
 	  ../gcc-$(GCC_CORE_VERSION)/configure --target=lm32-rtems4.11 \
 	  --with-gnu-as --with-gnu-ld --with-newlib --verbose \
 	  --enable-threads --enable-languages="c" --disable-shared \
-	  --prefix=$(RTEMS_PREFIX) && \
-	 make all info)
+	  --prefix=$(RTEMS_PREFIX)
+	$(MAKE) -C b-gcc all
+	$(MAKE) -C b-gcc info
 	touch $@
 
 .install.binutils.ok: .compile.binutils.ok
 	mkdir -p $(RTEMS_PREFIX)
-	(cd b-binutils && make install)
+	$(MAKE) -C b-binutils install
 	touch $@
 
 .compile.binutils.ok: .patch.ok
 	mkdir -p b-binutils
-	(cd b-binutils && \
+	cd b-binutils && \
 	 ../binutils-$(BINUTILS_VERSION)/configure --target=lm32-rtems4.11 \
-	 --prefix=$(RTEMS_PREFIX) && \
-	 make all info)
+	 --prefix=$(RTEMS_PREFIX)
+	$(MAKE) -C b-binutils all
+	$(MAKE) -C b-binutils info
 	touch $@
 
 gcc-$(GCC_CORE_VERSION)/newlib: .unzip.ok
-	(cd gcc-$(GCC_CORE_VERSION) && \
-	 ln -s ../newlib-$(NEWLIB_VERSION)/newlib)
+	cd gcc-$(GCC_CORE_VERSION) && \
+	 ln -s ../newlib-$(NEWLIB_VERSION)/newlib
 
 .patch.ok: .unzip.ok $(RTEMS_PATCHES_DIR)/.ok
-	(cd binutils-$(BINUTILS_VERSION) && \
-	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(BINUTILS_PATCH))
-	(cd gcc-$(GCC_CORE_VERSION) && \
-	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(GCC_CORE_PATCH))
-	(cd newlib-$(NEWLIB_VERSION) && \
-	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH))
-	(cd gdb-$(GDB_VERSION) && \
-	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(GDB_PATCH))
+	cd binutils-$(BINUTILS_VERSION) && \
+	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(BINUTILS_PATCH)
+	cd gcc-$(GCC_CORE_VERSION) && \
+	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(GCC_CORE_PATCH)
+	cd newlib-$(NEWLIB_VERSION) && \
+	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH)
+	cd gdb-$(GDB_VERSION) && \
+	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(GDB_PATCH)
 	touch $@
 
 .unzip.ok: $(DL)/$(BINUTILS).ok $(DL)/$(GCC_CORE).ok $(DL)/$(NEWLIB).ok $(DL)/$(GDB).ok $(DL)/$(MPFR).ok $(DL)/$(MPC).ok $(DL)/$(GMP).ok
@@ -113,15 +116,15 @@ gcc-$(GCC_CORE_VERSION)/newlib: .unzip.ok
 	touch $@
 
 .install.gdb.ok: .compile.gdb.ok
-	(cd b-gdb && make install)
+	$(MAKE) -C b-gdb install
 	touch $@
 
 .compile.gdb.ok: .install.binutils.ok .patch.ok
 	export PATH=$(RTEMS_PREFIX)/bin:$$PATH
 	mkdir -p b-gdb
-	(cd b-gdb/ && ../gdb-$(GDB_VERSION)/configure --target=lm32-rtems4.11 \
-	  --prefix=$(RTEMS_PREFIX) && \
-	 make all)
+	cd b-gdb/ && ../gdb-$(GDB_VERSION)/configure --target=lm32-rtems4.11 \
+	  --prefix=$(RTEMS_PREFIX)
+	$(MAKE) -C b-gdb all
 	touch $@
 
 $(RTEMS_PATCHES_DIR)/.ok:
@@ -185,3 +188,8 @@ clean:
 	rm -rf mpfr-$(MPFR_VERSION)
 	rm -f .*.ok
 	rm -f .ok
+
+# disable parallel execution of targets in this top-level Makefile.  Makefiles
+# invoked via $(MAKE) still run parallel if -j was passed to the top-level
+# Makefile.
+.NOTPARALLEL:
