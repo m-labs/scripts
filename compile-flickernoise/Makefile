@@ -256,7 +256,7 @@ boot.crc.bin:
 $(DL)/$(LIBPNG).ok:
 	mkdir -p dl
 	$(WGET) $(DL)/$(LIBPNG) "http://dfn.dl.sourceforge.net/\
-project/libpng/libpng15/$(LIBPNG_VERSION)/$(LIBPNG)"
+project/libpng/libpng15/older-releases/$(LIBPNG_VERSION)/$(LIBPNG)"
 	touch $@
 
 $(DL)/$(LIBJPEG).ok:
