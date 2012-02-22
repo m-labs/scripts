@@ -104,7 +104,7 @@ fi
 echo "compile soc ..."
 #the Xilinx libs(libstdc++.so.6) have some conflict
 (source ~/.bashrc && \
- source /home/Xilinx/13.2/ISE_DS/settings64.sh && \
+ source /home/Xilinx/13.4/ISE_DS/settings64.sh && \
  make -C ${MILKYMIST_GIT_DIR}/milkymist/boards/milkymist-one/flash)  >> ${BUILD_LOG} 2>&1
 if [ "$?" != "0" ]; then
 	abort "ERROR: compile SOC"
