@@ -193,10 +193,9 @@ milkymist-git-clone:
 	done
 
 milkymist-git-update:
-	cd $(MILKYMIST_GIT_DIR)/rtems && git fetch -a && \
-	    git reset --hard origin/master || exit 1;
-	for d in $(REPO_DIRS); \
-	    do (cd $(MILKYMIST_GIT_DIR)/$$d  && git fetch -a && \
+	for d in $(REPO_DIRS) rtems; \
+	    do (cd $(MILKYMIST_GIT_DIR)/$$d && git fetch -a && \
+		git checkout -f master && \
 	        git reset --hard origin/master) || exit 1; \
 	    done
 
