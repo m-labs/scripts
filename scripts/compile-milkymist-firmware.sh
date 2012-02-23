@@ -165,7 +165,7 @@ echo "create SDK ..."
 mv ${IMAGES_DIR} ${DEST_DIR}
 
 echo -e "\
-say #milkymist The firmware build was successfull, \
+say #milkymist The firmware build was successful, \
 see images here: http://fidelio.qi-hardware.com/~xiangfu/build-milkymist/milkymist-firmware-${DATE_TIME}/\nclose" \
      | nc turandot.qi-hardware.com 3858
 

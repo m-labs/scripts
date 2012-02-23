@@ -74,12 +74,12 @@ if [ "$?" != "0" ]; then
 	echo "ERROR: Build failed! Please refer to the log file"
 	tail -n 100 ${BUILD_LOG} > ${IMAGES_DIR}/BUILD_LOG.`date +"%m%d%Y-%H%M"`.last100
         echo -e "\
-say #milkymist The Openwrt build has FAILED, \
+say #milkymist The OpenWrt build has FAILED, \
 see log here: http://fidelio.qi-hardware.com/~xiangfu/build-milkymist/milkymist-openwrt.$1-${DATE_TIME}/\nclose" \
              | nc turandot.qi-hardware.com 3858
 else
 echo -e "\
-say #milkymist The Openwrt build was successfull, \
+say #milkymist The OpenWrt build was successful, \
 see images here: http://fidelio.qi-hardware.com/~xiangfu/build-milkymist/milkymist-openwrt.$1-${DATE_TIME}/\nclose" \
      | nc turandot.qi-hardware.com 3858
 fi
