@@ -95,7 +95,7 @@ fi
 
 
 echo "compile tools ..."
-make -C ${MILKYMIST_GIT_DIR}/milkymist clean host >> ${BUILD_LOG} 2>&1
+make -C ${MILKYMIST_GIT_DIR}/milkymist clean tools >> ${BUILD_LOG} 2>&1
 if [ "$?" != "0" ]; then
 	abort "ERROR: milkymist/tools"
 fi
@@ -165,7 +165,7 @@ echo "create SDK ..."
 mv ${IMAGES_DIR} ${DEST_DIR}
 
 echo -e "\
-say #milkymist The Firmware build was successfull, \
+say #milkymist The firmware build was successfull, \
 see images here: http://fidelio.qi-hardware.com/~xiangfu/build-milkymist/milkymist-firmware-${DATE_TIME}/\nclose" \
      | nc turandot.qi-hardware.com 3858
 
