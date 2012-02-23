@@ -60,7 +60,9 @@ if [ ! -e ${MILKYMIST_GIT_DIR}/wernermisc ]; then
 fi
 (cd ${MILKYMIST_GIT_DIR}/wernermisc && git fetch -a && git reset --hard origin/master)
 (cd ${MILKYMIST_GIT_DIR}/rtems && git reset --hard f80b3a3d825110b5d8826f72db3fa47a6d71b66a)
-(cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems patches && quilt push -a)
+(cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems patches)
+(cd ${MILKYMIST_GIT_DIR}/rtems && quilt pop -a -f && quilt push -a)
+(cd ${MILKYMIST_GIT_DIR}/rtems && git diff > ${IMAGES_DIR}/rtems.on.f80b3a3.diff)
 
 
 echo "get git versions ..."
@@ -79,7 +81,7 @@ VERSIONS_NEW=`cat ${VERSIONS}`
 VERSIONS_OLD=`cat ${IMAGES_DIR}/../firmware-VERSIONS`
 if [ "${VERSIONS_NEW}" == "${VERSIONS_OLD}" ]; then
 	echo "No new commit, ignore build"
-	rm -f ${BUILD_LOG} ${VERSIONS}
+	rm -f ${IMAGES_DIR}/*
 	rmdir ${IMAGES_DIR}
 	exit 0
 fi
