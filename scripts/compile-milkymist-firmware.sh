@@ -59,15 +59,20 @@ if [ ! -e ${MILKYMIST_GIT_DIR}/wernermisc ]; then
 	git clone git://projects.qi-hardware.com/wernermisc.git ${MILKYMIST_GIT_DIR}/wernermisc
 fi
 (cd ${MILKYMIST_GIT_DIR}/wernermisc && git fetch -a && git reset --hard origin/master)
-(cd ${MILKYMIST_GIT_DIR}/rtems && git reset --hard f80b3a3d825110b5d8826f72db3fa47a6d71b66a)
+(cd ${MILKYMIST_GIT_DIR}/rtems && git reset --hard 19d18f235084cbd361e068811a11f46d99918950)
 (cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems patches)
 (cd ${MILKYMIST_GIT_DIR}/rtems && quilt pop -a -f && quilt push -a)
 (cd ${MILKYMIST_GIT_DIR}/rtems && git diff > ${IMAGES_DIR}/rtems.on.f80b3a3.diff)
 
 
+echo "update doc repo ..."
+(cd ${MILKYMIST_GIT_DIR}/flickernoise-handbook && git fetch -a && git reset --hard origin/master)
+
+
 echo "get git versions ..."
 get-feeds-revision ${MILKYMIST_GIT_DIR}/autotest-m1
 get-feeds-revision ${MILKYMIST_GIT_DIR}/flickernoise
+get-feeds-revision ${MILKYMIST_GIT_DIR}/flickernoise-handbook
 get-feeds-revision ${MILKYMIST_GIT_DIR}/liboscparse
 get-feeds-revision ${MILKYMIST_GIT_DIR}/milkymist
 get-feeds-revision ${MILKYMIST_GIT_DIR}/mtk
@@ -161,8 +166,18 @@ echo "generate md5sum ..."
 echo "copy rtems patches ..."
 cp -a ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems ${IMAGES_DIR}/rtems-patches
 
+
 echo "create SDK ..."
 (cd /opt/ && tar cjvf ${IMAGES_DIR}/Flickernoise-lm32-rtems-4.11-SDK-for-Linux-x86_64.tar.bz2 rtems-4.11/)
+
+
+echo "compiling doc ..."
+mkdir -p ${IMAGES_DIR}/doc
+make -C ${MILKYMIST_GIT_DIR}/flickernoise-handbook clean all
+mv ${MILKYMIST_GIT_DIR}/flickernoise-handbook/*.pdf ${IMAGES_DIR}/doc
+yes "" | make -C ${MILKYMIST_GIT_DIR}/flickernoise/src/compiler/doc clean all
+mv ${MILKYMIST_GIT_DIR}/flickernoise/src/compiler/doc/midi.pdf ${IMAGES_DIR}/doc
+
 
 mv ${IMAGES_DIR} ${DEST_DIR}
 
