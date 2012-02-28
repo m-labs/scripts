@@ -152,8 +152,7 @@ echo "build data patitions ..."
 mkdir -p ${IMAGES_DIR}/data.flash5/patchpool
 make -C ${MILKYMIST_GIT_DIR}/flickernoise/patches/demo/pacman
 make -C ${MILKYMIST_GIT_DIR}/flickernoise/patches/demo/wheel
-rsync -av --include=*/ --include=*.fnp --include=*.png --include=*.jpg --exclude=* \
-  ${MILKYMIST_GIT_DIR}/flickernoise/patches/ ${IMAGES_DIR}/data.flash5/patchpool
+find ${MILKYMIST_GIT_DIR}/flickernoise/patches/ \( -name *.fnp -o -name *.jpg -o -name *.png \) -exec cp {} ${IMAGES_DIR}/data.flash5/patchpool/ \;
 
 make -C ${MILKYMIST_GIT_DIR}/rtems-yaffs2/utils nor-mkyaffs2image
 
