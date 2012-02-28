@@ -150,7 +150,10 @@ cp ${MILKYMIST_GIT_DIR}/autotest-m1/src/boot*.bin ${IMAGES_DIR}/
 
 echo "build data patitions ..."
 mkdir -p ${IMAGES_DIR}/data.flash5/patchpool
-cp -af ${MILKYMIST_GIT_DIR}/flickernoise/patches/* ${IMAGES_DIR}/data.flash5/patchpool
+make -C ${MILKYMIST_GIT_DIR}/flickernoise/patches/demo/pacman
+make -C ${MILKYMIST_GIT_DIR}/flickernoise/patches/demo/wheel
+rsync -av --include=*/ --include=*.fnp --include=*.png --include=*.jpg --exclude=* \
+  ${MILKYMIST_GIT_DIR}/flickernoise/patches/ ${IMAGES_DIR}/data.flash5/patchpool
 
 make -C ${MILKYMIST_GIT_DIR}/rtems-yaffs2/utils nor-mkyaffs2image
 
