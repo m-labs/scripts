@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # version of me
-__VERSION__="2011-12-13"
+__VERSION__="2012-02-28"
 echo -e "File name: $0\t version: ${__VERSION__}"
 
 
@@ -20,12 +20,16 @@ BIOS_RESCUE_WITHOUT_CRC="${HOME}/.qi/milkymist/bios-crc/bios-rescue-without-CRC.
 MAC_DIR="${HOME}/.qi/milkymist/bios-mac/tmp"
 
 # Functions ###########################################################
+# This option is for me or other develop test the image:
+#    --snapshot <VERSION> [data] if 'data' enable, it will REFLASH DATA PARTITION
+#    VERSION can found at
+#		     http://fidelio.qi-hardware.com/~xiangfu/build-milkymist/
+
 call-help() {
 	echo -e \
 "Usage: ./reflash_m1.sh [OPTION] [PARAM]...
 
   --release [VERSION]         by default it will download the latest release
-  --snapshot <VERSION> [data] if 'data' enable, it will REFLASH DATA PARTITION
   --local-folder              please use m1nor instread
   --lock-flash                lock 'standby' and 'rescue' partitions
   --read-flash <PARTITION>    read from RESCUE partition, by default only read
@@ -33,11 +37,13 @@ call-help() {
 			      PARTITION: standby soc bios splash flickernoise
   --bios-mac XX XX            'XX' 'XX' is the last MAC address
   --rc3 XX XX                 used in factory flash, reflash all partitions
+  --qi [VERSION] [data]       by default it will download the latest qi release
+                     CAUTION: if 'data' enable, it will REFLASH DATA PARTITION
 
 NOTICE: '--bios-mac' and '--rc3' needs command 'mkmmimg'
 	'--release'  VERSION can found at http://milkymist.org/updates/
-	'--snapshot' VERSION can found at
-		     http://fidelio.qi-hardware.com/~xiangfu/build-milkymist/
+	'--qi'       VERSION can found at
+		     http://downloads.qi-hardware.com/software/images/Milkymist_One
 
 Written by: Xiangfu Liu <xiangfu@openmobilefree.net>
 Please report bugs to <devel@lists.milkymist.org>\tversion: ${__VERSION__}"
@@ -132,7 +138,7 @@ EOF
 	#echo "readmem 0xD20000 0x12E0000 ${WORKING_DIR}/${DATA}" >> ${JTAG_BATCH_FILE}
     fi
 
-    if [ "$1" == "--release" ] || [ "$1" == "--snapshot" ]; then
+    if [ "$1" == "--release" ] || [ "$1" == "--qi" ] || [ "$1" == "--snapshot" ]; then
 	echo "flashmem 0x000000 ${WORKING_DIR}/${STANDBY} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
 
 	echo "flashmem 0x0A0000 ${WORKING_DIR}/${SOC_RESCUE} ${JTAG_NOVERIFY}" >> ${JTAG_BATCH_FILE}
@@ -244,14 +250,22 @@ if [ "$1" == "--release" ]; then
 fi
 
 
-if [ "$1" == "--snapshot" ]; then
-    if [ "$2" == "" ]; then
+if [ "$1" == "--qi" ] || [ "$1" == "--snapshot" ]; then
+    if [ "$1" == "--snapshot" ] && [ "$2" == "" ]; then
 	call-help
 	exit 1
     fi
 
     BASE_URL_HTTP="http://fidelio.qi-hardware.com/~xiangfu/build-milkymist"
     VERSION="$2"
+
+    if [ "$1" == "--qi" ]; then
+        BASE_URL_HTTP="http://downloads.qi-hardware.com/software/images/Milkymist_One"
+    fi
+
+    if [ "$2" == "" ]; then
+        VERSION="latest"
+    fi
 
     MD5SUMS_SERVER=$(\
     wget -O - ${BASE_URL_HTTP}/${VERSION}/md5sums 2> /dev/null |\
@@ -261,7 +275,7 @@ if [ "$1" == "--snapshot" ]; then
 	exit 1
     fi
 
-    WORKING_DIR="${HOME}/.qi/milkymist/snapshots/${VERSION}"
+    WORKING_DIR="${HOME}/.qi/milkymist/${1##--}/${VERSION}"
     mkdir -p ${WORKING_DIR}
 
     MD5SUMS_LOCAL=$( (cd "${WORKING_DIR}" ; \
