@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # version of me
-__VERSION__="2012-02-28"
+__VERSION__="2012-03-01"
 echo -e "File name: $0\t version: ${__VERSION__}"
 
 
@@ -184,12 +184,12 @@ call-create-bios () {
     REMAIN_TMP="remain.tmp"
 
     mkdir -p ${MAC_DIR}
+    mkdir -p `dirname ${BIOS_RESCUE_WITHOUT_CRC}`
 
-    if [ ! -f "${BIOS_RESCUE_WITHOUT_CRC}" ]; then
-	mkdir -p `dirname ${BIOS_RESCUE_WITHOUT_CRC}`
-	call-wget "${BIOS_RESCUE_WITHOUT_CRC}" http://milkymist.org/updates/2011-11-29/for-rc3/bios-rescue-without-CRC.bin
-    fi
+    rm -f "${BIOS_RESCUE_WITHOUT_CRC}"
 
+    call-wget "${BIOS_RESCUE_WITHOUT_CRC}" \
+	http://downloads.qi-hardware.com/software/images/Milkymist_One/latest/bios-rescue-without-CRC.bin
 
     dd if="${BIOS_RESCUE_WITHOUT_CRC}"  of=${MAC_DIR}/${HEAD_TMP}   bs=8 count=28
     dd if="${BIOS_RESCUE_WITHOUT_CRC}"  of=${MAC_DIR}/${REMAIN_TMP} bs=8  skip=29
