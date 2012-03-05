@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # version of me
-__VERSION__="2012-03-01"
+__VERSION__="2012-03-05"
 echo -e "File name: $0\t version: ${__VERSION__}"
 
 
@@ -37,8 +37,8 @@ call-help() {
 			      PARTITION: standby soc bios splash flickernoise
   --bios-mac XX XX            'XX' 'XX' is the last MAC address
   --rc3 XX XX                 used in factory flash, reflash all partitions
-  --qi [VERSION] [data]       by default it will download the latest qi release
-                     CAUTION: if 'data' enable, it will REFLASH DATA PARTITION
+  --qi [VERSION] [--data]     by default it will download the latest qi release
+                     CAUTION: if '--data' enable, it will REFLASH DATA PARTITION
 
 NOTICE: '--bios-mac' and '--rc3' needs command 'mkmmimg'
 	'--release'  VERSION can found at http://milkymist.org/updates/
@@ -251,20 +251,20 @@ fi
 
 
 if [ "$1" == "--qi" ] || [ "$1" == "--snapshot" ]; then
-    if [ "$1" == "--snapshot" ] && [ "$2" == "" ]; then
+    if [ "$1" == "--snapshot" ] && [ "$#" == "1" ]; then
 	call-help
 	exit 1
     fi
 
     BASE_URL_HTTP="http://fidelio.qi-hardware.com/~xiangfu/build-milkymist"
-    VERSION="$2"
+    VERSION="latest"
 
     if [ "$1" == "--qi" ]; then
         BASE_URL_HTTP="http://downloads.qi-hardware.com/software/images/Milkymist_One"
     fi
 
-    if [ "$2" == "" ]; then
-        VERSION="latest"
+    if [ "$2" != "--data" ] && [ "$2" != "" ]; then
+        VERSION="$2"
     fi
 
     MD5SUMS_SERVER=$(\
@@ -291,7 +291,7 @@ if [ "$1" == "--qi" ] || [ "$1" == "--snapshot" ]; then
 	call-download
     fi
 
-    if [ "$3" == "data" ]; then
+    if [ "$2" == "--data" ] || [ "$3" == "--data" ]; then
 	call-jtag $1 "${WORKING_DIR}/${DATA}"
     else
 	call-jtag $1
