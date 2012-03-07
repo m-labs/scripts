@@ -65,7 +65,7 @@ HOST_CC   = gcc
 
 ALL: flickernoise.fbi flickernoise-pdf.fbiz
 
-.PHONY: clean clean-rtems boot.crc.bin softusb-input
+.PHONY: clean clean-rtems boot.crc.bin
 
 build_dir/.prepare:
 	mkdir -p build_dir
@@ -200,14 +200,8 @@ milkymist-git-update:
 	    done
 
 #You will need Lemon and RE2C to compile libFPVM. 
-softusb-input:
-	make -C $(MILKYMIST_GIT_DIR)/milkymist/ sdk
-	cp  ${MILKYMIST_GIT_DIR}/milkymist/software/libhal/softusb-input.h \
-	    ${MILKYMIST_GIT_DIR}/rtems/c/src/lib/libbsp/lm32/shared/\
-milkymist_usbinput/softusb-input.h
-
-libfpvm:
-	make -C $(MILKYMIST_GIT_DIR)/milkymist/software/libfpvm/ install
+sdk-install:
+	make -C $(MILKYMIST_GIT_DIR)/milkymist sdk-install
 
 mtk:
 	make -C $(MILKYMIST_GIT_DIR)/$@ milkymist install-milkymist
@@ -218,7 +212,7 @@ liboscparse:
 rtems-yaffs2:
 	make -C $(MILKYMIST_GIT_DIR)/$@ -f Makefile.rtems all install
 
-rtems: $(BUILD_DIR)/bsp-milkymist/Makefile softusb-input
+rtems: $(BUILD_DIR)/bsp-milkymist/Makefile
 	make -C $(BUILD_DIR)/bsp-milkymist all install
 	touch $@
 
@@ -230,7 +224,7 @@ $(BUILD_DIR)/bsp-milkymist/Makefile:
 	    $(MILKYMIST_GIT_DIR)/rtems/configure $(RTEMS_CONFIGURE_FLAGS)
 
 #you will need clang for compile milkymist tools
-flickernoise.fbi: rtems libfpvm mtk liboscparse rtems-yaffs2 \
+flickernoise.fbi: rtems sdk-install mtk liboscparse rtems-yaffs2 \
 		  $(BUILD_DIR)/mupdf $(BUILD_DIR)/curl $(BUILD_DIR)/expat
 	make -C $(MILKYMIST_GIT_DIR)/flickernoise/src \
 	     clean bin/flickernoise.fbi
