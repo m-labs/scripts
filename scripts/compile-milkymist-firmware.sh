@@ -59,7 +59,7 @@ if [ ! -e ${MILKYMIST_GIT_DIR}/wernermisc ]; then
 	git clone git://projects.qi-hardware.com/wernermisc.git ${MILKYMIST_GIT_DIR}/wernermisc
 fi
 (cd ${MILKYMIST_GIT_DIR}/wernermisc && git fetch -a && git reset --hard origin/master)
-(cd ${MILKYMIST_GIT_DIR}/rtems && git reset --hard 19d18f235084cbd361e068811a11f46d99918950)
+#(cd ${MILKYMIST_GIT_DIR}/rtems && git reset --hard 19d18f235084cbd361e068811a11f46d99918950)
 (cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems patches)
 (cd ${MILKYMIST_GIT_DIR}/rtems && quilt pop -a -f && quilt push -a)
 (cd ${MILKYMIST_GIT_DIR}/rtems && git diff > ${IMAGES_DIR}/rtems.on.f80b3a3.diff)
@@ -151,8 +151,9 @@ cp ${MILKYMIST_GIT_DIR}/autotest-m1/src/boot*.bin ${IMAGES_DIR}/
 echo "build data patitions ..."
 mkdir -p ${IMAGES_DIR}/data.flash5/patchpool
 make -C ${MILKYMIST_GIT_DIR}/flickernoise/patches/demo/pacman
-make -C ${MILKYMIST_GIT_DIR}/flickernoise/patches/demo/wheel
+(cd ${MILKYMIST_GIT_DIR}/flickernoise/patches/demo/wheel && ./gen)
 find ${MILKYMIST_GIT_DIR}/flickernoise/patches/ \( -name *.fnp -o -name *.jpg -o -name *.png \) -exec cp {} ${IMAGES_DIR}/data.flash5/patchpool/ \;
+rm ${IMAGES_DIR}/data.flash5/patchpool/raindance.fnp
 
 make -C ${MILKYMIST_GIT_DIR}/rtems-yaffs2/utils nor-mkyaffs2image
 
