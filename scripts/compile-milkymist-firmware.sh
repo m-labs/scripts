@@ -182,6 +182,7 @@ yes "" | make -C ${MILKYMIST_GIT_DIR}/flickernoise/src/compiler/doc clean all
 mv ${MILKYMIST_GIT_DIR}/flickernoise/src/compiler/doc/midi.pdf ${IMAGES_DIR}/doc
 
 
+(cd ${IMAGES_DIR} && bzip2 -z BUILD_LOG;)
 mv ${IMAGES_DIR} ${DEST_DIR}
 
 echo -e "\
