@@ -57,7 +57,7 @@ $ git clone git://github.com/milkymist/scripts.git
 <LI>Compile and install.
   download toolchain sources and compile toolchain:
     <pre>
-    $ make -C compile-lm32-rtems  
+    $ make -C compile-lm32-rtems
     </pre>
 </LI>
   
@@ -94,22 +94,21 @@ $ git clone git://github.com/milkymist/scripts.git
 
 <h2><a name="secHost">Host Specific Requirements</a></h2>
 <ol>
-<li><a href="#secUbuntu">Ubuntu 11.04 Desktop</a>
-</li><li><a href="#secOSX">Mac OS X 10.6 Snow Leopard</a>
-</li>
+<li><a href="#secUbuntu">Ubuntu 11.04 Desktop</a> </li>
+<li><a href="#secOSX">Mac OS X 10.6 Snow Leopard</a> </li>
 </ol>
 
 <h3><a name="secUbuntu">Ubuntu 11.04 Desktop</a></h3>
 <p>
-Ubuntu 11.04 comes with autotools 2.67 but rtems needs autotools 2.68.  Some of the autotools have hard coded paths so any existing installtion interfers with an installation done in an alternate path.  (There's probably a way around this but I don't know what it is.)  To get around this we remove the old autotools and install news ones.
+Ubuntu 11.04 comes with autotools 2.67 but rtems needs autotools 2.68. Some of the autotools have hard coded paths so any existing installtion interfers with an installation done in an alternate path. (There's probably a way around this but I don't know what it is.) To get around this we remove the old autotools and install news ones.
 <OL>
 <LI>Remove the folowing packages (sudo apt-get remove `packagename`):
 <UL>
-	<LI>autotools-dev</LI>
-	<LI>autoconf</LI>
-	<LI>automake</LI>
-	<LI>libtool</LI>
-	<LI>m4</LI>
+<LI>autotools-dev</LI>
+<LI>autoconf</LI>
+<LI>automake</LI>
+<LI>libtool</LI>
+<LI>m4</LI>
 </UL>
 </LI>
 <LI>Install the latest autotools, M4, and libtool:
@@ -139,25 +138,28 @@ $ M4=/opt/autotools/bin/m4
 $ export PATH M4
 </pre>
 </LI>
-<LI>Install the following packages (needed tool / package name): 
+<LI>Install the following packages (needed tool / package name):
 <UL>
-	<LI>jpeg: libjpeg-dev</LI>
-	<LI>freetype: libfreetype6-dev</LI>
-	<LI>clang: clang </LI>
-	<LI>gcc-multilib: gcc-multilib (for flterm 'asm/ioctls.h' file not found error) </LI>
-	<LI>GD graphics library: libgd2-xpm-dev </LI>
-	<LI>makeinfo: texinfo </LI>
-	<LI>curses: libncurses-dev </LI>
-	<LI>lemon: lemon </LI>
-	<LI>re2c: re2c</LI>
+<LI>jpeg: libjpeg-dev</LI>
+<LI>freetype: libfreetype6-dev</LI>
+<LI>clang: clang </LI>
+<LI>gcc-multilib: gcc-multilib (for flterm 'asm/ioctls.h' file not found error) </LI>
+<LI>GD graphics library: libgd2-xpm-dev </LI>
+<LI>makeinfo: texinfo </LI>
+<LI>curses: libncurses-dev </LI>
+<LI>lemon: lemon </LI>
+<LI>re2c: re2c</LI>
 </UL>
 </LI>
 </OL>
 
 <h3><a name="secOSX">Mac OS X 10.6 Snow Leopard</a></h3>
 <OL>
+<LI>(Optional) Edit compile-lm32-rtems/Makefile and add the --disable-werror option to the binutils configure command.  This is only necessary with some versions of GCC.  If you don't get a build error about shadowed functions you don't need this step.
+</LI>
+
 <LI>Update autotools
-OS X 10.6 and prior require updated autotools.  Download, build, and install automake and autoconf and add them to your path.  Note that aclocal does not call the autoconf binary, so the _path_ that your autoconf is in doesn't matter. It _does_ look at m4 macros, though, and it appears to find autoconf macros out of /usr/share, which corresponds to the system autoconf (2.61 on osx). Therefore you must rename or delete the following to use the newly installed versions:
+OS X 10.6 and prior require updated autotools. Download, build, and install automake and autoconf and add them to your path. Note that aclocal does not call the autoconf binary, so the _path_ that your autoconf is in doesn't matter. It _does_ look at m4 macros, though, and it appears to find autoconf macros out of /usr/share, which corresponds to the system autoconf (2.61 on osx). Therefore you must rename or delete the following to use the newly installed versions:
 
 <pre>
 /usr/bin/autoheader
@@ -167,26 +169,29 @@ OS X 10.6 and prior require updated autotools.  Download, build, and install aut
 /usr/share/autoconf
 /usr/share/automake
 </pre>
+</LI>
 
-<LI> Install wget.  The Makefiles use wget instead of curl. So build and install wget:
+<LI> Install wget. The Makefiles use wget instead of curl. So build and install wget:
 <pre>
 $ curl ftp://ftp.gnu.org/gnu/wget/wget-1.12.tar.gz -o wget-1.12.tar.gz
 $ tar xzvf wget-1.12.tar.gz
 $ cd wget-1.12
 $ ./configure --prefix=/opt
-$ make 
+$ make
 $ make install
 </pre>
+</LI>
 
-<LI> Install lemon.  OS X also needs the Lemon parser generator. It needs to be built from source as shown:
+<LI> Install lemon. OS X also needs the Lemon parser generator. It needs to be built from source as shown:
 <pre>
 $ curl http://www.sqlite.org/cvstrac/getfile/sqlite/tool/lemon.c -o lemon.c
 $ curl http://www.sqlite.org/cvstrac/getfile/sqlite/tool/lempar.c -o lempar.c
 $ gcc -o lemon lemon.c
 $ cp lemon lempar.c /opt/bin
 </pre>
+</LI>
 
-<LI> Install re2c.  OS X also needs re2c from http://sourceforge.net/projects/re2c/
+<LI> Install re2c. OS X also needs re2c from http://sourceforge.net/projects/re2c/
 <pre>
 $ curl http://surfnet.dl.sourceforge.net/project/re2c/re2c/0.13.5/re2c-0.13.5.tar.gz -o re2c-0.13.5.tar.gz
 $ tar xzvf re2c-0.13.5.tar.gz
@@ -195,16 +200,18 @@ $ ./configure --prefix=/opt
 $ make
 $ make install
 </pre>
+</LI>
 
-<LI> Install sed.  (OS X sed behaves differently from what the Makefile expects):
+<LI> Install sed. (OS X sed behaves differently from what the Makefile expects):
 <pre>
 $ curl ftp://ftp.gnu.org/gnu/sed/sed-4.2.tar.gz -o sed-4.2.tar.gz
-$ tar xzvf sed-4.2.tar.gz 
+$ tar xzvf sed-4.2.tar.gz
 $ cd sed-4.2
 $ ./configure --prefix=/opt
 $ make
 $ make install
 </pre>
+</LI>
 
 <LI> Install Freetype.
 <pre>
@@ -215,6 +222,7 @@ $ ./configure --prefix=/opt
 $ make
 $ make install
 </pre>
+</LI>
 
 <LI> Install libjpeg.
 <pre>
@@ -225,6 +233,7 @@ $ ./configure --prefix=/opt
 $ make
 $ make install
 </pre>
+</LI>
 
 <LI> Install XMP library.
 <pre>
@@ -232,6 +241,7 @@ $ curl ftp://ftp.x.org/contrib/libraries/xpm-3.4k.tar.gz -o xpm-3.4k.tar.gz
 $ make -f Makefile.noX
 $ make -f Makefile.noX install
 </pre>
+</LI>
 
 <LI> Install Portable Network Graphics library.
 <pre>
@@ -242,6 +252,7 @@ $ ./configure --prefix=/opt
 $ make
 $ make install
 </pre>
+</LI>
 
 <LI> Install the GD Graphics Library.
 <pre>
@@ -251,10 +262,11 @@ $ cd pierrejoye-gd-libgd-5551f61978e3/src
 $ ./configure
 edit the generated config.h file and comment out the line:
     #define HAVE_LIBFONTCONFIG 1
-to 
+to
     /* #define HAVE_LIBFONTCONFIG 1 */
 $ make
 $ make install
 </pre>
+</LI>
 </OL>
 </body>
