@@ -34,6 +34,7 @@ FREETYPE2_VERSION = 2.4.4
 MUPDF_VERSION     = 0.8
 CURL_VERSION      = 7.22.0
 EXPAT_VERSION     = 2.0.1
+JANSSON_VERSION   = 2.3
 
 LIBPNG    = libpng-$(LIBPNG_VERSION).tar.gz
 LIBJPEG   = jpegsrc.v8c.tar.gz
@@ -43,6 +44,7 @@ FREETYPE2 = freetype-$(FREETYPE2_VERSION).tar.gz
 MUPDF     = mupdf-$(MUPDF_VERSION)-source.tar.gz
 CURL      = curl-$(CURL_VERSION).tar.bz2
 EXPAT     = expat-$(EXPAT_VERSION).tar.gz
+JANSSON   = jansson-$(JANSSON_VERSION).tar.gz
 
 DL        = $(if $(wildcard ../dl/.),../dl,dl)
 BUILD_DIR = ./build_dir
@@ -183,6 +185,19 @@ $(BUILD_DIR)/expat: $(DL)/$(EXPAT).ok
 	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
 	touch $@
 
+$(BUILD_DIR)/jansson: $(DL)/$(JANSSON).ok
+	tar xf $(DL)/$(JANSSON) -C $(BUILD_DIR)
+	cd $(BUILD_DIR)/jansson-$(JANSSON_VERSION) && \
+	    patch -Np1 < ../../patches/jansson-0001-for-milkymist-one.patch.patch
+	cd $(BUILD_DIR)/jansson-$(JANSSON_VERSION) && \
+	    $(CONFIGURE_VARS) ./configure --host=lm32-rtems4.11 \
+	    --disable-shared --prefix=$(RTEMS_MAKEFILE_PATH) && \
+	    make all install
+	cp -rf $(RTEMS_MAKEFILE_PATH)/include/* \
+	    $(RTEMS_MAKEFILE_PATH)/lib/include
+	rm -rf $(RTEMS_MAKEFILE_PATH)/include/*
+	touch $@
+
 REPO_DIRS=milkymist flickernoise rtems-yaffs2 liboscparse mtk autotest-m1 
 milkymist-git-clone:
 	mkdir -p $(MILKYMIST_GIT_DIR)
@@ -225,7 +240,8 @@ $(BUILD_DIR)/bsp-milkymist/Makefile:
 
 #you will need clang for compile milkymist tools
 flickernoise.fbi: rtems sdk-install mtk liboscparse rtems-yaffs2 \
-		  $(BUILD_DIR)/mupdf $(BUILD_DIR)/curl $(BUILD_DIR)/expat
+		  $(BUILD_DIR)/mupdf $(BUILD_DIR)/curl $(BUILD_DIR)/expat \
+		  $(BUILD_DIR)/jansson
 	make -C $(MILKYMIST_GIT_DIR)/flickernoise/src \
 	     clean bin/flickernoise.fbi
 	cp $(MILKYMIST_GIT_DIR)/flickernoise/src/bin/$@ .
@@ -289,6 +305,12 @@ $(DL)/$(EXPAT).ok:
 	$(WGET) $(DL)/$(EXPAT) "http://download.sourceforge.net/\
 project/expat/expat/$(EXPAT_VERSION)/expat-$(EXPAT_VERSION).tar.gz"
 	touch $@
+
+$(DL)/$(JANSSON).ok:
+	mkdir -p dl
+	$(WGET) $(DL)/$(JANSSON) "http://www.digip.org/jansson/releases/$(JANSSON)"
+	touch $@
+
 
 clean:
 	rm -rf build_dir/*
