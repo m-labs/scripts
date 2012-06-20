@@ -27,26 +27,31 @@ MAC_DIR="${HOME}/.qi/milkymist/bios-mac/tmp"
 
 call-help() {
 	echo -e \
-"Usage: ./reflash_m1.sh [OPTION] [PARAM]...
+"
+Usage: ./reflash_m1.sh [OPTION] [PARAM...]
 
   --release [VERSION]         by default it will download the latest release
-  --local-folder              please use m1nor instread
+  --local-folder              please use m1nor instead
   --lock-flash                lock 'standby' and 'rescue' partitions
   --read-flash <PARTITION>    read from RESCUE partition, by default only read
-			      'standby.bin'
-			      PARTITION: standby soc bios splash flickernoise
+                              'standby.bin'
+                              PARTITION: standby soc bios splash flickernoise
   --bios-mac XX XX            'XX' 'XX' is the last MAC address
   --rc3 XX XX                 used in factory flash, reflash all partitions
   --qi [VERSION] [--data]     by default it will download the latest qi release
-                     CAUTION: if '--data' enable, it will REFLASH DATA PARTITION
 
 NOTICE: '--bios-mac' and '--rc3' needs command 'mkmmimg'
-	'--release'  VERSION can found at http://milkymist.org/updates/
-	'--qi'       VERSION can found at
-		     http://downloads.qi-hardware.com/software/images/Milkymist_One
+        '--release'  VERSION can found at http://milkymist.org/updates/
+        '--qi'       VERSION can found at
+                 http://downloads.qi-hardware.com/software/images/Milkymist_One
+        '--data'     if this option enable, it will REFLASH DATA PARTITION
+                     BACKUP before you use this option
+
+Version: ${__VERSION__}
 
 Written by: Xiangfu Liu <xiangfu@openmobilefree.net>
-Please report bugs to <devel@lists.milkymist.org>\tversion: ${__VERSION__}"
+Please report bugs to <devel@lists.milkymist.org>
+"
 }
 
 # $1: is the file name you want save
