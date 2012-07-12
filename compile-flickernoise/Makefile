@@ -65,7 +65,7 @@ RTEMS_CONFIGURE_FLAGS = --target=lm32-rtems4.11 --enable-rtemsbsp=milkymist \
 
 HOST_CC   = gcc
 
-ALL: flickernoise.fbi flickernoise-pdf.fbiz
+all: flickernoise.fbi flickernoise-pdf.fbiz
 
 .PHONY: clean clean-rtems boot.crc.bin
 
