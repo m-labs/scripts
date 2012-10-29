@@ -233,6 +233,11 @@ rtems: $(BUILD_DIR)/bsp-milkymist/Makefile
 
 $(BUILD_DIR)/bsp-milkymist/Makefile:
 	mkdir -p $(BUILD_DIR)/bsp-milkymist
+	[ -e ${MILKYMIST_GIT_DIR}/wernermisc ] || \
+		git clone git://projects.qi-hardware.com/wernermisc.git ${MILKYMIST_GIT_DIR}/wernermisc
+	cd ${MILKYMIST_GIT_DIR}/wernermisc && git fetch -a && git reset --hard origin/master
+	cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems patches
+	cd ${MILKYMIST_GIT_DIR}/rtems && quilt pop -a -f && quilt push -a
 	cd $(MILKYMIST_GIT_DIR)/rtems && \
 	    ./bootstrap -c && ./bootstrap -p && ./bootstrap
 	cd $(BUILD_DIR)/bsp-milkymist && \
