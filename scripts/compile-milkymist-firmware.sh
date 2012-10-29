@@ -59,7 +59,7 @@ if [ ! -e ${MILKYMIST_GIT_DIR}/wernermisc ]; then
 	git clone git://projects.qi-hardware.com/wernermisc.git ${MILKYMIST_GIT_DIR}/wernermisc
 fi
 (cd ${MILKYMIST_GIT_DIR}/wernermisc && git fetch -a && git reset --hard origin/master)
-#(cd ${MILKYMIST_GIT_DIR}/rtems && git reset --hard 19d18f235084cbd361e068811a11f46d99918950)
+#(cd ${MILKYMIST_GIT_DIR}/rtems && git reset --hard 2cc4f3ca45e5cb20649c2733330977a2307e2e19)
 (cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems patches)
 (cd ${MILKYMIST_GIT_DIR}/rtems && quilt pop -a -f && quilt push -a)
 (cd ${MILKYMIST_GIT_DIR}/rtems && git diff > ${IMAGES_DIR}/rtems.on.f80b3a3.diff)
@@ -184,10 +184,5 @@ mv ${MILKYMIST_GIT_DIR}/flickernoise/src/compiler/doc/midi.pdf ${IMAGES_DIR}/doc
 
 (cd ${IMAGES_DIR} && bzip2 -z BUILD_LOG;)
 mv ${IMAGES_DIR} ${DEST_DIR}
-
-echo -e "\
-say #milkymist The firmware build was successful, \
-see images here: http://fidelio.qi-hardware.com/~xiangfu/build-milkymist/milkymist-firmware-${DATE_TIME}/\nclose" \
-     | nc turandot.qi-hardware.com 3858
 
 echo "DONE!"
