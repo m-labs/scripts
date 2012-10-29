@@ -269,7 +269,7 @@ boot.crc.bin:
 ####
 $(DL)/$(LIBPNG).ok:
 	mkdir -p dl
-	$(WGET) $(DL)/$(LIBPNG) "http://dfn.dl.sourceforge.net/\
+	$(WGET) $(DL)/$(LIBPNG) "http://download.sourceforge.net/\
 project/libpng/libpng15/older-releases/$(LIBPNG_VERSION)/$(LIBPNG)"
 	touch $@
 
@@ -291,7 +291,7 @@ $(DL)/$(JBIG2DEC).ok:
 
 $(DL)/$(FREETYPE2).ok:
 	mkdir -p dl
-	$(WGET) $(DL)/$(FREETYPE2) "http://ufpr.dl.sourceforge.net/\
+	$(WGET) $(DL)/$(FREETYPE2) "http://download.sourceforge.net/\
 project/freetype/freetype2/$(FREETYPE2_VERSION)/$(FREETYPE2)"
 	touch $@
 
