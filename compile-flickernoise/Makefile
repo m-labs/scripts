@@ -201,10 +201,10 @@ $(BUILD_DIR)/jansson: $(DL)/$(JANSSON).ok
 REPO_DIRS=milkymist flickernoise rtems-yaffs2 liboscparse mtk autotest-m1 
 milkymist-git-clone:
 	mkdir -p $(MILKYMIST_GIT_DIR)
-	git clone git://git.rtems.org/rtems.git $(MILKYMIST_GIT_DIR)/rtems
+	if [ ! -d "$(MILKYMIST_GIT_DIR)/rtems" ] ; then git clone git://git.rtems.org/rtems.git $(MILKYMIST_GIT_DIR)/rtems ; fi
 	for d in $(REPO_DIRS); \
-	  do (git clone $(MILKYMIST_GIT_URL)/$$d.git \
-	      $(MILKYMIST_GIT_DIR)/$$d) || exit 1; \
+	  do if [ ! -d "$(MILKYMIST_GIT_DIR)/$$d" ] ; then (git clone $(MILKYMIST_GIT_URL)/$$d.git \
+	      $(MILKYMIST_GIT_DIR)/$$d) || exit 1; fi \
 	done
 
 milkymist-git-update:
@@ -237,7 +237,8 @@ $(BUILD_DIR)/bsp-milkymist/Makefile:
 		git clone git://projects.qi-hardware.com/wernermisc.git ${MILKYMIST_GIT_DIR}/wernermisc
 	cd ${MILKYMIST_GIT_DIR}/wernermisc && git fetch -a && git reset --hard origin/master
 	cd ${MILKYMIST_GIT_DIR}/rtems && rm -f patches && ln -s ${MILKYMIST_GIT_DIR}/wernermisc/m1/patches/rtems patches
-	cd ${MILKYMIST_GIT_DIR}/rtems && quilt pop -a -f && quilt push -a
+	-cd ${MILKYMIST_GIT_DIR}/rtems && quilt pop -a -f
+	cd ${MILKYMIST_GIT_DIR}/rtems && quilt push -a
 	cd $(MILKYMIST_GIT_DIR)/rtems && \
 	    ./bootstrap -c && ./bootstrap -p && ./bootstrap
 	cd $(BUILD_DIR)/bsp-milkymist && \
