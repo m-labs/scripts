@@ -100,7 +100,24 @@ $ git clone git://github.com/milkymist/scripts.git
 
 <h3><a name="secUbuntu">Ubuntu 12.04 Desktop</a></h3>
 <p>
-Ubuntu 12.04 comes with autotools 2.68 but rtems needs autotools 2.69. Some of the autotools have hard coded paths so any existing installtion interfers with an installation done in an alternate path. (There's probably a way around this but I don't know what it is.) To get around this we remove the old autotools and install news ones.
+Ubuntu 12.04 comes with autotools 2.68 and automake 1.11 but rtems needs autotools 2.69 and automake 1.12. Some of the autotools have hard coded paths so any existing installtion interfers with an installation done in an alternate path. (There's probably a way around this but I don't know what it is.) To get around this we remove the old autotools and install news ones.
+</p>
+<p>
+<b>OR you can simply download the following two debian packages:</b>
+<ul>
+<li>Automake 1.12.6 for Ubuntu 12.04 : <a href="https://launchpad.net/~rbose-debianizer/+archive/automake/+packages">https://launchpad.net/~rbose-debianizer/+archive/automake/+packages</a></li>
+<li>Autoconf 2.69 for Ubuntu 12.04 : <a href="https://launchpad.net/~dns/+archive/gnu/+build/3647209">https://launchpad.net/~dns/+archive/gnu/+build/3647209</a></li>
+</ul>
+
+And then install them by doing:<br />
+<pre>
+$ sudo dpkg -i autoconf_2.69-1gnu1~12.04_all.deb
+$ sudo dpkg -i automake_1.12.6-0gnu0~12.04_all.deb
+</pre>
+</p>
+
+If you really want to install them by compiling sources, then you can do the following:
+
 <OL>
 <LI>Remove the folowing packages (sudo apt-get remove `packagename`):
 <UL>
