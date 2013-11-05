@@ -29,7 +29,6 @@ RTEMS_MAKEFILE_PATH ?= \
     /opt/rtems-$(RTEMS_VERSION)/lm32-rtems$(RTEMS_VERSION)/milkymist
 
 LIBPNG_VERSION    = 1.5.6
-JBIG2DEC_VERSION  = 0.11
 FREETYPE2_VERSION = 2.4.4
 MUPDF_VERSION     = 0.8
 CURL_VERSION      = 7.22.0
@@ -39,7 +38,6 @@ JANSSON_VERSION   = 2.3
 LIBPNG    = libpng-$(LIBPNG_VERSION).tar.gz
 LIBJPEG   = jpegsrc.v8c.tar.gz
 OPENJPEG  = openjpeg_v1_2.tar.gz
-JBIG2DEC  = jbig2dec-$(JBIG2DEC_VERSION).tar.gz
 FREETYPE2 = freetype-$(FREETYPE2_VERSION).tar.gz
 MUPDF     = mupdf-$(MUPDF_VERSION)-source.tar.gz
 CURL      = curl-$(CURL_VERSION).tar.bz2
@@ -105,14 +103,18 @@ $(BUILD_DIR)/openjpeg: $(DL)/$(OPENJPEG).ok build_dir/.prepare
 	    cp libopenjpeg/openjpeg.h $(RTEMS_MAKEFILE_PATH)/lib/include
 	touch $@
 
-$(BUILD_DIR)/jbig2dec: $(DL)/$(JBIG2DEC).ok build_dir/.prepare
-	tar xf $(DL)/$(JBIG2DEC) -C $(BUILD_DIR)
-	cd $(BUILD_DIR)/jbig2dec-$(JBIG2DEC_VERSION) && rm config.sub && \
-	    automake --add-missing ; exit 0
-	cd $(BUILD_DIR)/jbig2dec-$(JBIG2DEC_VERSION) && $(CONFIGURE_VARS) \
+$(BUILD_DIR)/jbig2dec: build_dir/.prepare
+	if [ ! -d $(DL)/jbig2dec ] ; \
+	then  \
+		git clone git://git.ghostscript.com/jbig2dec.git $(BUILD_DIR)/jbig2dec && \
+		cd $(BUILD_DIR)/jbig2dec && git checkout 0.11 ; \
+	fi
+	cd $(BUILD_DIR)/jbig2dec && \
+	./autogen.sh && \
+	$(CONFIGURE_VARS) \
 	    ./configure --host=lm32-rtems4.11 --disable-shared \
 	    --prefix=$(RTEMS_MAKEFILE_PATH) && \
-	    make all install
+	make all install
 	mv $(RTEMS_MAKEFILE_PATH)/include/* $(RTEMS_MAKEFILE_PATH)/lib/include
 	touch $@
 
@@ -282,12 +284,6 @@ $(DL)/$(LIBJPEG).ok:
 $(DL)/$(OPENJPEG).ok:
 	mkdir -p dl
 	$(WGET) $(DL)/$(OPENJPEG) "http://www.openjpeg.org/$(OPENJPEG)"
-	touch $@
-
-$(DL)/$(JBIG2DEC).ok:
-	mkdir -p dl
-	$(WGET) $(DL)/$(JBIG2DEC) \
-	  "http://ghostscript.com/~giles/jbig2/jbig2dec/$(JBIG2DEC)"
 	touch $@
 
 $(DL)/$(FREETYPE2).ok:
