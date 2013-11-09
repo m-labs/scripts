@@ -90,7 +90,8 @@ gcc-$(GCC_CORE_VERSION)/newlib: .unzip.ok
 
 .patch.ok: .unzip.ok $(RTEMS_PATCHES_DIR)/.ok
 	cd gcc-$(GCC_CORE_VERSION) && \
-	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(GCC_CORE_PATCH)
+	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(GCC_CORE_PATCH) && \
+	 patch -p1 < ../$(MM1_PATCHES_DIR)/gcc-core-4.5.4-fix-errors-in-doc-generation-on-texinfo5.patch
 	cd newlib-$(NEWLIB_VERSION) && \
 	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH)
 	cd gdb-$(GDB_VERSION) && \
