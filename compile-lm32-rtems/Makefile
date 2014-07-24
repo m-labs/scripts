@@ -95,7 +95,8 @@ gcc-$(GCC_CORE_VERSION)/newlib: .unzip.ok
 	cd newlib-$(NEWLIB_VERSION) && \
 	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(NEWLIB_PATCH)
 	cd gdb-$(GDB_VERSION) && \
-	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(GDB_PATCH)
+	 patch -p1 < ../$(RTEMS_PATCHES_DIR)/$(GDB_PATCH) && patch -p1 < ../$(MM1_PATCHES_DIR)/gdb-fix-errors-in-bfd-header.patch
+	cd binutils-$(BINUTILS_VERSION) && patch -p1 < ../$(MM1_PATCHES_DIR)/binutils-fix-errors-in-bfd-header.patch
 	touch $@
 
 .unzip.ok: $(DL)/$(BINUTILS).ok $(DL)/$(GCC_CORE).ok $(DL)/$(NEWLIB).ok $(DL)/$(GDB).ok $(DL)/$(MPFR).ok $(DL)/$(MPC).ok $(DL)/$(GMP).ok

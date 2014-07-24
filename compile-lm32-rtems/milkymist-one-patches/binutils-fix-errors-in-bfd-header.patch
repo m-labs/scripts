@@ -1,0 +1,86 @@
+diff -Naur dl/binutils-2.23.90/bfd/bfd-in2.h binutils-2.23.90/bfd/bfd-in2.h
+--- dl/binutils-2.23.90/bfd/bfd-in2.h	2013-08-27 00:18:06.000000000 +0200
++++ binutils-2.23.90/bfd/bfd-in2.h	2014-07-20 19:53:16.982522896 +0200
+@@ -299,9 +299,6 @@
+ 
+ #define bfd_is_com_section(ptr) (((ptr)->flags & SEC_IS_COMMON) != 0)
+ 
+-#define bfd_set_section_vma(bfd, ptr, val) (((ptr)->vma = (ptr)->lma = (val)), ((ptr)->user_set_vma = TRUE), TRUE)
+-#define bfd_set_section_alignment(bfd, ptr, val) (((ptr)->alignment_power = (val)),TRUE)
+-#define bfd_set_section_userdata(bfd, ptr, val) (((ptr)->userdata = (val)),TRUE)
+ /* Find the address one past the end of SEC.  */
+ #define bfd_get_section_limit(bfd, sec) \
+   (((bfd)->direction != write_direction && (sec)->rawsize != 0	\
+@@ -524,7 +521,6 @@
+ 
+ #define bfd_get_symbol_leading_char(abfd) ((abfd)->xvec->symbol_leading_char)
+ 
+-#define bfd_set_cacheable(abfd,bool) (((abfd)->cacheable = bool), TRUE)
+ 
+ extern bfd_boolean bfd_cache_close
+   (bfd *abfd);
+@@ -1583,6 +1579,28 @@
+   } map_head, map_tail;
+ } asection;
+ 
++static inline bfd_boolean
++bfd_set_section_vma(bfd *abfd ATTRIBUTE_UNUSED, asection *ptr, bfd_vma val)
++{
++	ptr->vma = ptr->lma = val;
++	ptr->user_set_vma = TRUE;
++	return TRUE;
++}
++
++static inline bfd_boolean
++bfd_set_section_userdata(bfd *abfd ATTRIBUTE_UNUSED, asection *ptr, void *val)
++{
++	ptr->userdata = val;
++	return TRUE;
++}
++
++static inline bfd_boolean
++bfd_set_section_alignment(bfd *abfd ATTRIBUTE_UNUSED, asection *ptr, unsigned int val)
++{
++	ptr->alignment_power = val;
++	return TRUE;
++}
++
+ /* Relax table contains information about instructions which can
+    be removed by relaxation -- replacing a long address with a
+    short address.  */
+@@ -6227,6 +6245,14 @@
+   unsigned int selective_search : 1;
+ };
+ 
++static inline bfd_boolean
++bfd_set_cacheable(bfd *abfd, bfd_boolean val)
++{
++	abfd->cacheable = val;
++	return TRUE;
++}
++
++
+ typedef enum bfd_error
+ {
+   bfd_error_no_error = 0,
+diff -Naur dl/binutils-2.23.90/bfd/bfd-in.h binutils-2.23.90/bfd/bfd-in.h
+--- dl/binutils-2.23.90/bfd/bfd-in.h	2013-08-21 09:28:37.000000000 +0200
++++ binutils-2.23.90/bfd/bfd-in.h	2014-07-20 19:46:31.576450617 +0200
+@@ -292,9 +292,6 @@
+ 
+ #define bfd_is_com_section(ptr) (((ptr)->flags & SEC_IS_COMMON) != 0)
+ 
+-#define bfd_set_section_vma(bfd, ptr, val) (((ptr)->vma = (ptr)->lma = (val)), ((ptr)->user_set_vma = TRUE), TRUE)
+-#define bfd_set_section_alignment(bfd, ptr, val) (((ptr)->alignment_power = (val)),TRUE)
+-#define bfd_set_section_userdata(bfd, ptr, val) (((ptr)->userdata = (val)),TRUE)
+ /* Find the address one past the end of SEC.  */
+ #define bfd_get_section_limit(bfd, sec) \
+   (((bfd)->direction != write_direction && (sec)->rawsize != 0	\
+@@ -517,7 +514,6 @@
+ 
+ #define bfd_get_symbol_leading_char(abfd) ((abfd)->xvec->symbol_leading_char)
+ 
+-#define bfd_set_cacheable(abfd,bool) (((abfd)->cacheable = bool), TRUE)
+ 
+ extern bfd_boolean bfd_cache_close
+   (bfd *abfd);
